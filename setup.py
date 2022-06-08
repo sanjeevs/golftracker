@@ -22,7 +22,8 @@ setup(
     author_email="snjvsingh123@gmail.com",
     entry_points={
         'console_scripts' : [
-            'golfeditor=golftracker.golfeditor:main'
+            'golfeditor=golftracker.golfeditor:main',
+            'merge_setup=golftracker.merge_setup:main'
         ]
     },
     install_requires = ['opencv-python'],
