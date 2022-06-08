@@ -29,11 +29,11 @@ def merge_json(json_file, setup_file):
     with open(setup_file) as setup_fh:
         setup_dict = json.load(setup_fh)
 
-    for key in ["ball"]:
-        if tracker_dict[key][0] == None:
+    for key in ["frame", "ball"]:
+        if key not in tracker_dict.keys() or tracker_dict[key][0] == None:
             tracker_dict[key] = setup_dict[key]
 
-    print(tracker_dict)
+
     #Overwrite the destination json file
     with open(json_file, "w") as json_fh:
         json.dump(tracker_dict, json_fh)

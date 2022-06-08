@@ -2,6 +2,8 @@ Introduction
 ==============
 This package detects the various elements in a golf swing. It does this by tracking various points in the swing and outputing it into a json file.
 
+Detailed documentatin is on [ReadTheDocs](https://golftracker.readthedocs.io/en/latest/)
+
 Trackers
 ============
 The following points are tracked on each frame as points with co ordindates (x,y).
@@ -21,10 +23,9 @@ A sample json output is shown below for a frame with width=1024 and height=900. 
 The ball is placed at (100, 200). The hand holding the shaft is at (10, 20) and the club head is at (30, 40)
 ```commandline
 {
-    "width" : 1024,
-    "height" : 900,
-	"ball": [1, 2],
-	"shaft": [10, 20, 30, 40]
+    "frame" : [1024, 900]
+	  "ball": [1, 2],
+	  "shaft": [10, 20, 30, 40]
 }
 ```
 

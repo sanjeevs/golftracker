@@ -46,6 +46,8 @@ def mouse_event_handler(event, x, y, flags, frame):
 
     """
     if event == cv2.EVENT_LBUTTONDOWN:
+        h, w, c = frame.shape
+        frame_tracker.update_frame(w, h)
         if tracker_selected == "BALL":
             frame_tracker.update_ball(x, y)
         elif tracker_selected == "SHAFT":
