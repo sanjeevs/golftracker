@@ -22,9 +22,21 @@ In this version only the initial ball position and the postion of the club shaft
    :maxdepth: 2
    :caption: Contents:
 
-   tracker
    golfeditor
-   
+   modelview
+   merge_setup
+   tracker
+   draw
+
+Examples
+============
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   michelle_wie_side_view
+
 
 Indices and tables
 ==================

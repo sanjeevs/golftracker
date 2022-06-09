@@ -23,6 +23,9 @@ def create_parser():
     return parser
 
 def merge_json(json_file, setup_file):
+    """Merge the setup file values into the json file.
+       Currently only the frame and ball attributes are copied if they dont' exist or are None.
+    """
     with open(json_file) as json_fh:
         tracker_dict = json.load(json_fh)
 

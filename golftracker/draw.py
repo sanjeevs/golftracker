@@ -4,7 +4,7 @@ import cv2
 from golftracker import tracker
 
 def draw_tracker(frame, tracker):
-    """Draw the traacker coordinates as circles on the frame."""
+    """Draw the tracker coordinates as circles on the frame."""
     if tracker.ball[0] != None:
         cv2.circle(img=frame, center=(tracker.ball[0], tracker.ball[1]), radius=10, color=(255, 0, 0), thickness=-1)
 
@@ -15,6 +15,7 @@ def draw_tracker(frame, tracker):
         cv2.circle(img=frame, center=(tracker.shaft[2], tracker.shaft[3]), radius=5, color=(0, 255, 0), thickness=-1)
 
 def visualize_tracker(frame, tracker_dict):
+    """Draw the tracker elements with appropriate figures on frame. Like lines for shaft, circle for ball."""
     if 'ball' in tracker_dict.keys() and tracker_dict['ball'] is not None:
         cv2.circle(img=frame, center=(tracker_dict['ball']), radius=10, color=(255, 0, 0), thickness=-1)
 
