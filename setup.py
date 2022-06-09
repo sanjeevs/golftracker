@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="golftracker",
-    version="0.0.1",
+    version="0.0.2",
     description="Use open cv to detect critical elements in a golf swing.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -23,7 +23,8 @@ setup(
     entry_points={
         'console_scripts' : [
             'golfeditor=golftracker.golfeditor:main',
-            'merge_setup=golftracker.merge_setup:main'
+            'merge_setup=golftracker.merge_setup:main',
+            'modelview=golftracker.modelview:main'
         ]
     },
     install_requires = ['opencv-python'],

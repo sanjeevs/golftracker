@@ -100,7 +100,7 @@ def edit_frame(frame_fname, json_prefix, msg):
 
     :return next state: Indicates whether to go to next/prev frame.
     """
-    json_fname = os.path.splitext(frame_fname)[0] + ".json"
+    json_fname = json_prefix + os.path.splitext(frame_fname)[0] + ".json"
     frame = cv2.imread(frame_fname)
 
     #

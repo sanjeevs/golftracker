@@ -30,7 +30,7 @@ def merge_json(json_file, setup_file):
         setup_dict = json.load(setup_fh)
 
     for key in ["frame", "ball"]:
-        if key not in tracker_dict.keys() or tracker_dict[key][0] == None:
+        if key not in tracker_dict.keys() or tracker_dict[key][0] is None:
             tracker_dict[key] = setup_dict[key]
 
 
