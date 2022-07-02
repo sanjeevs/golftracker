@@ -1,18 +1,14 @@
-""" 
+"""
  Use mediapipe pose detection on frame(s). All the landmarks detected
  are written into a json file with default name "frame_xx_mp.json"
 """
-
-
 import argparse
 import os
 import os.path
 import cv2
 import json
 import mediapipe as mp
-
 mp_pose = mp.solutions.pose
-
 
 from golftracker import mp_tracker
 
@@ -77,17 +73,20 @@ def run_mp_pose(frame_files):
 
     return trackers_lst
 
+
 def trackers_to_json_str(trackers):
     """Return a json str for the trackers."""
 
     return json.dumps(trackers)
+
 
 def trackers_to_json(json_fnames, trackers_lst):
     """Write the trackers to json files."""
 
     for idx, f in enumerate(json_fnames):
         with open(f, "w") as fh:
-            fh,write(trackers_to_json_str(trackers_lst[idx]))
+            fh.write(trackers_to_json_str(trackers_lst[idx]))
+
 
 def frame_fnames_to_json_fnames(frame_fnames, suffix):
     """Return the list of json fnames from frame fnames."""
@@ -98,7 +97,8 @@ def frame_fnames_to_json_fnames(frame_fnames, suffix):
         json_fnames.append(split_tup[0] + suffix + ".json")
 
     return json_fnames
-        
+
+     
 def main():
     """Main program"""
     opt = create_parser().parse_args()
@@ -119,8 +119,7 @@ def main():
 
     json_files = frame_fnames_to_json_fnames(frame_files)
 
-    trackers_lst = run_pose(frame_files)
+    trackers_lst = run_mp_pose(frame_files)
     print(f">>Created {len(trackers_lst)} trackers for the frames.")
 
-    
     trackers_to_json(trackers_lst, json_files)
