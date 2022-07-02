@@ -27,5 +27,5 @@ def test_null_image():
     assert trackers == {}
 
 def test_image_1():
-    trackers = pose_detection.run_mp_pose_on_image(cv2.imread("data/images/michelle_wie.png"))
+    trackers = pose_detection.run_mp_pose_on_image(cv2.imread("tests/images/michelle_wie.png"))
     assert len(trackers) == 33
