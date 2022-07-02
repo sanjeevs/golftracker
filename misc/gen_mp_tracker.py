@@ -1,52 +1,9 @@
-""" Generates python code for trackers.
-    Replace the tracker.py in the src directory with this file.
+""" Generates python code for google mediapipe trackers.
+    Replace the mp_tracker.py in the src directory with this file.
 """
+import sys
 
-
-header = '''
-""" Auto Generated tracker from script gen_tracker.py."""
-from collections import namedtuple
-
-
-def tracker_name(tracker):
-    """Return the name of the tracker."""
-    return type(tracker).__name__
-
-
-def is_tracker_present(trackers, tracker):
-    """Return true if the tracker is present in list."""
-    for i in trackers:
-        if tracker_name(tracker) == tracker_name(i):
-            return True
-    return False
-'''
-
-
-template = '''
-{N} = namedtuple("{N}", "x y")
-
-
-def add_{n}(trackers, x, y):
-    """Add {n} tracker to the list.
-
-    :param trackers: A list of trackers.
-    :type trackers: list
-    :param x: normalized x coordinate.
-    :param y: normalized y coordinate
-    :return: None
-    :raises ValueError: Duplicate value of tracker.
-    """
-    
-    nose = {N}(x, y)
-    if is_tracker_present(trackers, {n}):
-        raise ValueError("Duplicate value of {n} tracker")
-    trackers.append({n})
-    
-    
-'''
-
-print(header)
-
+# List of landmarks from google mediapipe
 TRACKERS = ["nose", "left_eye_inner", "left_eye", "left_eye_outer",
             "right_eye_inner", "right_eye", "right_eye_outer",
             "left_ear", "right_ear",
@@ -61,10 +18,79 @@ TRACKERS = ["nose", "left_eye_inner", "left_eye", "left_eye_outer",
             "left_knee", "right_knee",
             "left_ankle", "right_ankle",
             "left_heel", "right_heel",
-            "left_foot_index", "right_foot_index",
-            "club_grip", "club_heel", "club_toe"]
+            "left_foot_index", "right_foot_index"]
+            
 
-for t in TRACKERS:
-    cls = ''.join(word.title() for word in t.split('_'))
-    s = template.format(n=t, N=cls)
-    print(s)
+header = '''
+""" Auto Generated tracker from script misc/gen_mp_tracker.py.DO NOT HAND EDIT !!"""
+
+from collections import namedtuple
+import mediapipe as mp
+mp_pose = mp.solutions.pose
+
+'''
+
+template = '''
+{N} = namedtuple("{N}", "x y")
+
+
+def add_{n}(trackers, x, y):
+    """Add {n} tracker to the list with normalized coordinates."""
+    {n} = {N}(x, y)
+    if "{n}" in trackers.keys():
+        raise ValueError("Duplicate value of {n} tracker")
+    trackers["{n}"] = {n}
+    
+    
+'''
+
+media_pipe = '''
+def add_mp_landmarks(trackers, landmark):
+    add_{landmark}(trackers, landmark[mp_pose.PoseLandmark.{landmark}].x,
+                   landmark[mp_pose.PoseLandmark.{landmark}].y)
+                   
+{results.pose_landmarks.landmark[mp_pose.PoseLandmark.{landmark}].x * image_width}, '
+                      f'{results.pose_landmarks.landmark[mp_pose.PoseLandmark.{landmark}].y *
+
+'''
+
+func_call = '''
+def add_mp_landmarks(trackers, landmark):
+    """Add media pipe landmarks to tracker list. """
+'''
+
+func_body = '''
+    add_{t}(trackers, landmark[mp_pose.PoseLandmark.{landmark}].x,
+                   landmark[mp_pose.PoseLandmark.{landmark}].y)
+'''
+
+
+def print_func():
+    print(header)
+
+    for t in TRACKERS:
+        cls = ''.join(word.title() for word in t.split('_'))
+        s = template.format(n=t, N=cls)
+        print(s)
+
+    print(func_call)
+
+    for t in TRACKERS:
+        landmark = t.upper()
+        s = func_body.format(t=t, landmark=landmark)
+        print(s)
+
+def main(fname):
+    orig_stdout = sys.stdout
+    with open(fname, "w") as fh:
+        sys.stdout = fh
+        print_func()
+    sys.stdout = orig_stdout
+
+
+
+if __name__ == "__main__":
+    print(">>Creating google mediapipe trackers in 'mp_tracker.py'")
+    main("mp_tracker.py")
+    
+

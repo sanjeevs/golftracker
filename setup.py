@@ -24,7 +24,8 @@ setup(
         'console_scripts' : [
             'golfeditor=golftracker.golfeditor:main',
             'merge_setup=golftracker.merge_setup:main',
-            'modelview=golftracker.modelview:main'
+            'modelview=golftracker.modelview:main',
+            'pose_detection=golftracker.pose_detection:main'
         ]
     },
     install_requires = ['opencv-python'],
