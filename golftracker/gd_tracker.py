@@ -32,3 +32,13 @@ def add_club_heel(trackers, x, y):
     if club_heel in trackers.keys():
         raise ValueError("Duplicate value of club heel tracker")
     trackers["club_heel"] = club_heel
+
+GolfBall = namedtuple("GolfBall", "x y")
+
+
+def add_golf_ball(trackers, x, y):
+    """Add golf ball to the hash with normalized coordinates."""
+    golf_ball = GolfBall(x, y)
+    if golf_ball in trackers.keys():
+        raise ValueError("Duplicate value of golf ball tracker")
+    trackers["golf_ball"] = golf_ball
