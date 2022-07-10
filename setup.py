@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="golftracker",
-    version="0.0.2",
+    version="0.0.3",
     description="Use open cv to detect critical elements in a golf swing.",
     long_description=long_description,
     long_description_content_type="text/markdown",
