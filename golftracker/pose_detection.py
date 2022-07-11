@@ -97,4 +97,4 @@ def main():
     trackers_lst = run_mp_pose(frame_files)
     print(f">>Created {len(trackers_lst)} trackers for the frames.")
 
-    trackers_utils.trackers_to_json(json_fnames=json_files, trackers_lst=trackers_lst)
+    tracker_utils.trackers_to_json(json_fnames=json_files, trackers_lst=trackers_lst)
