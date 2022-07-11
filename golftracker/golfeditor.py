@@ -4,9 +4,10 @@ import argparse
 import os
 import os.path
 import cv2
+import json
 
-from golftracker import tracker
-from golftracker import draw
+from golftracker import gd_tracker
+from golftracker import tracker_utils
 
 
 def create_parser():
@@ -15,10 +16,10 @@ def create_parser():
         description="Editor for user to select the various trackers."
     )
     parser.add_argument(
-        "--prefix",
-        "-p",
-        default="",
-        help="Prefix for json file(s). Append prefix to frame file but with .json suffix.",
+        "--suffix",
+        "-s",
+        default="_gd",
+        help="Suffix for json file(s). Append suffix to frame file but with .json suffix.",
     )
     parser.add_argument(
         "framedir", type=str, help="Filename or dir holding all the frame files."
@@ -26,9 +27,9 @@ def create_parser():
     return parser
 
 
-frame_tracker = tracker.Tracker()
 tracker_selected = "BALL"  # Other states are SHAFT
 orig_frame = None
+trackers = {}
 
 
 def show_frame_main():
@@ -41,12 +42,12 @@ def show_frame_main():
         (w // 2, h // 2),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
-        (0, 255, 255),
+        (0, 0, 255),
         2,
         cv2.LINE_AA,
     )
 
-    draw.draw_tracker(f, frame_tracker)
+    tracker_utils.draw_trackers_on_frame(f, trackers)
     cv2.imshow("main", f)
 
 
@@ -57,12 +58,15 @@ def mouse_event_handler(event, x, y, flags, frame):
 
     """
     if event == cv2.EVENT_LBUTTONDOWN:
-        h, w, c = frame.shape
-        frame_tracker.update_frame(w, h)
+        h, w, _ = frame.shape
         if tracker_selected == "BALL":
-            frame_tracker.update_ball(x, y)
-        elif tracker_selected == "SHAFT":
-            frame_tracker.update_shaft(x, y)
+            gd_tracker.add_golf_ball(trackers, x / w, y / h)
+        elif tracker_selected == "GRIP":
+            gd_tracker.add_club_grip(trackers, x / w, y / h)
+        elif tracker_selected == "HEEL":
+            gd_tracker.add_club_heel(trackers, x / w , y / h)
+        elif tracker_selected == "TOE":
+            gd_tracker.add_club_toe(trackers, x /  w, y / h)
         else:
             raise IndexError(f"Unknown tracker state '{tracker_selected}'")
         show_frame_main()
@@ -73,8 +77,7 @@ def process_key_pressed():
     Currently only tracking the ball and club shaft position.
 
     """
-    global frame_tracker, tracker_selected
-    frame_tracker = tracker.Tracker()
+    global tracker_selected
 
     while True:
         key_pressed = cv2.waitKey(0) & 0xFF
@@ -97,23 +100,28 @@ def process_key_pressed():
         elif key_pressed == ord("b"):
             tracker_selected = "BALL"  # Work on the current frame
             show_frame_main()
-        elif key_pressed == ord("s"):
-            tracker_selected = "SHAFT"
+        elif key_pressed == ord("g"):
+            tracker_selected = "GRIP"
             show_frame_main()
-
+        elif key_pressed == ord("h"):
+            tracker_selected = "HEEL"
+            show_frame_main()
+        elif key_pressed == ord("t"):
+            tracker_selected = "TOE"
+            show_frame_main()
     return nxt_state
 
 
-def edit_frame(frame_fname, json_prefix, msg):
+def edit_frame(frame_fname, json_suffix, msg):
     """Edit the frame fname and store the result in the json file.
 
     :param frame_fname: Frame filename.
-    :param json_prefix: Prefix added to json filename.
+    :param json_suffix: Suffix added to json filename.
     :param msg: Message to display on the frame
 
     :return next state: Indicates whether to go to next/prev frame.
     """
-    json_fname = json_prefix + os.path.splitext(frame_fname)[0] + ".json"
+    json_fname = os.path.splitext(frame_fname)[0] + json_suffix + ".json"
     frame = cv2.imread(frame_fname)
 
     #
@@ -123,8 +131,9 @@ def edit_frame(frame_fname, json_prefix, msg):
     orig_frame = cv2.putText(
         frame, msg, (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA
     )
-    global frame_tracker
-    frame_tracker = tracker.Tracker()  # Reset the tracker
+
+    global trackers
+
 
     #
     # Display the frame and setup the callbacks.
@@ -134,8 +143,8 @@ def edit_frame(frame_fname, json_prefix, msg):
 
     nxt_state = process_key_pressed()
 
-    json_str = frame_tracker.to_json()
-    if json_str:
+    if trackers:
+        json_str = json.dumps(trackers)
         with open(json_fname, "w") as fh:
             fh.write(json_str)
 
@@ -149,7 +158,7 @@ def main():
     cv2.namedWindow(winname="main", flags=cv2.WINDOW_NORMAL)
 
     if os.path.isfile(opt.framedir):
-        edit_frame(opt.framedir, opt.prefix)
+        edit_frame(opt.framedir, opt.suffix)
     else:
         frame_files = []
 
@@ -168,7 +177,7 @@ def main():
             f = frame_files[idx]
             nxt_state = edit_frame(
                 f,
-                opt.prefix,
+                opt.suffix,
                 f"{idx}/{len(frame_files)}. Press n-next, p-prev, j-jump10 u-undo q-quit",
             )
             if nxt_state == "QUIT":

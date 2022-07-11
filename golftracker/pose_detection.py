@@ -11,7 +11,7 @@ import mediapipe as mp
 mp_pose = mp.solutions.pose
 
 from golftracker import mp_tracker
-
+from golftracker import tracker_utils
 
 def create_parser():
     """Create a command line parser."""
@@ -73,31 +73,6 @@ def run_mp_pose(frame_files):
 
     return trackers_lst
 
-
-def trackers_to_json_str(trackers):
-    """Return a json str for the trackers."""
-
-    return json.dumps(trackers)
-
-
-def trackers_to_json(json_fnames, trackers_lst):
-    """Write the trackers to json files."""
-
-    for idx, f in enumerate(json_fnames):
-        with open(f, "w") as fh:
-            fh.write(trackers_to_json_str(trackers_lst[idx]))
-
-
-def frame_fnames_to_json_fnames(frame_fnames, suffix):
-    """Return the list of json fnames from frame fnames."""
-
-    json_fnames = []
-    for idx, f in enumerate(frame_fnames):
-        split_tup = os.path.splitext(f)
-        json_fnames.append(split_tup[0] + suffix + ".json")
-
-    return json_fnames
-
      
 def main():
     """Main program"""
@@ -117,9 +92,9 @@ def main():
 
         print(f">>Found {len(frame_files)} frames to edit in dir '{opt.framedir}'")
 
-    json_files = frame_fnames_to_json_fnames(frame_files)
+    json_files = tracker_utils.frame_fnames_to_json_fnames(frame_files, opt.suffix)
 
     trackers_lst = run_mp_pose(frame_files)
     print(f">>Created {len(trackers_lst)} trackers for the frames.")
 
-    trackers_to_json(trackers_lst, json_files)
+    trackers_utils.trackers_to_json(json_fnames=json_files, trackers_lst=trackers_lst)

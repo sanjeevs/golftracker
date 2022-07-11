@@ -12,8 +12,12 @@ These are written into json files with filename <frame_fname>_mp.json
 
 
 * Use the script golfeditor in this package to mark the position of the ball and the club head initially. Then run the
-cv2 tracking algorithms to track the movements of these across multiple frames.
-
+cv2 tracking algorithms to track the movements of these across multiple frames. The trackers tracked by this are
+  1. Club Grip: This is where the hands are holding the club shaft.
+  2. Club Heel: This is shown in this  [diagram](https://www.golfdistillery.com/definitions/club-parts/heel/#:~:text=The%20heel%20is%20a%20specific,located%20nearer%20to%20the%20golfer.)
+  3. Club Toe : Shown [here](https://www.golfdistillery.com/definitions/club-parts/toe/#:~:text=The%20toe%20is%20a%20specific,located%20farthest%20from%20the%20golfer.)
+  4. Position of the golf ball.
+  
 Detailed src documentation of this package is on [ReadTheDocs](https://golftracker.readthedocs.io/en/latest/)
 
 Installation
@@ -78,6 +82,28 @@ video_split test1.mp4
 
 
 ## Step2: Run Google media script to create json
+Run the command below to create the json file for the trackers by google pose detection.
+```commandline
+pose_detection test1
+```
+
+## Step3: Run golf detection tracker.
+For this the first step is to use the script *golfeditor* to manually select
+the club grip, club heel and club toe of the first frame.
+
+Use the following keywords to select the corresponding tracker. Press 's' to save to json
+
+| Key | Description |
+|-----|-------------|
+ |b | ball selected|
+ |g | club grip |
+ |h | club heel |
+ |t | club toe |
+ |s | save to json|
+
+```commandline
+golfeditor test1
+```
 This step allows the user to create the json file by hand.
 
 Trackers
