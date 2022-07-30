@@ -28,7 +28,7 @@ setup(
             'pose_detection=golftracker.pose_detection:main'
         ]
     },
-    install_requires = ['opencv-python', 'protobuf==3.20.0', 'mediapipe==0.8.10'],
+    install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10'],
     packages = ['golftracker'],
     extras_require = {
         "dev": [

@@ -62,15 +62,24 @@ python setup.py bdist_wheel
 twine upload dist/*
 ```
 
+* To install locally for development.
+```commandline
+pip install -e .
+```
+
 Example
 ===========
-I downloaded a video of [michelle wei swing side view](https://www.youtube.com/watch?v=6LuiISfKa3o) and used the following 
-flow to create the tracker. 
+In this example we will take a youtube video of [michelle wei swing side view](https://www.youtube.com/watch?v=6LuiISfKa3o) 
+and detect various interesting objects during the swing. The resultant information will
+be subsequently fed into a golf swing model that can detect various parameters from it.
+
+In this package we are only going to create a output video that will be used as input 
+to the golf swing model.
 
 The shortened copy of the video is also on my shared drive as 
 https://drive.google.com/file/d/16TaL8PSaK46wbXr7mVsDZLbpOieLC3Nm/view?usp=sharing
 
-Let's save/rename it as test1.mp4 for the steps below.
+Let's create a directory *example1* and save/rename it as test1.mp4 in the dir for the steps below.
 
 ## Step1: Split the video into frames
 From the package spvideoutils, run the script  *video_split* to create a subdir *test1* that will have all the frames.
@@ -81,17 +90,24 @@ video_split test1.mp4
 ```
 
 
-## Step2: Run Google media script to create json
+## Step2: Google Pose Detection
 Run the command below to create the json file for the trackers by google pose detection.
 ```commandline
 pose_detection test1
 ```
+The default json file generated will be of the name *frame_nnn_mp.json* .
 
-## Step3: Run golf detection tracker.
+## Step3: Initial Detection for CV2 Tracking
 For this the first step is to use the script *golfeditor* to manually select
-the club grip, club heel and club toe of the first frame.
+the club grip, club heel and club toe of the first frame. These coordinates are
+fed to open cv object detection that creates the json file for subsequent frames.
 
-Use the following keywords to select the corresponding tracker. Press 's' to save to json
+```commandline
+golfeditor test1
+```
+
+Use the following keywords to select the corresponding tracker. Press 's' to save 
+the initial json for the first frame. The default file name will be frame_nnn_od.json
 
 | Key | Description |
 |-----|-------------|
@@ -101,34 +117,47 @@ Use the following keywords to select the corresponding tracker. Press 's' to sav
  |t | club toe |
  |s | save to json|
 
+
+## Step 4: CV2 Tracking
+Run open cv object detection given the last known position. By default, the script will 
+use the highest frame_nnn_od.json as the starting point for subsequent frames. It is possible
+to override this behavior by passing the initial position using the -i argument.
+
+Different algorithms will return different results. The script will merge the results and write 
+out a single json file per frame. It is possible that only certain objects or no objects are
+detected in each frame. In such cases the previous known position is written out and 
+warning printed.
+
 ```commandline
-golfeditor test1
+obj_detection test1 
 ```
-This step allows the user to create the json file by hand.
 
-Trackers
-============
-The following points are tracked on each frame as points with co ordindates (x,y).
-They are written into a json file for further analysis.
+## Step 5: Json Merge
+At this stage each frame 'nnn' has 2 json files associated with it.
+* frame_nnn_mp.json: Google media pipe detection
+* frame_nnn_od.json: Open CV object detection
+These need to be merged to create a single json file for a frame. The default name of
+the json file will be frame_nnn.json.
 
-* Ball Position
-  This is the point at which the ball is placed. It is assumed that the target is directly towards it.
-
-
-* Club Shaft Position
-  The start of the club is where the hands grasp the shaft and the end is where the club head is
-
-Json Output
-=============
-A sample json output is shown below for a frame with width=1024 and height=900. The coordinates assume that left top is the origin.
-
-The ball is placed at (100, 200). The hand holding the shaft is at (10, 20) and the club head is at (30, 40)
 ```commandline
-{
-    "frame" : [1024, 900]
-	  "ball": [1, 2],
-	  "shaft": [10, 20, 30, 40]
-}
+merge_json test1
 ```
+## Step 6: Visualize
+The result json files can be visualized by converting to png files. These can be 
+then merged into a single video mp4 file for visualization.
+
+By default the output png files are called *out_nnn.png*
+```commandline
+gd_visualize test1
+```
+To merge the output png files into a mp4 file use the utility from spvideoutils.
+```commandline
+merge_video test1 -m out -o out.mp4
+```
+## Step 7: Summary
+Using the above steps we have taken a video of a swing, ran it through a bunch
+of algorithms to detect the various interesting points and written out a new mp4 file called out.mp4
+
+Run the video to see that what the golf model will use to analyze the swing.
 
    

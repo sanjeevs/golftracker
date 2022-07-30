@@ -18,7 +18,7 @@ def create_parser():
     parser.add_argument(
         "--suffix",
         "-s",
-        default="_gd",
+        default="_od",
         help="Suffix for json file(s). Append suffix to frame file but with .json suffix.",
     )
     parser.add_argument(

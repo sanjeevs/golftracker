@@ -16,7 +16,7 @@ def test_invalid_init():
         ob.ObjTracking("x")
 
 def test_null_tracking():
-    """Find algos that don't do false matches for no changes."""
+    """Detect no changes if nothing in the image is changing."""
     img = np.zeros((100, 100, 3), dtype=np.uint8)
     algos = ["kcf", "tld", "medianflow"]
     for a in algos:
@@ -27,7 +27,8 @@ def test_null_tracking():
             if box:
                 assert box == [(10, 20, 40, 50)]
 
-def test_circle_tracking():
+def test_static_circle_tracking():
+    """Detect a stationary circle of red color on a black image. """
     img = np.zeros((100, 100, 3), dtype=np.uint8)
     start_pt = (10, 20)
     end_pt = (30, 40)

@@ -16,7 +16,7 @@ class ObjTracking:
     }
 
     def __init__(self, algo="mil"):
-        """Intialize with one of the supported alogorithms."""
+        """Intialize with one of the supported algorithms."""
 
         if algo not in ObjTracking.OPENCV_OBJECT_TRACKERS:
             raise ValueError(f"Invalid value of tracker algo {algo}")
@@ -36,7 +36,7 @@ class ObjTracking:
 
     def update(self, frame):
         """
-        Run on each frame after the intial positon is given.
+        Run on each frame after the initial positon is given.
         :param:frame: frame to detect the object.
         :return:bbox: Bounding boxes (top_left_x, top_left_y, bot_right_x, bot_right_y) 
         """
