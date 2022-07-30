@@ -23,7 +23,6 @@ entrypoints==0.4
 executing==0.9.1
 fastjsonschema==2.16.1
 fonttools==4.33.3
--e git+https://github.com/sanjeevs/golftracker.git@6ed6c0b810924241998509f6204fa1086408fc3d#egg=golftracker
 idna==3.3
 imagesize==1.3.0
 importlib-metadata==4.11.4
@@ -98,7 +97,6 @@ sphinxcontrib-htmlhelp==2.0.0
 sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
--e git+https://github.com/sanjeevs/spvideoutils.git@78db6e7c76e2d9ee18a20a18164ec998586ecccd#egg=spvideoutils
 stack-data==0.3.0
 terminado==0.15.0
 tinycss2==1.1.1
