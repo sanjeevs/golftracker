@@ -1,10 +1,11 @@
-""" Traditional object tracking using open cv built in algorithms. """
+"""Traditional object tracking using open cv built in algorithms."""
 
 import cv2
 
 
 class ObjTracking:
-    # OpenCV object tracker implementations
+    """OpenCV object tracker implementations."""
+
     OPENCV_OBJECT_TRACKERS = {
         "csrt": cv2.legacy.TrackerCSRT_create,
         "kcf": cv2.legacy.TrackerKCF_create,
@@ -23,7 +24,7 @@ class ObjTracking:
         self.algo = algo
         self.trackers = cv2.legacy.MultiTracker_create()
 
-    def setup(self, frame, box):
+    def add(self, frame, box):
         """
         Start the object tracking by providing the initial position of object.
         :param:frame: input frame
@@ -45,8 +46,8 @@ class ObjTracking:
         if ok:
             results = []
             for box in boxes:
-                (x, y, w, h) = [int(v) for v in box]
-                results.append((x, y, w, h))
+                (x1, y1, x2, y2) = [int(v) for v in box]
+                results.append((x1, y1, x2, y2))
             return results
         else:
-            return []
+            return None
