@@ -23,6 +23,7 @@ class ObjTracking:
             raise ValueError(f"Invalid value of tracker algo {algo}")
         self.algo = algo
         self.trackers = cv2.legacy.MultiTracker_create()
+        
 
     def add(self, frame, box):
         """

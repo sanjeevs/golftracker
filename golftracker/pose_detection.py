@@ -73,6 +73,16 @@ def run_mp_pose(frame_files):
 
     return trackers_lst
 
+
+def run_mp_pose_to_json(frame_files, suffix="_mp"):
+    """ Save the trackers to json files derived from frame files. """
+
+    trackers_lst = run_mp_pose(frame_files)
+    json_fnames = tracker_utils.frame_fnames_to_json_fnames(frame_files, opt.suffix)
+    print(f">>Created {len(trackers_lst)} trackers for the frames.")
+    tracker_utils.trackers_to_json(json_fnames=json_fnames, trackers_lst=trackers_lst)
+    return json_fnames
+
      
 def main():
     """Main program"""
@@ -92,9 +102,5 @@ def main():
 
         print(f">>Found {len(frame_files)} frames to edit in dir '{opt.framedir}'")
 
-    json_files = tracker_utils.frame_fnames_to_json_fnames(frame_files, opt.suffix)
-
-    trackers_lst = run_mp_pose(frame_files)
-    print(f">>Created {len(trackers_lst)} trackers for the frames.")
-
-    tracker_utils.trackers_to_json(json_fnames=json_files, trackers_lst=trackers_lst)
+    json_fnames = run_mp_pose_to_json(frame_files, op.suffix)
+    print(f">>Created {len(json_fnames)} json files from google mediapipe")

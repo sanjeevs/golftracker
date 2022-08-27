@@ -66,10 +66,13 @@ func_body = '''
 
 
 def print_func():
+    trackers = []
+
     print(header)
 
     for t in TRACKERS:
         cls = ''.join(word.title() for word in t.split('_'))
+        trackers.append(cls)
         s = template.format(n=t, N=cls)
         print(s)
 
@@ -80,12 +83,22 @@ def print_func():
         s = func_body.format(t=t, landmark=landmark)
         print(s)
 
+    return trackers
+
+
 def main(fname):
     orig_stdout = sys.stdout
     with open(fname, "w") as fh:
         sys.stdout = fh
-        print_func()
+        trackers = print_func()
     sys.stdout = orig_stdout
+
+    print("Created the following trackers")
+    for idx, t in enumerate(trackers):
+        if idx > 0 and idx % 8 == 0:
+            print(t)
+        else:
+            print(t + ", ", end="")
 
 
 
