@@ -51,4 +51,6 @@ The package works on each frame of the video. It follows the following sequence.
  * The name of the new frames are "out_N.png"
 
 6. Merge the frames to create the new video file.
+
+ * By default the regex "out_.*" will select all the output frames.
  * The name of the new video file is specified by the user.
