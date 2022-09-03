@@ -44,6 +44,27 @@ def create_parser():
     )
     return parser
 
+def null_process(in_frames):
+    json_fnames = file_utils.frame_fnames_to_json_fnames(in_frames, suffix="_null")
+
+    frame_trackers = [frame_tracker.FrameTracker() for i in range(len(in_frames))]
+
+    print(f">>Faking process by creating {len(json_fnames)} trackers json file")
+    for idx, js in enumerate(json_fnames):
+        frame_trackers[idx].to_json(json_fnames[idx])
+
+    return json_fnames
+
+def null_visualize(json_fnames):
+    out_fnames = file_utils.json_fnames_to_frame_fnames(json_fnames, prefix="__")
+
+    # Create empty output frames. This would be the visualize steps
+    print(f">>Faking visualize by creating {len(out_fnames)} blank images")
+    blank_img = np.zeros((500, 500, 1), dtype="uint8")
+    for f in out_fnames:
+        cv2.imwrite(f, blank_img)
+    return out_fnames
+
 
 def main():
     opt = create_parser().parse_args()
@@ -58,23 +79,9 @@ def main():
 
     print(f">>Created {len(in_frames)} frames from video file '{opt.in_video}'")
 
-    json_fnames = file_utils.frame_fnames_to_json_fnames(in_frames, suffix="_null")
-
-    frame_trackers = [frame_tracker.FrameTracker() for i in range(len(in_frames))]
-
-    for idx, js in enumerate(json_fnames):
-        frame_trackers[idx].to_json(json_fnames[idx])
-
-    out_fnames = file_utils.json_fnames_to_frame_fnames(json_fnames, prefix="__")
-
-    # Create empty output frames. This would be the visualize steps
-    print(f">>Faking visualize by creating {len(out_fnames)} blank images")
-    blank_img = np.zeros((500, 500, 1), dtype="uint8")
-    for f in out_fnames:
-        cv2.imwrite(f, blank_img)
-
     print(f">>Creating output null video {opt.out_video}")
-    video_utils.join_frames_to_video(opt.out_video, opt.fps, out_fnames)
+    video_utils.join_frames_to_video(opt.out_video, opt.fps, 
+                                     null_visualize(null_process(in_frames)))
 
 
 if __name__ == "__main__":
