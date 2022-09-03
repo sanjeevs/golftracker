@@ -2,16 +2,18 @@
  Use mediapipe pose detection on frame(s). All the landmarks detected
  are written into a json file with default name "frame_xx_mp.json"
 """
+
 import argparse
 import os
 import os.path
 import cv2
 import json
 import mediapipe as mp
+
 mp_pose = mp.solutions.pose
 
-from golftracker import mp_tracker
-from golftracker import tracker_utils
+from golftracker import frame_tracker
+
 
 def create_parser():
     """Create a command line parser."""
@@ -34,10 +36,10 @@ def create_parser():
 def run_mp_pose_on_image(image):
     """ Run google mediapipe pose algo on image and returns trackers.
     :param:frame: incoming frame file.
-    :returns:trackers: Hash of all the trackers
+    :returns:trackers: Frame tracker object
     """
 
-    trackers = {}
+    ft = frame_tracker.FrameTracker()
 
     # -----------------------------------------------
     # Heart of the logic
@@ -50,11 +52,9 @@ def run_mp_pose_on_image(image):
     ) as pose:
         results = pose.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         if results.pose_landmarks:
-            mp_tracker.add_mp_landmarks(
-                trackers, results.pose_landmarks.landmark
-            )
+            ft.set_mp_trackers(results.pose_landmarks.landmark)
 
-    return trackers
+    return ft
 
 
 def run_mp_pose(frame_files):
@@ -83,7 +83,7 @@ def run_mp_pose_to_json(frame_files, suffix="_mp"):
     tracker_utils.trackers_to_json(json_fnames=json_fnames, trackers_lst=trackers_lst)
     return json_fnames
 
-     
+
 def main():
     """Main program"""
     opt = create_parser().parse_args()
