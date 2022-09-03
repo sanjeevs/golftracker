@@ -2,7 +2,7 @@ import cv2
 import os
 
 from pathlib import Path
-from golftracker import file_utils
+import file_utils
 
 
 class VideoSplitter:
@@ -39,7 +39,7 @@ class VideoSplitter:
 def split_video_to_frames(video_fname, framedir=""):
     """
         Split the video into frames and store in framedir
-        Returns the number of frames created.
+        Returns the list of frames produced.
     """
 
     if framedir == "":
@@ -48,25 +48,24 @@ def split_video_to_frames(video_fname, framedir=""):
     file_utils.create_framedir(framedir, empty=1)
     video_frames = VideoSplitter(video_fname)
     frame_fnames = file_utils.create_frame_fnames(video_frames.num_frames())
-
+    frame_fnames = [os.path.join(framedir, f) for f in frame_fnames]
     for idx, frame in enumerate(video_frames):
-        cv2.imwrite(os.path.join(framedir, frame_fnames[idx]), frame)
+        cv2.imwrite(frame_fnames[idx], frame)
 
-    return video_frames.num_frames()
+    return frame_fnames
 
-def join_frames_to_video(video_fname, fps, framedir, fname_exp):
+def join_frames_to_video(video_fname, fps, frames):
     """
     Join all the frames that match the frame file name expression into a video file.
     Return the number of frames in the output video
 
     """
-    frame_fnames = file_utils.select_frame_fnames_from_dir(framedir, fname_exp)
-    if len(frame_fnames) == 0:
-        raise ValueError(f"No frame file selected in '{framedir}' with '{fname_exp}'")
+    if len(frames) == 0:
+        raise ValueError(f"No frame file selected")
 
-    init_frame = cv2.imread(frame_fnames[0])
+    init_frame = cv2.imread(frames[0])
     if init_frame is None:
-        raise ValueError(f"Could not load frame {frame_fnames[0]}")
+        raise ValueError(f"Could not load frame {frames[0]}")
 
     height, width, _ = init_frame.shape
 
@@ -74,9 +73,9 @@ def join_frames_to_video(video_fname, fps, framedir, fname_exp):
         video_fname, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height)
     )
 
-    for fname in frame_fnames:
+    for fname in frames:
         frame = cv2.imread(fname)
         video.write(frame)
     video.release()
 
-    return len(frame_fnames)
+    return len(frames)

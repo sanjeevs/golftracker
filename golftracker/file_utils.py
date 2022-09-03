@@ -2,6 +2,32 @@
 import os
 import shutil
 import re
+import pathlib
+
+
+def create_framedir_name(video_fname):
+    """
+    Return a default frame dir name from video _fname.
+
+    >>> create_framedir_name("hello.mp4")
+    'hello'
+
+    >>> create_framedir_name("a/b/c/hello.mp4")
+    'hello'
+
+    >>> create_framedir_name("/a/b/c/hello.mp4")
+    'hello'
+
+    >>> create_framedir_name("../../../a/b/c/hello.mp4")
+    'hello'
+
+    >>> create_framedir_name("..\..\hello.mp4")
+    'hello'
+    """
+
+    f = pathlib.Path(video_fname).stem
+    return f
+
 
 def create_framedir(dirname, empty=1):
     """Create a clean frame dir."""
@@ -11,12 +37,10 @@ def create_framedir(dirname, empty=1):
         else:
             raise ValueError(f"Dir '$dirname' already exists")
     os.mkdir(dirname)
-    if os.path.exists(dirname):
-        print(f">>Created '{dirname}' for storing frames")
 
 def select_frame_fnames_from_dir(framedir, match_exp):
     """
-    Select matching file names from a directory.
+    Select matching png file names from a directory.
 
     >>> select_frame_fnames_from_dir(".", "file_utils")
     []
@@ -92,22 +116,15 @@ def json_fnames_to_frame_fnames(json_fnames, prefix=""):
     ['frame_00_mp.png']
 
 
-    >>> json_fnames_to_frame_fnames(['frame_00_mp.json'], prefix="out")
-    ['out_00_mp.png']
-
-    >>> json_fnames_to_frame_fnames(['frame_00_mp_final.json'], prefix="out")
-    ['out_00_mp_final.png']
+    >>> json_fnames_to_frame_fnames(['frame_00_mp_final.json'], prefix="out_")
+    ['out_frame_00_mp_final.png']
     """
     frame_fnames = []
     for idx, f in enumerate(json_fnames):
-        if prefix == "":
-            split_tup = os.path.splitext(f)
-            frame_fnames.append(split_tup[0] + ".png")
-        else:
-            m = re.search(".*_([\d]+)_(.*).json", f)
-            if m:
-                fname = prefix + "_" + m.group(1) + "_" + m.group(2) + ".png"
-                frame_fnames.append(fname)
-            else:
-                raise ValueError(f"Could not parse json file '{f}' corrrectly")
+        path = pathlib.Path(f)
+        fname = path.stem
+        fname_png = prefix + fname + ".png"
+        out_fname = path.parents[0] / pathlib.Path(fname_png)
+        frame_fnames.append(str(out_fname))
+
     return frame_fnames
