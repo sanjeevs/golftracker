@@ -3,6 +3,7 @@
 """
 import sys
 
+
 # List of landmarks from google mediapipe
 MP_TRACKERS = ["nose", "left_eye_inner", "left_eye", "left_eye_outer",
             "right_eye_inner", "right_eye", "right_eye_outer",
@@ -29,37 +30,50 @@ header = '''
     DO NOT HAND EDIT !!
 
 """
+import json
+
 import mediapipe as mp
 mp_pose = mp.solutions.pose
 
 class FrameTracker:
     def __init__(self):
         self.trackers = {}
-        self.names = []
 
         # Initialize all the trackers with default 0, 0 coord'''
 
 init_body = '''
-        self.names.append("{n}")'''
+        self.trackers["{n}"] = [0, 0]'''
 
 class_body = '''
     def __setitem__(self, key, val):
-        if key not in self.names:
+        if key not in self.trackers:
             raise KeyError(f"Key '{key}' not a valid name")
         self.trackers[key] = val
 
     def __getitem__(self, key):
-        if key not in self.names:
-            raise KeyError(f"Key '{key}' not a valid name")
         if key not in self.trackers:
             return (0, 0)
         return self.trackers[key]
 
     def __len__(self):
-        return len(self.names)
+        return len(self.trackers)
 
     def keys(self):
-        return self.names
+        return self.trackers.keys()
+
+    def to_json_str(self):
+        return json.dumps(self.trackers)
+
+    def to_json(self, fname):
+        with open(fname, "w") as fh:
+            json.dump(self.trackers, fh)
+
+    def fm_json_str(self, str):
+        self.trackers = json.loads(str)
+
+    def fm_json(self, fname):
+        with open(fname, "r") as fh:
+            self.trackers = json.load(fname)
 '''
 
 mp_call = '''
@@ -68,8 +82,8 @@ mp_call = '''
 '''
 
 mp_body = '''
-        self.trackers["{t}"] = (landmark[mp_pose.PoseLandmark.{landmark}].x,
-                                landmark[mp_pose.PoseLandmark.{landmark}].y)
+        self.trackers["{t}"] = [landmark[mp_pose.PoseLandmark.{landmark}].x,
+                                landmark[mp_pose.PoseLandmark.{landmark}].y]
 '''
 
 

@@ -18,7 +18,7 @@ def test_null_image():
     """ Negative test that there is no pose on black image. """
     null_image = np.zeros((100, 100, 3), dtype=np.uint8)
     ft = pose_detection.run_mp_pose_on_image(null_image)
-    assert ft['nose'] == (0,0)
+    assert ft['nose'] == [0, 0]
 
 
 def test_image_1():
@@ -26,5 +26,5 @@ def test_image_1():
     ft = pose_detection.run_mp_pose_on_image(
         cv2.imread("tests/images/michelle_wie.png")
     )
-    assert ft['nose'] != (0,0)
-    assert ft['club_heel'] == (0, 0)
+    assert ft['nose'] != [0, 0]
+    assert ft['club_heel'] == [0, 0]
