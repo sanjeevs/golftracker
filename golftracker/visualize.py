@@ -1,7 +1,7 @@
 """Draw the line joining the trackers on the frame."""
 import cv2
 
-from golftracker import frame_tracker
+import frame_tracker
 
 LINE_SEGMENTS = (
     ("left_shoulder", "right_shoulder"),
@@ -30,29 +30,38 @@ def valid_line_segments(tracker, segments):
     return rslt
 
 
-def draw_segment(img, node_pair):
+def draw_segment(img, points):
     """ 
     Draw a line on the image given a pair of points.
     Each point is a tuple with x and y coordinate.
+
+    :param img : Image to draw the line on.
+    :param points: A starting and end point.
+                   Each point has a x, y normalized values.
+
+    :return: Returns the number of lines drawn
+
     """
 
-    assert(len(node_pair) == 2)
+    assert(len(points) == 2)
 
     w, h, _ = img.shape
-    start_node  = node_pair[0]
-    end_node = node_pair[1]
-
-    print(f">>NodePair={node_pairs}")
+    start_norm_point  = points[0]
+    end_norm_point = points[1]
     
-    start_point = (int(start_node[0] * w), int(start_node[1] * h))
-    end_point = (int(end_node[0] * w), int(end_node[1] * h))
+    start_point = (int(start_norm_point[0] * w), int(start_norm_point[1] * h))
+    end_point = (int(end_norm_point[0] * w), int(end_norm_point[1] * h))
 
-   
-    print(f"Start={start_point}, End={end_point}")
-    cv2.line(img, start_point, end_point, color=(255, 0, 0), thickness=2)
+    cv2.circle(img, start_point, radius=1, color=(0, 0, 255), thickness=-1)
+    cv2.circle(img, end_point, radius=1, color=(0, 255, 255), thickness=-1)
+    cv2.line(img, start_point, end_point, color=(255, 0, 0), thickness=1)
 
 
-def draw_trackers(img, tracker):
+def draw_frame_tracker(img, tracker):
+    """
+    Draw the lines for valid trackers on the image.
+    """
+
     segment_pairs = []
     num_lines = 0
     history = []
@@ -62,7 +71,7 @@ def draw_trackers(img, tracker):
 
         if tracker[t_name][0] > 0 or tracker[t_name][1] > 0:
             segments = matching_line_segments(t_name)
-            valid_segments = valid_line_segments(ft, segments)
+            valid_segments = valid_line_segments(tracker, segments)
 
         for segment in valid_segments:
             if segment not in history:

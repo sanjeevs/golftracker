@@ -12,7 +12,7 @@ import mediapipe as mp
 
 mp_pose = mp.solutions.pose
 
-from golftracker import frame_tracker
+import frame_tracker
 
 
 def create_parser():

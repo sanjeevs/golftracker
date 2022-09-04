@@ -80,7 +80,7 @@ class FrameTracker:
 
     def fm_json(self, fname):
         with open(fname, "r") as fh:
-            self.trackers = json.load(fname)
+            self.trackers = json.load(fh)
 
     def set_mp_trackers(self, landmark):
         """Add media pipe landmarks to tracker list. """ 

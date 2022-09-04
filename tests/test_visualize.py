@@ -34,7 +34,7 @@ def test_valid_line_segments():
 def test_default():
 	ft = frame_tracker.FrameTracker()
 	img = None
-	n = visualize.draw_trackers(img, ft)
+	n = visualize.draw_frame_tracker(img, ft)
 	assert n == 0
 
 def xtest_shoulder():
@@ -42,6 +42,6 @@ def xtest_shoulder():
 	ft["left_shoulder"] = [0.1, 0.2]
 	ft["right_shoulder"] = [0.3, 0.4]
 	img = np.zeros((500, 500, 1), dtype="uint8")
-	n = visualize.draw_trackers(img, ft)
+	n = visualize.draw_frame_tracker(img, ft)
 	assert n == 1
 

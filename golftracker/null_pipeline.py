@@ -61,11 +61,14 @@ def null_visualize(json_fnames):
 
     # Create empty output frames. This would be the visualize steps
     print(f">>Faking visualize by creating {len(out_fnames)} blank images")
-    blank_img = np.zeros((500, 500, 1), dtype="uint8")
+    blank_img = np.zeros((500, 500, 3), dtype="uint8")
     for idx, f in enumerate(json_fnames):
-        ft = FrameTracker()
-        ft.load_from_json(f)
-        visualize.draw_tracker(blank_img, ft)
+        ft = frame_tracker.FrameTracker()
+        ft.fm_json(f)
+        # Draw a line from left shoulder to right shoulder.
+        ft["left_shoulder"] = (0.1, 0.1)
+        ft["right_shoulder"] = (0.5, 0.5)
+        visualize.draw_frame_tracker(blank_img, ft)
         cv2.imwrite(out_fnames[idx], blank_img)
 
     return out_fnames
