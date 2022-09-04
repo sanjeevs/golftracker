@@ -7,6 +7,7 @@ import argparse
 import file_utils
 import video_utils
 import frame_tracker
+import visualize
 import numpy as np
 import cv2
 
@@ -61,8 +62,12 @@ def null_visualize(json_fnames):
     # Create empty output frames. This would be the visualize steps
     print(f">>Faking visualize by creating {len(out_fnames)} blank images")
     blank_img = np.zeros((500, 500, 1), dtype="uint8")
-    for f in out_fnames:
-        cv2.imwrite(f, blank_img)
+    for idx, f in enumerate(json_fnames):
+        ft = FrameTracker()
+        ft.load_from_json(f)
+        visualize.draw_tracker(blank_img, ft)
+        cv2.imwrite(out_fnames[idx], blank_img)
+
     return out_fnames
 
 
