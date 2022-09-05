@@ -2,6 +2,7 @@
 
 from golftracker import frame_tracker
 
+
 def test_default():
 	ft = frame_tracker.FrameTracker()
 	assert len(ft) == 36

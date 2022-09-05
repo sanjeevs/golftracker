@@ -24,7 +24,7 @@ def test_null_image():
 def test_image_1():
     """ Test live image. """
     ft = pose_detection.run_mp_pose_on_image(
-        cv2.imread("tests/images/michelle_wie.png")
+        cv2.imread("tests/assets/michelle_wie.png")
     )
     assert ft['nose'] != [0, 0]
     assert ft['club_heel'] == [0, 0]

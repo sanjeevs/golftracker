@@ -3,19 +3,31 @@ import cv2
 
 import frame_tracker
 
-LINE_SEGMENTS = (
-    ("left_shoulder", "right_shoulder"),
-    ("right_shoulder", "right_hip"),
-    ("right_hip", "right_knee"),
-    ("right_knee", "right_ankle"),
-    ("right_ankle", "right_foot_index"),
-    ("right_ankle", "right_heel"),
-    ("right_heel", "right_foot_index")
-)
+POINTS = ["nose", "left_eye_inner", "left_eye", "left_eye_outer", "right_eye_inner",
+          "right_eye", "right_eye_outer", "left_ear", "right_ear", "mouth_left",
+          "mouth_right", "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
+          "left_wrist", "right_wrist", "left_pinky", "right_pinky", "left_index",
+          "right_index", "left_thumb", "right_thumb", "left_hip", "right_hip",
+          "left_knee", "right_knee", "left_ankle", "right_ankle", 
+          "left_heel", "right_heel", "left_foot_index", "right_foot_index"
+         ]
+
+CONNECTIONS = [(18, 20), (20, 22), (18, 16), (22, 16), (16, 14), (14, 12),
+               (12, 24), (24, 26), (26, 28), (28, 32), (28, 30), (32, 30),
+               (12, 11), (11, 23), (23, 25), (25, 27), (27, 29), (27, 31), 
+               (29, 31), (11, 13), (13, 15), (21, 15), (15, 19), (15, 17), 
+               (19, 17), (24, 23), (8, 6), (6, 5), (5, 4), (4, 0),
+               (0, 1), (1, 2), (2, 3), (3, 7), (10, 9)]
 
 def matching_line_segments(tracker_name):
     rslt = []
-    for segment in LINE_SEGMENTS:
+    line_segments = []
+
+    for c in CONNECTIONS:
+        segment = (POINTS[c[0]], POINTS[c[1]])
+        line_segments.append(segment)
+
+    for segment in line_segments:
         if segment[0] == tracker_name or segment[1] == tracker_name:
             rslt.append(segment)
 
@@ -25,7 +37,7 @@ def valid_line_segments(tracker, segments):
     rslt = []
     for segment in segments:
         if tracker[segment[0]][0] > 0 or tracker[segment[0]][1] > 0:
-            if tracker[segment[1]][0] > 0 or tracker[segment[1]][1]:
+            if tracker[segment[1]][0] > 0 or tracker[segment[1]][1] > 0:
                 rslt.append(segment)
     return rslt
 
