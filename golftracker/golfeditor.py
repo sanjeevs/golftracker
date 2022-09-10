@@ -6,9 +6,7 @@ import os.path
 import cv2
 import json
 
-from golftracker import gd_tracker
-from golftracker import tracker_utils
-
+from golftracker import frame_tracker
 
 def create_parser():
     """Create a command line parser."""
@@ -47,7 +45,8 @@ def show_frame_main():
         cv2.LINE_AA,
     )
 
-    tracker_utils.draw_trackers_on_frame(f, trackers)
+    #FIXME:
+    #tracker_utils.draw_trackers_on_frame(f, trackers)
     cv2.imshow("main", f)
 
 
@@ -60,13 +59,13 @@ def mouse_event_handler(event, x, y, flags, frame):
     if event == cv2.EVENT_LBUTTONDOWN:
         h, w, _ = frame.shape
         if tracker_selected == "BALL":
-            gd_tracker.add_golf_ball(trackers, x / w, y / h)
+            frame_tracker.add_golf_ball(trackers, x / w, y / h)
         elif tracker_selected == "GRIP":
-            gd_tracker.add_club_grip(trackers, x / w, y / h)
+            frame_tracker.add_club_grip(trackers, x / w, y / h)
         elif tracker_selected == "HEEL":
-            gd_tracker.add_club_heel(trackers, x / w , y / h)
+            frame_tracker.add_club_heel(trackers, x / w , y / h)
         elif tracker_selected == "TOE":
-            gd_tracker.add_club_toe(trackers, x /  w, y / h)
+            frame_tracker.add_club_toe(trackers, x /  w, y / h)
         else:
             raise IndexError(f"Unknown tracker state '{tracker_selected}'")
         show_frame_main()

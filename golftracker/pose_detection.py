@@ -9,6 +9,7 @@ import os.path
 import cv2
 import json
 import mediapipe as mp
+import file_utils
 
 mp_pose = mp.solutions.pose
 
@@ -73,15 +74,16 @@ def run_mp_pose(frame_files):
 
     return trackers_lst
 
+def mp_process(in_frames, suffix="_mp"):
+    json_fnames = file_utils.frame_fnames_to_json_fnames(in_frames, suffix=suffix)
 
-def run_mp_pose_to_json(frame_files, suffix="_mp"):
-    """ Save the trackers to json files derived from frame files. """
+    frame_trackers = run_mp_pose(in_frames)
 
-    trackers_lst = run_mp_pose(frame_files)
-    json_fnames = tracker_utils.frame_fnames_to_json_fnames(frame_files, opt.suffix)
-    print(f">>Created {len(trackers_lst)} trackers for the frames.")
-    tracker_utils.trackers_to_json(json_fnames=json_fnames, trackers_lst=trackers_lst)
+    for idx, js in enumerate(json_fnames):
+        frame_trackers[idx].to_json(json_fnames[idx])
+
     return json_fnames
+
 
 
 def main():

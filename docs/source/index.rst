@@ -5,28 +5,21 @@
 
 Welcome to golftracker's documentation!
 =========================================
-This package is used to detect the various elements in a golf swing. It does this by using open cv to detect motion. These points on the frames are referred to as trackers.
+This package is used to detect the various elements in a golf swing. It does this by using python to detect motion. These points on the frames are referred to as trackers.
 
-The problem of detection can be broken into 2 steps.
-1. Detect the initial position of the tracker in the first frame. 
-2. Given the position of the tracker in the previous frame, detect the movement in the current frame.
-
-These tracker are written out in json file for the *golftrainer* package to analyze.
+These tracker are written out in json file for post analysis.
 
 Version 1
 ----------------
-In this version only the initial ball position and the postion of the club shaft are tracked in each frame.
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   domain_model.md
    golfeditor
-   modelview
-   merge_setup
-   tracker
-   draw
+   
 
 Examples
 ============
