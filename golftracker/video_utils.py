@@ -36,10 +36,23 @@ class VideoSplitter:
         """Return the number of frames in the video file."""
         return int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-def split_video_to_frames(video_fname, framedir=""):
+    def fps(self):
+        """Return the fps of the video."""
+        return int(self.cap.get(cv2.CAP_PROP_FPS))
+
+    def width(self):
+        """ Return the width of the video frame. """
+        return int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+
+    def height(self):
+        """ Return the height of the video frame. """
+        return int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+
+def split_video_to_frames(video_fname, framedir="", rotate="", scale_percent=100):
     """
         Split the video into frames and store in framedir
-        Returns the list of frames produced.
+        Returns the list of frame filenames produced.
     """
 
     if framedir == "":
@@ -49,10 +62,20 @@ def split_video_to_frames(video_fname, framedir=""):
     video_frames = VideoSplitter(video_fname)
     frame_fnames = file_utils.create_frame_fnames(video_frames.num_frames())
     frame_fnames = [os.path.join(framedir, f) for f in frame_fnames]
+
+    width = int(video_frames.width() * scale_percent / 100)
+    height = int(video_frames.height() * scale_percent / 100)
+
     for idx, frame in enumerate(video_frames):
+        frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+        if rotate == "90":
+            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        elif rotate == "180":
+            frame = cv2.rotate(frame, cv2.ROTATE_180)
+
         cv2.imwrite(frame_fnames[idx], frame)
 
-    return frame_fnames
+    return frame_fnames, video_frames.fps()
 
 def join_frames_to_video(video_fname, fps, frames):
     """

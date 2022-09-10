@@ -83,8 +83,11 @@ def main():
     file_utils.create_framedir(opt.framedir)
    
     print(f">>Splitting '{opt.in_video}'' into dir '{opt.framedir}' as frames in png format")
-    in_frames = video_utils.split_video_to_frames(opt.in_video, opt.framedir)
+    in_frames, fps = video_utils.split_video_to_frames(opt.in_video, opt.framedir)
 
+    if opt.fps == 0:
+        opt.fps = fps
+        
     print(f">>Created {len(in_frames)} frames from video file '{opt.in_video}'")
 
     print(f">>Creating output null video {opt.out_video}")

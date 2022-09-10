@@ -25,7 +25,7 @@ def create_parser():
     parser.add_argument(
         "--fps",
         "-f",
-        default=10,
+        default=0,
         type=int,
         help="Frame per second of output video",
     )
@@ -43,6 +43,22 @@ def create_parser():
         default="",
         help="output temp dir to store all the frames.",
     )
+
+    parser.add_argument(
+        "--rotate",
+        "-r",
+        default="",
+        help="rotate the incoming video file",
+    )
+
+    parser.add_argument(
+        "--scale",
+        "-s",
+        default=100,
+        type=int,
+        help="resize the incoming video file by scale percent",
+    )
+    
     return parser
 
 def mp_process(in_frames):
@@ -80,10 +96,14 @@ def main():
    
     print(f">>Splitting '{opt.in_video}'' into dir '{opt.framedir}' as frames in png format")
 
-    in_frames = video_utils.split_video_to_frames(opt.in_video, opt.framedir)
+    in_frames, fps = video_utils.split_video_to_frames(opt.in_video, opt.framedir, 
+                     opt.rotate, opt.scale)
     print(f">>Created {len(in_frames)} frames from video file '{opt.in_video}'")
 
-    print(f">>Creating output mp video {opt.out_video}")
+    if opt.fps == 0:
+        opt.fps = fps
+
+    print(f">>Creating output mp video {opt.out_video} at fps={opt.fps}")
     video_utils.join_frames_to_video(opt.out_video, opt.fps, 
                                      mp_visualize(pose_detection.mp_process(in_frames)))
 
