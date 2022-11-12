@@ -22,7 +22,7 @@ setup(
     author_email="snjvsingh123@gmail.com",
     entry_points={
         'console_scripts' : [
-            'create_stick_video=golftracker.scripts.create_stick_video:main'
+            'create_stick_video=scripts.create_stick_video:main'
         ]
     },
     install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10'],

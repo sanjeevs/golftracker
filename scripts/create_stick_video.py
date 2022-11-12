@@ -3,10 +3,10 @@
 
 import argparse
 
-import video_utils
-import golfswing as gs 
-import draw_operation as draw_op
-import media_pipe_operation as mp_op
+from golftracker import video_utils
+from golftracker import golf_swing as gs
+from golftracker import draw_operation as draw_op
+from golftracker import media_pipe_operation as mp_op
 
 
 def create_parser():
@@ -64,20 +64,20 @@ def display_result_images(opt):
         if ret:
             t_in_frame = transform_frame(opt, in_frame)
 
-        ret, out_frame = out_cap.read()
-        if not ret:
-                raise ValueError(f"Error reading from from out video")
-        t_out_frame = transform_frame(opt, out_frame)
-        
-        cv2.putText(t_out_frame, f"Frame:{frame_cnt}", (50, 50), 
-                        cv2.FONT_HERSHEY_COMPLEX, 1, (0, 150, 0), 1)
+            ret, out_frame = out_cap.read()
+            if not ret:
+                    raise ValueError(f"Error reading from from out video")
+            t_out_frame = transform_frame(opt, out_frame)
+            
+            cv2.putText(t_out_frame, f"Frame:{frame_cnt}", (50, 50), 
+                            cv2.FONT_HERSHEY_COMPLEX, 1, (0, 150, 0), 1)
 
-        img_stack = video_utils.stack_images(opt.scale/100, ([t_in_frame, t_out_frame]))
-        cv2.imshow("Stack", img_stack)
-        key_pressed = cv2.waitKey(0) & 0xff
-        if key_pressed == ord('q'):
-            break
-        frame_cnt += 1
+            img_stack = video_utils.stack_images(opt.scale/100, ([t_in_frame, t_out_frame]))
+            cv2.imshow("Stack", img_stack)
+            key_pressed = cv2.waitKey(0) & 0xff
+            if key_pressed == ord('q'):
+                break
+            frame_cnt += 1
         else:
             break
 
@@ -90,17 +90,17 @@ def display_result_images(opt):
 def main():
     opt = create_parser().parse_args()
   
-    frames = video_utils.split_fname_to_frames(opts.in_video)
+    frames = video_utils.split_fname_to_frames(opt.in_video)
     (height, width, _) = frames[0].shape
 
-    gs = GolfSwing(frames)
+    golf_swing = gs.GolfSwing(frames)
 
-    mp_op.run(frames, gs.frame_contexts)
-    stick_frames = draw_op.run(height, width, gs.frame_contexts)
+    mp_op.run(frames, golf_swing.frame_contexts)
+    stick_frames = draw_op.run(height, width, golf_swing.frame_contexts)
 
-    video_utils.merge_frames_to_fname(opts.out_video, stick_frames)
+    video_utils.merge_frames_to_fname(opt.out_video, stick_frames)
 
     display_result_images(opt)
 
 if __name__ == "__main__":
-    main(opts)
+    main()

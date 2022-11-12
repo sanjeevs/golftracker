@@ -3,7 +3,7 @@
 # Aggregate class that encaps frame tracker, msgs and more in future
 #
 
-from frame_tracker import *
+from .frame_tracker import *
 
 class FrameContext:
     def __init__(self):

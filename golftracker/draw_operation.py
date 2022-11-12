@@ -2,7 +2,7 @@
 # Convert the frame context to a image frame.
 #
 import numpy as np
-from frame_tracker import *
+from .frame_tracker import *
 import cv2
 
 
