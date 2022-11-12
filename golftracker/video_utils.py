@@ -1,103 +1,74 @@
 import cv2
-import os
-
-from pathlib import Path
-import file_utils
 
 
-class VideoSplitter:
-    """ Helper class to split a video file into frames."""
+def stack_images(scale,imgArray):
+    """ Helper routine copied from web. """
 
-    def __init__(self, fname):
-        """Construct a video object.
-        :raises : Value error if the file is not found.
-        """
-        self.cap = cv2.VideoCapture(fname)
-        if not self.cap.isOpened():
-            raise ValueError(f"Could not open {fname}")
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        if self.cap.grab():
-            flag, frame = self.cap.retrieve()
-            if not flag:
-                raise StopIteration
+    rows = len(imgArray)
+    cols = len(imgArray[0])
+    rowsAvailable = isinstance(imgArray[0], list)
+    width = imgArray[0][0].shape[1]
+    height = imgArray[0][0].shape[0]
+    if rowsAvailable:
+        for x in range ( 0, rows):
+            for y in range(0, cols):
+                if imgArray[x][y].shape[:2] == imgArray[0][0].shape [:2]:
+                    imgArray[x][y] = cv2.resize(imgArray[x][y], (0, 0), None, scale, scale)
+                else:
+                    imgArray[x][y] = cv2.resize(imgArray[x][y], (imgArray[0][0].shape[1], imgArray[0][0].shape[0]), None, scale, scale)
+                if len(imgArray[x][y].shape) == 2: imgArray[x][y]= cv2.cvtColor( imgArray[x][y], cv2.COLOR_GRAY2BGR)
+        imageBlank = np.zeros((height, width, 3), np.uint8)
+        hor = [imageBlank]*rows
+        hor_con = [imageBlank]*rows
+        for x in range(0, rows):
+            hor[x] = np.hstack(imgArray[x])
+        ver = np.vstack(hor)
+    else:
+        for x in range(0, rows):
+            if imgArray[x].shape[:2] == imgArray[0].shape[:2]:
+                imgArray[x] = cv2.resize(imgArray[x], (0, 0), None, scale, scale)
             else:
-                return frame
+                imgArray[x] = cv2.resize(imgArray[x], (imgArray[0].shape[1], imgArray[0].shape[0]), None,scale, scale)
+            if len(imgArray[x].shape) == 2: imgArray[x] = cv2.cvtColor(imgArray[x], cv2.COLOR_GRAY2BGR)
+        hor= np.hstack(imgArray)
+        ver = hor
+    return ver
+
+
+def split_fname_to_frames(video_fname):
+    """ Split a video file into frames. """
+
+    frames = []
+    cap = cv2.VideoCapture(video_fname)
+    if not cap.isOpened():
+        raise ValueError(f"Could not open file '{video_fname}'")
+    while(1):
+        if cap.grab():
+            flag, frame = cap.retrieve()
+            if not flag:
+                break
+            else:
+                frames.append(frame)
         else:
-            raise StopIteration
+            break
 
-    def __del__(self):
-        self.cap.release()
-
-    def num_frames(self):
-        """Return the number of frames in the video file."""
-        return int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    def fps(self):
-        """Return the fps of the video."""
-        return int(self.cap.get(cv2.CAP_PROP_FPS))
-
-    def width(self):
-        """ Return the width of the video frame. """
-        return int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-
-    def height(self):
-        """ Return the height of the video frame. """
-        return int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    return frames
 
 
-def split_video_to_frames(video_fname, framedir="", rotate="", scale_percent=100):
-    """
-        Split the video into frames and store in framedir
-        Returns the list of frame filenames produced.
-    """
-
-    if framedir == "":
-        framedir = Path(video_fname).stem
-
-    file_utils.create_framedir(framedir, empty=1)
-    video_frames = VideoSplitter(video_fname)
-    frame_fnames = file_utils.create_frame_fnames(video_frames.num_frames())
-    frame_fnames = [os.path.join(framedir, f) for f in frame_fnames]
-
-    width = int(video_frames.width() * scale_percent / 100)
-    height = int(video_frames.height() * scale_percent / 100)
-
-    for idx, frame in enumerate(video_frames):
-        frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
-        if rotate == "90":
-            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-        elif rotate == "180":
-            frame = cv2.rotate(frame, cv2.ROTATE_180)
-
-        cv2.imwrite(frame_fnames[idx], frame)
-
-    return frame_fnames, video_frames.fps()
-
-def join_frames_to_video(video_fname, fps, frames):
-    """
-    Join all the frames that match the frame file name expression into a video file.
-    Return the number of frames in the output video
-
-    """
+def join_frames_to_fname(video_fname, fps, frames):
     if len(frames) == 0:
-        raise ValueError(f"No frame file selected")
+        raise ValueError("Must specify at least 1 frame to be written")
 
-    init_frame = cv2.imread(frames[0])
+    init_frame = frames[0]
     if init_frame is None:
-        raise ValueError(f"Could not load frame {frames[0]}")
+        raise ValueError(f"Could not load init frame")
 
     height, width, _ = init_frame.shape
 
     video = cv2.VideoWriter(
-        video_fname, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height)
-    )
+        video_fname, cv2.VideoWriter.fourcc(*"mp4v"), fps, (width, height))
 
-    for fname in frames:
-        frame = cv2.imread(fname)
+    for frame in frames:
         video.write(frame)
     video.release()
 
