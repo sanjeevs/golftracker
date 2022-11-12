@@ -2,6 +2,8 @@
 # Convert a video into a media pipe stick figure video
 
 import argparse
+import cv2
+
 
 from golftracker import video_utils
 from golftracker import golf_swing as gs
@@ -32,6 +34,14 @@ def create_parser():
     )
 
     parser.add_argument(
+        "--fps",
+        "-f",
+        default=20,
+        type=int,
+        help="Frames per second of out video"
+    )
+
+    parser.add_argument(
         "--rotate",
         "-r",
         default="",
@@ -45,7 +55,9 @@ def transform_frame(opt, frame):
         out_frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
     elif opt.rotate == "180":
         out_frame = cv2.rotate(frame, cv2.ROTATE_180)
-    
+    else:
+        out_frame = frame
+
     return out_frame
 
 def display_result_images(opt):
@@ -98,7 +110,7 @@ def main():
     mp_op.run(frames, golf_swing.frame_contexts)
     stick_frames = draw_op.run(height, width, golf_swing.frame_contexts)
 
-    video_utils.merge_frames_to_fname(opt.out_video, stick_frames)
+    video_utils.join_frames_to_fname(opt.out_video, fps=20, frames=stick_frames)
 
     display_result_images(opt)
 

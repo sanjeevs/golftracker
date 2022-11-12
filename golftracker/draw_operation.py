@@ -13,7 +13,7 @@ def run(height, width, frame_contexts):
         frames.append(np.zeros((height, width, 3), np.uint8))
 
     for idx, fc in enumerate(frame_contexts):
-        _draw(frames[idx], fc)
+        _draw_frame_tracker(frames[idx], fc.frame_tracker)
 
     return frames
 
