@@ -19,7 +19,6 @@ debugpy==1.6.2
 decorator==5.1.1
 defusedxml==0.7.1
 docutils==0.17.1
-entrypoints==0.4
 executing==0.9.1
 fastjsonschema==2.16.1
 fonttools==4.33.3
