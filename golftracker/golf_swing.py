@@ -1,23 +1,39 @@
 #
 # Root object.
-# Constraint: length of frames == length of frame contexts
-# Collection of tuples (frame, frame_context)
+#
 
-import frame_context
-import media_pipe_operation as mp_op
+
+import json
 
 
 class GolfSwing:
-    def __init__(self, frames):
-        self.frames = frames
-        self.frame_contexts = []
-        for _ in range(len(frames)):
-            self.frame_contexts.append(frame_context.FrameContext())
+    def __init__(self, height, width):
+        self.frame_trackers = []
+        self.height = height
+        self.width = width
 
-    def run_media_pipe(self):
-        """ Run media pipe algo on the frames and update the frame context. """
-        mp_op.run(self.frames, self.frame_contexts)
+    def _out_format(self):
+        fmt = {}
+        fmt['height'] = self.height
+        fmt['width'] = self.width
+        frames_lst = []
+        for idx in range(len(self.frame_trackers)):
+            entry = {}
+            entry["frame_idx"] = idx
+            entry["frame_tracker"] = self.frame_trackers[idx]._points
+            frames_lst.append(entry)
+        fmt['frames'] = frames_lst
+        return fmt
 
-    def save_context_to_json(self, json_fname):
-        """ Save frame context to a json fname. """
-        json.dump(self.frame_contexts)
+    def __str__(self):
+        return str(self._out_format())
+
+    def __repr__(self):
+        return json.dumps(self._out_format())
+
+    def to_json(self):
+        return self.__repr__()
+
+    def save_to_json(self, fname):
+        with open(fname, "w") as fh:
+            json.dump(self._out_format(), fh, indent=2)

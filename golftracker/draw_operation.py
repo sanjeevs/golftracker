@@ -17,6 +17,7 @@ def run(height, width, frame_contexts):
 
     return frames
 
+
 def _draw_segment(frame, points):
     """ 
     Draw a line on the image given a pair of points.
@@ -30,10 +31,10 @@ def _draw_segment(frame, points):
 
     """
 
-    assert(len(points) == 2)
+    assert len(points) == 2
 
     h, w, _ = frame.shape
-    start_norm_point  = points[0]
+    start_norm_point = points[0]
     end_norm_point = points[1]
     start_point = (int(start_norm_point[0] * w), int(start_norm_point[1] * h))
     end_point = (int(end_norm_point[0] * w), int(end_norm_point[1] * h))
@@ -69,7 +70,7 @@ def _draw_frame_tracker(frame, frame_tracker):
         for segment in valid_segments:
             if segment not in history:
                 history.append(segment)
-                node_pair = ([frame_tracker[segment[0]], frame_tracker[segment[1]]])
+                node_pair = [frame_tracker[segment[0]], frame_tracker[segment[1]]]
                 _draw_segment(frame, node_pair)
                 num_lines += 1
 
@@ -89,22 +90,80 @@ def create_media_pipe_line_segments():
     ('right_wrist', 'right_elbow')
 
 
-    """       
-    mp_points = ["nose", "left_eye_inner", "left_eye", "left_eye_outer", "right_eye_inner",
-                "right_eye", "right_eye_outer", "left_ear", "right_ear", "mouth_left",
-                "mouth_right", "left_shoulder", "right_shoulder", "left_elbow", "right_elbow",
-                "left_wrist", "right_wrist", "left_pinky", "right_pinky", "left_index",
-                "right_index", "left_thumb", "right_thumb", "left_hip", "right_hip",
-                "left_knee", "right_knee", "left_ankle", "right_ankle", 
-                "left_heel", "right_heel", "left_foot_index", "right_foot_index"
-                ]
+    """
+    mp_points = [
+        "nose",
+        "left_eye_inner",
+        "left_eye",
+        "left_eye_outer",
+        "right_eye_inner",
+        "right_eye",
+        "right_eye_outer",
+        "left_ear",
+        "right_ear",
+        "mouth_left",
+        "mouth_right",
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_pinky",
+        "right_pinky",
+        "left_index",
+        "right_index",
+        "left_thumb",
+        "right_thumb",
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "left_ankle",
+        "right_ankle",
+        "left_heel",
+        "right_heel",
+        "left_foot_index",
+        "right_foot_index",
+    ]
 
-    mp_lines = [(18, 20), (20, 22), (18, 16), (22, 16), (16, 14), (14, 12),
-               (12, 24), (24, 26), (26, 28), (28, 32), (28, 30), (32, 30),
-               (12, 11), (11, 23), (23, 25), (25, 27), (27, 29), (27, 31), 
-               (29, 31), (11, 13), (13, 15), (21, 15), (15, 19), (15, 17), 
-               (19, 17), (24, 23), (8, 6), (6, 5), (5, 4), (4, 0),
-               (0, 1), (1, 2), (2, 3), (3, 7), (10, 9)]
+    mp_lines = [
+        (18, 20),
+        (20, 22),
+        (18, 16),
+        (22, 16),
+        (16, 14),
+        (14, 12),
+        (12, 24),
+        (24, 26),
+        (26, 28),
+        (28, 32),
+        (28, 30),
+        (32, 30),
+        (12, 11),
+        (11, 23),
+        (23, 25),
+        (25, 27),
+        (27, 29),
+        (27, 31),
+        (29, 31),
+        (11, 13),
+        (13, 15),
+        (21, 15),
+        (15, 19),
+        (15, 17),
+        (19, 17),
+        (24, 23),
+        (8, 6),
+        (6, 5),
+        (5, 4),
+        (4, 0),
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 7),
+        (10, 9),
+    ]
 
     rslt = []
     line_segments = []
@@ -114,7 +173,7 @@ def create_media_pipe_line_segments():
         if segment[0] in FrameTracker.Pts and segment[1] in FrameTracker.Pts:
             line_segments.append(segment)
 
-    return line_segments 
+    return line_segments
 
 
 def matching_line_segments(tracker_name):
@@ -137,6 +196,7 @@ def matching_line_segments(tracker_name):
             rslt.append(segment)
 
     return rslt
+
 
 def valid_line_segments(frame_tracker, segments):
     """

@@ -1,23 +1,35 @@
 # Immutable value object
 # Frame tracker is an associative array of points that are tracked in each frame.
 
+
 class FrameTracker:
     Pts = [
-            "nose", 
-            "left_eye", "right_eye", 
-            "left_ear", "right_ear",
-            "left_shoulder", "right_shoulder",
-            "left_elbow", "right_elbow",
-            "left_wrist", "right_wrist",
-            "left_hip", "right_hip",
-            "left_knee", "right_knee",
-            "left_ankle", "right_ankle",
-            "left_heel", "right_heel",
-            "club_grip", "club_heel", "club_toe"
-        ]
+        "nose",
+        "left_eye",
+        "right_eye",
+        "left_ear",
+        "right_ear",
+        "left_shoulder",
+        "right_shoulder",
+        "left_elbow",
+        "right_elbow",
+        "left_wrist",
+        "right_wrist",
+        "left_hip",
+        "right_hip",
+        "left_knee",
+        "right_knee",
+        "left_ankle",
+        "right_ankle",
+        "left_heel",
+        "right_heel",
+        "club_grip",
+        "club_heel",
+        "club_toe",
+    ]
 
     def __init__(self, values={}):
-        
+
         self._points = {}
         # Initialize all the trackers with default 0, 0 coord
         if not set(values.keys()).issubset(set(FrameTracker.Pts)):
@@ -64,7 +76,7 @@ class FrameTracker:
     def __hash__(self):
         h = 0
         for pt in self._points.values():
-            h += (pt[0]  + pt[1]) * 100
+            h += (pt[0] + pt[1]) * 100
         return int(h)
 
     def subsume(self, other):

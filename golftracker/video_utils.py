@@ -9,7 +9,7 @@ def split_video_to_frames(video_fname):
     cap = cv2.VideoCapture(video_fname)
     if not cap.isOpened():
         raise ValueError(f"Could not open file '{video_fname}'")
-    while(1):
+    while 1:
         if cap.grab():
             flag, frame = cap.retrieve()
             if not flag:
@@ -33,13 +33,15 @@ def join_frames_to_video(video_fname, fps, frames):
     height, width, _ = init_frame.shape
 
     video = cv2.VideoWriter(
-        video_fname, cv2.VideoWriter.fourcc(*"mp4v"), fps, (width, height))
+        video_fname, cv2.VideoWriter.fourcc(*"mp4v"), fps, (width, height)
+    )
 
     for frame in frames:
         video.write(frame)
     video.release()
 
     return len(frames)
+
 
 def create_blank_frames(num_frames, height=100, width=200):
     """ 
