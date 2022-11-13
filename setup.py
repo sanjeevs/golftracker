@@ -23,7 +23,8 @@ setup(
     entry_points={
         'console_scripts' : [
             'create_stick_video=scripts.create_stick_video:main',
-            'create_golf_db=scripts.create_golf_db:main'
+            'create_golf_db=scripts.create_golf_db:main',
+            'display_golf_swing=scripts.display_golf_swing:main'
         ]
     },
     install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10'],
