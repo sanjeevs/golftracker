@@ -4,8 +4,6 @@
 .idea
 venv_spvideoutils
 out
-demo
-assets
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

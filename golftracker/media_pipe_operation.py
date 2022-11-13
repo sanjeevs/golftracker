@@ -5,7 +5,7 @@ import mediapipe as mp
 mp_pose = mp.solutions.pose 
 import cv2
 
-from .import frame_tracker
+import frame_tracker
 
 
 def run(frames, frame_contexts):

@@ -1,4 +1,4 @@
-from frame_tracker import *
+from golftracker.frame_tracker import *
 
 NUM_TRACKERS = 22
 
