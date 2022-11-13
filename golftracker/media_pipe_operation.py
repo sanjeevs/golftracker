@@ -22,7 +22,7 @@ def run(golf_swing, frames):
             results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             if results.pose_landmarks:
                 landmark = results.pose_landmarks.landmark
-                ft = create_mp_tracker(landmark)
+                ft = _create_mp_tracker(landmark)
                 golf_swing.frame_trackers.append(ft)
             else:
                 golf_swing.frame_trackers.append(frame_tracker.FrameTracker())

@@ -6,42 +6,16 @@ from .frame_tracker import *
 import cv2
 
 
-def run(height, width, frame_contexts):
+def run(golf_swing):
     """Returns a list of frames with the drawing. """
     frames = []
-    for _ in range(len(frame_contexts)):
-        frames.append(np.zeros((height, width, 3), np.uint8))
+    for _ in range(len(golf_swing.frame_trackers)):
+        frames.append(np.zeros((golf_swing.height, golf_swing.width, 3), np.uint8))
 
-    for idx, fc in enumerate(frame_contexts):
-        _draw_frame_tracker(frames[idx], fc.frame_tracker)
+    for idx, fc in enumerate(golf_swing.frame_trackers):
+        _draw_frame_tracker(frames[idx], golf_swing.frame_trackers[idx])
 
     return frames
-
-
-def _draw_segment(frame, points):
-    """ 
-    Draw a line on the image given a pair of points.
-    Each point is a tuple with x and y coordinate.
-
-    :param frame : Image to draw the line on.
-    :param points: A starting and end point.
-                   Each point has a x, y normalized values.
-
-    :return: Returns the number of lines drawn
-
-    """
-
-    assert len(points) == 2
-
-    h, w, _ = frame.shape
-    start_norm_point = points[0]
-    end_norm_point = points[1]
-    start_point = (int(start_norm_point[0] * w), int(start_norm_point[1] * h))
-    end_point = (int(end_norm_point[0] * w), int(end_norm_point[1] * h))
-
-    cv2.circle(frame, start_point, radius=5, color=(0, 0, 255), thickness=-1)
-    cv2.circle(frame, end_point, radius=5, color=(0, 0, 255), thickness=-1)
-    cv2.line(frame, start_point, end_point, color=(255, 0, 0), thickness=3)
 
 
 def _draw_frame_tracker(frame, frame_tracker):
@@ -75,6 +49,33 @@ def _draw_frame_tracker(frame, frame_tracker):
                 num_lines += 1
 
     return num_lines
+
+
+def _draw_segment(frame, points):
+    """ 
+    Draw a line on the image given a pair of points.
+    Each point is a tuple with x and y coordinate.
+
+    :param frame : Image to draw the line on.
+    :param points: A starting and end point.
+                   Each point has a x, y normalized values.
+
+    :return: Returns the number of lines drawn
+
+    """
+
+    assert len(points) == 2
+
+    h, w, _ = frame.shape
+    start_norm_point = points[0]
+    end_norm_point = points[1]
+    start_point = (int(start_norm_point[0] * w), int(start_norm_point[1] * h))
+    end_point = (int(end_norm_point[0] * w), int(end_norm_point[1] * h))
+
+    cv2.circle(frame, start_point, radius=5, color=(0, 0, 255), thickness=-1)
+    cv2.circle(frame, end_point, radius=5, color=(0, 0, 255), thickness=-1)
+    cv2.line(frame, start_point, end_point, color=(255, 0, 0), thickness=3)
+
 
 
 def create_media_pipe_line_segments():
