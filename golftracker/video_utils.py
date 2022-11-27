@@ -2,7 +2,23 @@ import cv2
 import numpy as np
 
 
-def split_video_to_frames(video_fname):
+def transform_frame(frame, scale=100, rotate=""):
+
+    width = int(frame.shape[1] * scale / 100)
+    height = int(frame.shape[0] * scale / 100)
+    dim = (width, height)
+    resized = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+ 
+    if rotate == "90":
+        out_frame = cv2.rotate(resized, cv2.ROTATE_90_CLOCKWISE)
+    elif rotate == "180":
+        out_frame = cv2.rotate(resized, cv2.ROTATE_180)
+    else:
+        out_frame = resized
+    return out_frame
+
+
+def split_video_to_frames(video_fname, scale=100, rotate=0):
     """ Split a video file into frames. """
 
     frames = []
@@ -15,7 +31,8 @@ def split_video_to_frames(video_fname):
             if not flag:
                 break
             else:
-                frames.append(frame)
+                out_frame = transform_frame(frame, scale, rotate)
+                frames.append(out_frame)
         else:
             break
 

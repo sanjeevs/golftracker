@@ -27,7 +27,8 @@ setup(
             'display_golf_swing=scripts.display_golf_swing:main'
         ]
     },
-    install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10'],
+    install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10', 
+                        'csv', 'numpy', 'scikit-learn', 'pandas'],
     packages = ['golftracker'],
     extras_require = {
         "dev": [

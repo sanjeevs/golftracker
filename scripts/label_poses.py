@@ -123,15 +123,25 @@ def pose_class_str(pose_class):
 def save_pose_coordinates_to_csv(fname, pose_results, pose_classes):
     """ Save golf poses to csv fname. """
 
+    num_coords = len(pose_results[0])
+    landmarks = ['class']
+    for val in range(1, num_coords+1):
+        landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
+
+   
     with open(fname, mode='w', newline='') as fh:
-        for idx, golf_pose in enumerate(pose_classes):
-            rslt = pose_results[idx]
-            pose_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in rslt]).flatten())
+        csv_writer = csv.writer(fh, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csv_writer.writerow(landmarks)
+
+        for idx, golf_pose in pose_classes.items():
+            if golf_pose:
+                rslt = pose_results[idx]
+                pose_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in rslt]).flatten())
             
-            # Append class name 
-            pose_row.insert(0, golf_pose)
-            csv_writer = csv.writer(fh, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            csv_writer.writerow(pose_row)
+                # Append class name 
+                pose_row.insert(0, golf_pose)
+            
+                csv_writer.writerow(pose_row)
 
 
 def main():
@@ -197,6 +207,7 @@ def main():
             cv2.imshow("LabelPoses", frames[idx])
             key_pressed = cv2.waitKey(-1) & 0xff
 
-    save_pose_coordinates_to_csv(opt.out, pose_results, pose_classes)
+    print(pose_classes)
+    save_pose_coordinates_to_csv(opt.out, pose_results=pose_results, pose_classes=pose_classes)
 if __name__ == "__main__":
     main()

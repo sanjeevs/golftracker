@@ -12,8 +12,13 @@ def run(golf_swing):
     for _ in range(len(golf_swing.frame_trackers)):
         frames.append(np.zeros((golf_swing.height, golf_swing.width, 3), np.uint8))
 
+
     for idx, fc in enumerate(golf_swing.frame_trackers):
-        _draw_frame_tracker(frames[idx], golf_swing.frame_trackers[idx])
+        temp = {}
+        temp['left_elbow'] = golf_swing.frame_trackers[idx]['left_elbow']
+        temp['left_wrist'] = golf_swing.frame_trackers[idx]['left_wrist']
+        temp['left_shoulder'] = golf_swing.frame_trackers[idx]['left_shoulder']
+        _draw_frame_tracker(frames[idx], FrameTracker(temp))
 
     return frames
 
@@ -72,8 +77,8 @@ def _draw_segment(frame, points):
     start_point = (int(start_norm_point[0] * w), int(start_norm_point[1] * h))
     end_point = (int(end_norm_point[0] * w), int(end_norm_point[1] * h))
 
-    cv2.circle(frame, start_point, radius=5, color=(0, 0, 255), thickness=-1)
-    cv2.circle(frame, end_point, radius=5, color=(0, 0, 255), thickness=-1)
+    cv2.circle(frame, start_point, radius=10, color=(0, 0, 255), thickness=-1)
+    cv2.circle(frame, end_point, radius=10, color=(0, 255, 255), thickness=-1)
     cv2.line(frame, start_point, end_point, color=(255, 0, 0), thickness=3)
 
 
