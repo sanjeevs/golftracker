@@ -207,7 +207,6 @@ def main():
             cv2.imshow("LabelPoses", frames[idx])
             key_pressed = cv2.waitKey(-1) & 0xff
 
-    print(pose_classes)
     save_pose_coordinates_to_csv(opt.out, pose_results=pose_results, pose_classes=pose_classes)
 if __name__ == "__main__":
     main()

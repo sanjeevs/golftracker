@@ -40,12 +40,15 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1234)
 
     print(f">>> Starting to train the model")
-    model.fit(X_train, y_train)
+    model.fit(X_train.values, y_train)
 
     print(f">>> Evaluating the model")
-    yhat = model.predict(X_test)
+    yhat = model.predict(X_test.values)
     print(accuracy_score(y_test, yhat))
 
+    print(f">>> Overwriting the orig model '{opt.model}' with new weights")
+    with open(opt.model, 'wb') as fh:
+         pickle.dump(model, fh)
 
 if __name__ == "__main__":
     main()

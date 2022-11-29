@@ -24,11 +24,15 @@ setup(
         'console_scripts' : [
             'create_stick_video=scripts.create_stick_video:main',
             'create_golf_db=scripts.create_golf_db:main',
-            'display_golf_swing=scripts.display_golf_swing:main'
+            'display_golf_swing=scripts.display_golf_swing:main',
+            'label_poses=scripts.label_poses:main',
+            'create_posemodel=scripts.create_posemodel:main',
+            'train_posemodel=scripts.train_posemodel:main',
+            'predict_posemodel=scripts.predict_posemodel:main'
         ]
     },
     install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10', 
-                        'csv', 'numpy', 'scikit-learn', 'pandas'],
+                        'numpy', 'scikit-learn', 'pandas'],
     packages = ['golftracker'],
     extras_require = {
         "dev": [
