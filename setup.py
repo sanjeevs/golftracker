@@ -28,7 +28,8 @@ setup(
             'label_poses=scripts.label_poses:main',
             'create_posemodel=scripts.create_posemodel:main',
             'train_posemodel=scripts.train_posemodel:main',
-            'predict_posemodel=scripts.predict_posemodel:main'
+            'predict_posemodel=scripts.predict_posemodel:main',
+            'create_test_image=scripts.create_test_image:main'
         ]
     },
     install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10', 
