@@ -14,11 +14,11 @@ MP_POSE_LANDMARKS = ["nose", "left_eye_inner", "left_eye", "left_eye_outer",
             "left_heel", "right_heel",
             "left_foot_index", "right_foot_index"]
 
-def pose_row_header(self):
+def pose_row_header():
     """ Return the header row for pose data."""
 
     header = []
-    for entry in gt_const.MP_POSE_LANDMARKS:
+    for entry in MP_POSE_LANDMARKS:
         for i in ["_x", "_y", "_z", "_v"]:
             header.append(entry + i)
 
