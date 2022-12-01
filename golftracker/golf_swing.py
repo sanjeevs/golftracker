@@ -22,14 +22,7 @@ class GolfSwing:
     def pose_row(self, idx):
         return self.mp_pose_frame_landmarks[idx]
 
-    def pose_row_header(self):
-        """ Return the header row for pose data."""
-
-        header = []
-        for entry in gt_const.MP_POSE_LANDMARKS:
-            for i in ["_x", "_y", "_z", "_v"]:
-                header.append(entry + i)
-        return header
+   
 
     def _out_format(self):
         """ Generate output format for json serialization. """
