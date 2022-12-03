@@ -3,11 +3,11 @@ import os
 import json
 
 
-def test_save_json():
+def test_save_json(tmp_path):
     fname = os.path.join('tests', 'assets', 'test_blank_3.mov')
     gs = golf_swing_factory.create_from_video(fname)
 
-    json_fname = os.path.join('tests', 'out', 'test_blank_3.json')
+    json_fname = os.path.join(tmp_path, 'test_blank_3.json')
     gs.save_to_json(json_fname)
 
     assert os.path.exists(json_fname)
@@ -15,11 +15,11 @@ def test_save_json():
     gs2 = golf_swing_factory.create_from_json(json_fname)
     assert len(gs2.mp_pose_frame_landmarks) == 3
 
-def test_save_test_pose1():
+def test_save_test_pose1(tmp_path):
     fname = os.path.join('tests', 'assets', 'test_pose1.jpg')
     gs = golf_swing_factory.create_from_image(fname)
 
-    json_fname = os.path.join('tests', 'out', 'test_pose1.json')
+    json_fname = os.path.join(tmp_path, 'test_pose1.json')
     gs.save_to_json(json_fname)
 
     assert os.path.exists(json_fname)
@@ -30,11 +30,11 @@ def test_save_test_pose1():
     assert pd["nose"][1] > (0.2 * gs2.height)
    
 
-def test_save_test_fail_pose1():
+def test_save_test_fail_pose1(tmp_path):
     fname = os.path.join('tests', 'assets', 'test_fail_pose1.jpg')
     gs = golf_swing_factory.create_from_image(fname)
 
-    json_fname = os.path.join('tests', 'out', 'test_fail_pose1.json')
+    json_fname = os.path.join(tmp_path, 'test_fail_pose1.json')
     gs.save_to_json(json_fname)
 
     assert os.path.exists(json_fname)
