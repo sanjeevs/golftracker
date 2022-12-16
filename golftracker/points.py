@@ -3,9 +3,9 @@
 # This involves scaling the normalized values.
 #
 
-import gt_const
+from golftracker import gt_const
 
-class PoseData:
+class Points:
 
     def __init__(self, landmarks, height, width):
         self.data = {}
