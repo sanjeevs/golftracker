@@ -5,8 +5,8 @@
 
 from golftracker import gt_const
 
-class Points:
 
+class Points:
     def __init__(self, landmarks, height, width):
         self.data = {}
         i = 0
@@ -17,7 +17,6 @@ class Points:
                 i += 4
             else:
                 self.data[entry] = []
-
 
     def __getitem__(self, key):
         if key not in self.data:

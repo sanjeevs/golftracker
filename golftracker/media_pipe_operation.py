@@ -11,9 +11,7 @@ import cv2
 def run(golf_swing, frames):
     """Run media pipe and update golf swing. """
 
-    golf_swing.mp_pose_frame_landmarks = []
-
-    for idx, frame in enumerate(frames):
+    for frame_idx, frame in enumerate(frames):
         with mp_pose.Pose(
             static_image_mode=True,
             model_complexity=1,
@@ -23,6 +21,4 @@ def run(golf_swing, frames):
             results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             if results.pose_landmarks:
                 landmark = results.pose_landmarks.landmark
-                golf_swing.mp_pose_frame_landmarks.append(landmark)
-            else:
-                golf_swing.mp_pose_frame_landmarks.append([])
+                golf_swing.set_mp_landmarks(frame_idx, landmark)

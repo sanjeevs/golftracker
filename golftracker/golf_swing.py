@@ -4,90 +4,59 @@
 
 import json
 import copy
+from golftracker import golf_data
 from golftracker import gt_const
-from golftracker import pose_data
-import pandas as pd 
+from golftracker import points
+import pandas as pd
 import numpy as np
 
+import mediapipe as mp
+mp_drawing = mp.solutions.drawing_utils
 
 class GolfSwing:
-    def __init__(self, height, width):
+    def __init__(self, height, width, num_frames):
         self.height = height
         self.width = width
-        self.mp_frame_landmarks = []    # Media pipe pose output
-        self.ml_frame_predictions = {}  # ML model predicted poses.
+        self.num_frames = num_frames
+        self.data = golf_data.GolfData(num_frames)
 
-
-    def get_frame_points(self, frame_idx):
-        """ Return the pose data at the frame specifics. """
-        p = points.Points(self.mp_frame_landmarks[frame_idx], self.height, self.width)
+    def get_screen_points(self, frame_idx):
+        """ Return the points on the frame. """
+        p = points.Points(
+            self.data.get_mp_landmarks(frame_idx), self.height, self.width
+        )
         return p
 
+    def mp_landmarks_flat_row(self, frame_idx):
+        return self.data.mp_landmarks_flat_row(frame_idx)
 
-    def num_frames(self):
-        return len(self.mp_frame_landmarks)
+    def set_ml_pose(self, frame_idx, golf_pose, prob):
+        self.data.set_ml_pose(frame_idx, golf_pose, prob)
 
-
-    def pose_row(self, idx):
-        pose = self.mp_frame_landmarks[idx]
-        row = list(
-                    np.array(
-                        [
-                            [landmark.x, landmark.y, landmark.z, landmark.visibility]
-                            for landmark in pose
-                        ]
-                    ).flatten()
-                )
-        return row
-
-   
-
-    def analytics(self, model):
-        num_mp_poses = len(self.mp_frame_landmarks)
-        print(">>Running ML model on {num_mp_poses} frames of media pipe data")
-        for idx in range(num_mp_poses):
-            X = pd.DataFrame([self.pose_row(idx)])
-
-            pose_class = model.predict(X)[0]
-            pose_prob = model.predict_proba(X)[0]
-            max_prob = round(pose_prob[np.argmax(pose_prob)], 2)
-
-            if max_prob > 0.50:
-                self.ml_frame_predictions[idx] = (pose_class, max_prob)
-
-    def _out_format(self):
-        """ Generate output format for json serialization. """
-
-        fmt = {}
-        fmt['height'] = self.height
-        fmt['width'] = self.width
-
-        # Per Frame landmark information.
-        frames_lst = []
-        for idx in range(len(self.mp_frame_landmarks)):
-            entry = {}
-            entry["frame_idx"] = idx
-            entry["mp_pose_landmarks"] = []
-            for item in self.mp_frame_landmarks[idx]:
-                entry["mp_pose_landmarks"] += [item.x, item.y, item.z, item.visibility]
-            
-            if idx in self.ml_frame_predictions.keys():
-                entry["pose_class"] = (self.ml_frame_predictions[idx][0], self.ml_frame_predictions[idx][1])
-
-            frames_lst.append(entry)
-
-        fmt['frames'] = frames_lst
-        return fmt
-
-    def __str__(self):
-        return str(self._out_format())
-
-    def __repr__(self):
-        return json.dumps(self._out_format())
+    def set_mp_landmarks(self, frame_idx, landmarks):
+        self.data.set_mp_landmarks(frame_idx, landmarks)
 
     def to_json(self):
-        return self.__repr__()
+        """ Generate output format for json serialization. """
+        fmt = {}
+        fmt["height"] = self.height
+        fmt["width"] = self.width
+        fmt["num_frames"] = self.num_frames
+        fmt["data"] = self.data.to_json()
 
-    def save_to_json(self, fname):
-        with open(fname, "w") as fh:
-            json.dump(self._out_format(), fh)
+        return json.dumps(fmt)
+
+    def to_frames(self):
+        frames = []
+
+        for frame_idx in range(self.num_frames()):
+            frame = np.zeros([self.height, self.width, 3], dtype=np.uint8)
+            reconstructed = self.data.get_pb_normalized_landmarks(frame_idx)
+        
+            mp_drawing.draw_landmarks(frame, reconstructed, mp_pose.POSE_CONNECTIONS,
+                                mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2), 
+                                mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2))
+
+            frames.append(frame)
+
+        return frames

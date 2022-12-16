@@ -7,8 +7,8 @@ def transform_frame(frame, scale=100, rotate=""):
     width = int(frame.shape[1] * scale / 100)
     height = int(frame.shape[0] * scale / 100)
     dim = (width, height)
-    resized = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
- 
+    resized = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+
     if rotate == "90":
         out_frame = cv2.rotate(resized, cv2.ROTATE_90_CLOCKWISE)
     elif rotate == "180":

@@ -3,6 +3,8 @@
 
 import argparse
 import os
+import pickle
+
 from golftracker import golf_swing_factory
 
 
@@ -12,6 +14,9 @@ def create_parser():
 
     parser.add_argument("in_video", type=str, help="Input video file name")
 
+    parser.add_argument(
+        "--model", "-m", default="", type=str, help="ML model used"
+    )
     parser.add_argument(
         "--out", "-o", default="", type=str, help="Output json file produced"
     )
@@ -28,9 +33,20 @@ def main():
 
     print(f">>Process '{opt.in_video}' to create '{opt.out}' fname")
 
-    gs = golf_swing_factory.create_from_mediapipe(opt.in_video)
+    model = ""
+    if opt.model == "":
+        opt.model = os.path.join("..", "models", "pose_rf_model.pkl")
+        with open(opt.model, "rb") as f:
+            model = pickle.load(f)
+            print(f">>Loaded default ML model '{opt.model}'")
+    else:
+        print(f">>Loaded user  ML model '{opt.model}'")
 
-    gs.save_to_json(opt.out)
+   
+    gs = golf_swing_factory.create_from_video(opt.in_video, model)
+
+    with open(opt.out, "w") as fh:
+        fh.write(gs.to_json())
 
 
 if __name__ == "__main__":

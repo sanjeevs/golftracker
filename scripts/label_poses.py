@@ -30,9 +30,8 @@ def create_parser():
         "-o",
         default='',
         type=str,
-        help="Output csv file name"
+        help="Output csv file name. Append if it exists"
     )
-
 
     parser.add_argument(
         "--type",
@@ -91,36 +90,25 @@ def create_pose_class(key_pressed, handedness):
     """
 
     if key_pressed == ord('s'):
-        return "ls" if handedness == "left" else "rs"
+        return "down_lh_start" if handedness == "left" else "down_rh_start"
     elif key_pressed == ord('t'):
-        return "lt" if handedness == "left" else "rt"
+        return "down_lh_top" if handedness == "left" else "down_rh_top"
     elif key_pressed == ord('f'):
-        return "lf" if handedness == "left" else "rf"
+        return "down_lh_final" if handedness == "left" else "down_rh_final"
     else:
         return None
        
-
-def pose_class_str(pose_class):
-    """
-    Return the string representation of class.
-
-    >>> pose_str("rs")
-    'start'
-
-    """
-    if not pose_class:
-        return ""
-    elif pose_class == "rs" or pose_class == "ls":
-        return "start"
-    elif pose_class == "rt" or pose_class == "lt":
-        return "top"
-    elif pose_class == "rf" or pose_class == "lf":
+def display_class(pose_class):
+    if pose_class == "down_lh_start" or pose_class == "down_rh_start":
+        return "start "
+    elif pose_class == "down_lh_top" or pose_class == "down_rh_top":
+        return "top "
+    elif pose_class == "down_lh_final" or pose_class == "down_rh_final":
         return "finish"
     else:
-        return ""
+        return ""   
 
-
-def save_pose_coordinates_to_csv(fname, pose_results, pose_classes):
+def save_pose_coordinates_to_csv(fname, mode, pose_results, pose_classes):
     """ Save golf poses to csv fname. """
 
     num_coords = len(pose_results[0])
@@ -128,10 +116,10 @@ def save_pose_coordinates_to_csv(fname, pose_results, pose_classes):
     for val in range(1, num_coords+1):
         landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
 
-   
-    with open(fname, mode='w', newline='') as fh:
+    with open(fname, mode=mode, newline='') as fh:
         csv_writer = csv.writer(fh, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        csv_writer.writerow(landmarks)
+        if mode == "w":
+            csv_writer.writerow(landmarks)
 
         for idx, golf_pose in pose_classes.items():
             if golf_pose:
@@ -149,12 +137,17 @@ def main():
     if opt.out == "":
         opt.out = os.path.basename(opt.video).split('.')[0] + ".csv"
 
-    print(f"\n>> Creating '{opt.out}' training data for '{opt.video}'")
+    if os.path.exists(opt.out):
+        opt.mode = "a"
+        print(f"\n>> Appending '{opt.out}' training data for '{opt.video}'")
+    else:
+        opt.mode = "w"
+        print(f"\n>> Creating '{opt.out}' training data for '{opt.video}'")
 
     frames = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
     pose_results = defaultdict(lambda: None)
 
-    print(f"\n\n>> Running mediapipe on {len(frames)} frames. Pl be patient !")
+    print(f"\n\n>> Running mediapipe on {len(frames)} frames. Please be patient !")
     for idx, frame in enumerate(frames):
         with mp_pose.Pose(
                 static_image_mode=True,
@@ -164,6 +157,9 @@ def main():
 
             results = pose.process(frames[idx])
             if results.pose_landmarks:
+                print(results.pose_landmarks)
+                print(f">>Type={type(results.pose_landmarks)}")
+                return 0
                 mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
                                 mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2), 
                                 mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2))
@@ -203,10 +199,10 @@ def main():
             if is_pose_key_detected(key_pressed):
                 pose_classes[idx] = create_pose_class(key_pressed, opt.type)
 
-            put_msg(frames[idx], f"Fr{idx}:{pose_class_str(pose_classes[idx])}")
+            put_msg(frames[idx], f"Fr{idx}:{display_class(pose_classes[idx])}")
             cv2.imshow("LabelPoses", frames[idx])
             key_pressed = cv2.waitKey(-1) & 0xff
 
-    save_pose_coordinates_to_csv(opt.out, pose_results=pose_results, pose_classes=pose_classes)
+    save_pose_coordinates_to_csv(opt.out, opt.mode, pose_results=pose_results, pose_classes=pose_classes)
 if __name__ == "__main__":
     main()

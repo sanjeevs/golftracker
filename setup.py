@@ -22,14 +22,14 @@ setup(
     author_email="snjvsingh123@gmail.com",
     entry_points={
         'console_scripts' : [
-            'create_stick_video=scripts.create_stick_video:main',
-            'create_golf_db=scripts.create_golf_db:main',
+            'create_video_fm_json=scripts.create_video_fm_json:main',
+            'analyze_swing_video=scripts.analyze_swing_video:main',
             'display_golf_swing=scripts.display_golf_swing:main',
             'label_poses=scripts.label_poses:main',
-            'create_posemodel=scripts.create_posemodel:main',
-            'train_posemodel=scripts.train_posemodel:main',
-            'predict_posemodel=scripts.predict_posemodel:main',
-            'create_test_image=scripts.create_test_image:main'
+            'create_posemodel=scripts.utils.create_posemodel:main',
+            'train_posemodel=scripts.utils.train_posemodel:main',
+            'predict_posemodel=scripts.utils.predict_posemodel:main',
+            'create_test_image=scripts.utils.create_test_image:main'
         ]
     },
     install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10', 

@@ -34,6 +34,8 @@ def main():
         model = pickle.load(f)
     
     df = pd.read_csv(opt.csvfile)
+    print(f">>> Reading in {len(df.index)} frames from csv file")
+
     X = df.drop('class', axis = 1)
     y = df['class']
 

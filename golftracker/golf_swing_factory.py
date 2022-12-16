@@ -10,47 +10,36 @@ import cv2
 from golftracker import video_utils
 from golftracker import golf_swing
 from golftracker import media_pipe_operation as mp_op
+from golftracker import ml_pose_operation as ml_op
 
 
-def create_from_video(video_fname):
+def create_from_video(video_fname, pose_model):
     frames = video_utils.split_video_to_frames(video_fname)
     if len(frames) == 0:
         raise ValueError(f"Found no frames in '{video_fname}'")
-    (height, width, _) = frames[0].shape
-    gs = golf_swing.GolfSwing(height, width)
-    mp_op.run(gs, frames)
-    return gs
+    return __create_golf_swing(frames, pose_model)
 
-def create_from_image(image_fname):
+
+def create_from_image(image_fname, pose_model):
     """ For testing it is easier to use just a image. """
     frame = cv2.imread(image_fname)
-    (height, width, _) = frame.shape
-    gs = golf_swing.GolfSwing(height, width)
-    mp_op.run(gs, [frame])
+    return __create_golf_swing([frame], pose_model)
+
+
+def __create_golf_swing(frames, pose_model):
+    (height, width, _) = frames[0].shape
+    gs = golf_swing.GolfSwing(height, width, len(frames))
+    mp_op.run(gs, frames)
+    if pose_model:
+        ml_op.run(gs, pose_model)
     return gs
 
 
-def clone(gs):
-    """Return a new golf swing that has a deep copy of frame contexts.
-    """
-    gs_clone = golf_swing.GolfSwing(gs.height, gs.width)
-    for idx, landmarks in enumerate(gs.mp_pose_frame_landmarks):
-        gs_clone.mp_pose_frame_landmarks[idx] = copy.deepcopy(landmarks)
-
-    return gs_clone
-
-
-def create_from_json(json_fname):
-    with open(json_fname, "r") as fh:
-        fmt = json.load(fh)
-
-    in_lst = fmt['frames']
-    mp_pose_frame_landmarks = []
-
-    for idx in range(len(in_lst)):
-        mp_pose_landmarks = in_lst[idx]["mp_pose_landmarks"]
-        mp_pose_frame_landmarks.append(mp_pose_landmarks)
-
-    gs = golf_swing.GolfSwing(fmt['height'], fmt['width'])
-    gs.mp_pose_frame_landmarks = mp_pose_frame_landmarks
+def create_from_json(json_str):
+    json_dict = json.loads(json_str)
+    h = json_dict["height"]
+    w = json_dict["width"]
+    n = json_dict["num_frames"]
+    gs = golf_swing.GolfSwing(height=h, width=w, num_frames=n)
+    gs.data = json_dict["data"]
     return gs
