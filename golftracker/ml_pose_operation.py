@@ -2,6 +2,8 @@
 # Runs ml model to detect the poses
 import pandas as pd
 import numpy as np 
+from golftracker import gt_const as gt
+
 
 def run(golf_swing, model):
 
@@ -13,4 +15,4 @@ def run(golf_swing, model):
         max_prob = round(pose_prob[np.argmax(pose_prob)], 2)
 
         if max_prob > 0.50:
-            golf_swing.set_ml_pose(idx, pose_class, max_prob)
+            golf_swing.set_golf_pose(idx, gt.GolfPose[pose_class], max_prob)

@@ -12,6 +12,8 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
 from golftracker import video_utils
+from golftracker import gt_const as gt 
+
 from collections import defaultdict
 
 
@@ -79,34 +81,15 @@ def is_pose_key_detected(key_pressed):
     return key_pressed in key_states
   
 def create_pose_class(key_pressed, handedness):
-    """
-    Return the class label for csv.
-
-    >>> create_pose_class(ord('s'), 'right')
-    'rs'
-
-    >>> create_pose_class(ord('s'), 'left')
-    'ls'
-    """
-
     if key_pressed == ord('s'):
-        return "down_lh_start" if handedness == "left" else "down_rh_start"
+        return gt.GolfPose.LhStart if handedness == "left" else gt.GolfPose.RhStart
     elif key_pressed == ord('t'):
-        return "down_lh_top" if handedness == "left" else "down_rh_top"
+        return gt.GolfPose.LhTop if handedness == "left" else gt.GolfPose.RhTop
     elif key_pressed == ord('f'):
-        return "down_lh_final" if handedness == "left" else "down_rh_final"
+        return gt.GolfPose.LhTop if handedness == "left" else gt.GolfPose.RhTop
     else:
         return None
-       
-def display_class(pose_class):
-    if pose_class == "down_lh_start" or pose_class == "down_rh_start":
-        return "start "
-    elif pose_class == "down_lh_top" or pose_class == "down_rh_top":
-        return "top "
-    elif pose_class == "down_lh_final" or pose_class == "down_rh_final":
-        return "finish"
-    else:
-        return ""   
+
 
 def save_pose_coordinates_to_csv(fname, mode, pose_results, pose_classes):
     """ Save golf poses to csv fname. """
@@ -157,9 +140,6 @@ def main():
 
             results = pose.process(frames[idx])
             if results.pose_landmarks:
-                print(results.pose_landmarks)
-                print(f">>Type={type(results.pose_landmarks)}")
-                return 0
                 mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
                                 mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2), 
                                 mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2))
@@ -197,9 +177,9 @@ def main():
                 idx = len(frames) -1
 
             if is_pose_key_detected(key_pressed):
-                pose_classes[idx] = create_pose_class(key_pressed, opt.type)
+                pose_classes[idx] = create_pose_class(key_pressed, opt.type).name
 
-            put_msg(frames[idx], f"Fr{idx}:{display_class(pose_classes[idx])}")
+            put_msg(frames[idx], f"Fr{idx}:{pose_classes[idx]}")
             cv2.imshow("LabelPoses", frames[idx])
             key_pressed = cv2.waitKey(-1) & 0xff
 

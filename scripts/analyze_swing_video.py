@@ -29,7 +29,7 @@ def main():
     if opt.out == "":
         base = os.path.basename(opt.in_video)
         fname = os.path.splitext(base)[0]
-        opt.out = fname + ".json"
+        opt.out = fname + ".pkl"
 
     print(f">>Process '{opt.in_video}' to create '{opt.out}' fname")
 
@@ -45,8 +45,8 @@ def main():
    
     gs = golf_swing_factory.create_from_video(opt.in_video, model)
 
-    with open(opt.out, "w") as fh:
-        fh.write(gs.to_json())
+    with open(opt.out, "wb") as fh:
+        pickle.dump(gs)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from golftracker import gt_const
 from golftracker import points
 import pandas as pd
 import numpy as np
+import pickle
 
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
@@ -30,21 +31,15 @@ class GolfSwing:
     def mp_landmarks_flat_row(self, frame_idx):
         return self.data.mp_landmarks_flat_row(frame_idx)
 
-    def set_ml_pose(self, frame_idx, golf_pose, prob):
-        self.data.set_ml_pose(frame_idx, golf_pose, prob)
+    def set_golf_pose(self, frame_idx, golf_pose, prob):
+        self.data.set_golf_pose(frame_idx, golf_pose, prob)
+
+    def get_golf_pose(self, frame_idx):
+        entry = self.data.get_golf_pose(frame_idx)
+        return entry
 
     def set_mp_landmarks(self, frame_idx, landmarks):
         self.data.set_mp_landmarks(frame_idx, landmarks)
-
-    def to_json(self):
-        """ Generate output format for json serialization. """
-        fmt = {}
-        fmt["height"] = self.height
-        fmt["width"] = self.width
-        fmt["num_frames"] = self.num_frames
-        fmt["data"] = self.data.to_json()
-
-        return json.dumps(fmt)
 
     def to_frames(self):
         frames = []

@@ -7,8 +7,8 @@ from mediapipe.framework.formats import landmark_pb2
 
 class GolfData:
     def __init__(self, num_frames):
-        self.mp_frame_landmarks = [None] * num_frames
-        self.ml_poses = []
+        self.mp_frame_landmarks = [[]] * num_frames
+        self.golf_poses = []
 
     def set_mp_landmarks(self, frame_idx, landmarks):
         self.mp_frame_landmarks[frame_idx] = landmarks
@@ -43,25 +43,28 @@ class GolfData:
         return reconstructed
 
 
-    def set_ml_pose(self, frame_idx, golf_pose, prob):
-        self.ml_poses.append((frame_idx, golf_pose, prob))
+    def set_golf_pose(self, frame_idx, golf_pose, prob):
+        self.golf_poses.append((frame_idx, golf_pose, prob))
 
-    def get_ml_pose(self, frame_idx):
-        for entry in self.ml_poses:
+    def get_golf_pose(self, frame_idx):
+        for entry in self.golf_poses:
             if entry[0] == frame_idx:
                 return (gt.GolfPose(entry[1]), entry[2])
         return (None, 0.0)
 
-    def to_json(self):
+    def to_dict(self):
         fmt = {}
         fmt["mp_frame_landmarks"] = self.mp_frame_landmarks
-        fmt["ml_poses"] = self.ml_poses
-        return json.dumps(fmt)
+        fmt['golf_poses'] = []
+        for frame_idx, pose, prob in self.golf_poses:
+            fmt["golf_poses"].append([frame_idx, pose.name, prob])
+        return fmt
 
 
-def create_fm_json_str(json_str):
-    data = json.loads(json_str)
+def create_fm_dict(data):
+    print(type(data))
     new_gd = GolfData(len(data["mp_frame_landmarks"]))
     new_gd.mp_frame_landmarks = data["mp_frame_landmarks"]
-    new_gd.ml_poses = data["ml_poses"]
+    for entry in data['golf_poses']:
+        new_gd.golf_poses.append([entry[0], gt.GolfPose[entry[1]], entry[2]])
     return new_gd
