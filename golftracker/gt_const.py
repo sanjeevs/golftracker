@@ -1,4 +1,5 @@
 from enum import Enum
+from mediapipe.framework.formats import landmark_pb2
 
 
 MP_POSE_LANDMARKS = [
@@ -56,3 +57,19 @@ def pose_row_header():
             header.append(entry + i)
 
     return header
+
+def num_mp_landmarks():
+    return len(MP_POSE_LANDMARKS)
+
+
+def create_pb_normalized_landmarks(lst):
+    """ Given a list of 4 member entries [x0, y0, z0, v0, x1, y1, .., x31, y31, z31, v31] return landmarks. """
+    x = 0
+    landmark_lst = []
+    while x < len(lst):
+        n = landmark_pb2.NormalizedLandmark(x=lst[x], y=lst[x+1], z=lst[x+2], visibility=lst[x+3])
+        landmark_lst.append(n)
+        x += 4
+
+    reconstructed = landmark_pb2.NormalizedLandmarkList(landmark=landmark_lst)
+    return reconstructed

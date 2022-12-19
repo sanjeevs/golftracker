@@ -1,5 +1,7 @@
 # Script
 # User labels the different golf poses.
+# The poses are enum defined in golftracker/gt_const
+
 
 import argparse
 import cv2
@@ -11,16 +13,20 @@ import csv
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-from golftracker import video_utils
+from golftracker import video_utils, golf_swing_factory
 from golftracker import gt_const as gt 
 
 from collections import defaultdict
 
 
+KEY_STATE_ENCODING = { ord('s'): "Start golf pose", 
+                        ord('t'): "Top golf pose", 
+                        ord('f'): "Finish golf pose" }
+
 def create_parser():
     """Create a command line parser."""
     parser = argparse.ArgumentParser(
-        description="Label the different golf poses"
+        description="Label the different golf poses in the video."
     )
 
     parser.add_argument(
@@ -76,9 +82,7 @@ def put_msg(frame, msg):
 
 def is_pose_key_detected(key_pressed):
     """ Return true if the user pressed a pose class change."""
-
-    key_states = [ord('s'), ord('t'), ord('f')]
-    return key_pressed in key_states
+    return key_pressed in KEY_STATE_ENCODING.keys()
   
 def create_pose_class(key_pressed, handedness):
     if key_pressed == ord('s'):
@@ -117,6 +121,10 @@ def save_pose_coordinates_to_csv(fname, mode, pose_results, pose_classes):
 
 def main():
     opt = create_parser().parse_args()
+
+    for key in KEY_STATE_ENCODING.keys():
+        print(f"KeyPressed '{chr(key)}'' ==> {create_pose_class(key, opt.type)}: {KEY_STATE_ENCODING[key]}")
+
     if opt.out == "":
         opt.out = os.path.basename(opt.video).split('.')[0] + ".csv"
 
@@ -127,31 +135,33 @@ def main():
         opt.mode = "w"
         print(f"\n>> Creating '{opt.out}' training data for '{opt.video}'")
 
-    frames = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
+    in_frames, (h, w, fps) = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
+ 
+    gs = golf_swing_factory.create_golf_swing(in_frames)
+
+    #
+    # Hack: rotate the frames if the head is below the heel.
+    points = gs.get_screen_points(0)
+    nose = points['nose']
+    right_heel = points['right_heel']
+   
+    if right_heel[1] < nose[1]:
+        print(f">>Detected that the head is below the heel. Rotating the frame.")
+        rotated_frames = []
+        for frame in in_frames:
+            rotated_frames.append(video_utils.transform_frame(frame, 100, "180"))
+        in_frames = rotated_frames
+
+    frames = gs.to_frames(in_frames)
     pose_results = defaultdict(lambda: None)
-
-    print(f"\n\n>> Running mediapipe on {len(frames)} frames. Please be patient !")
-    for idx, frame in enumerate(frames):
-        with mp_pose.Pose(
-                static_image_mode=True,
-                model_complexity=1,
-                enable_segmentation=True,
-                min_detection_confidence=0.5) as pose:
-
-            results = pose.process(frames[idx])
-            if results.pose_landmarks:
-                mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
-                                mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2), 
-                                mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2))
-
-                pose_results[idx] = results.pose_landmarks.landmark
-            else:
-                print(f">>>OOPS: Media pipe failed at idx={idx}")
 
     # -----------------------------------------------
     # Loop  for user to select the type of golf pose
     #----------------------------------------------------       
     pose_classes = defaultdict(lambda: None)
+    cv2.namedWindow("LabelPoses")
+    #fig = plt.figure()
+    #ax =fig.subplots()
 
     if len(frames) > 0:
         idx = 0
@@ -182,7 +192,7 @@ def main():
             put_msg(frames[idx], f"Fr{idx}:{pose_classes[idx]}")
             cv2.imshow("LabelPoses", frames[idx])
             key_pressed = cv2.waitKey(-1) & 0xff
-
+            
     save_pose_coordinates_to_csv(opt.out, opt.mode, pose_results=pose_results, pose_classes=pose_classes)
 if __name__ == "__main__":
     main()

@@ -20,5 +20,4 @@ def run(golf_swing, frames):
         ) as pose:
             results = pose.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             if results.pose_landmarks:
-                landmark = results.pose_landmarks.landmark
-                golf_swing.set_mp_landmarks(frame_idx, landmark)
+                golf_swing.set_mp_landmarks(frame_idx, results.pose_landmarks)

@@ -13,6 +13,7 @@ import pickle
 
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
+mp_pose = mp.solutions.pose
 
 class GolfSwing:
     def __init__(self, height, width, num_frames):
@@ -22,14 +23,15 @@ class GolfSwing:
         self.data = golf_data.GolfData(num_frames)
 
     def get_screen_points(self, frame_idx):
-        """ Return the points on the frame. """
+        """ Return the x, y coordinates of all points on the frame. """
+        row = self.get_mp_landmarks_flat_row(frame_idx)
         p = points.Points(
-            self.data.get_mp_landmarks(frame_idx), self.height, self.width
+            row, self.height, self.width
         )
         return p
 
-    def mp_landmarks_flat_row(self, frame_idx):
-        return self.data.mp_landmarks_flat_row(frame_idx)
+    def get_mp_landmarks_flat_row(self, frame_idx):
+        return self.data.get_mp_landmarks_flat_row(frame_idx)
 
     def set_golf_pose(self, frame_idx, golf_pose, prob):
         self.data.set_golf_pose(frame_idx, golf_pose, prob)
@@ -41,12 +43,16 @@ class GolfSwing:
     def set_mp_landmarks(self, frame_idx, landmarks):
         self.data.set_mp_landmarks(frame_idx, landmarks)
 
-    def to_frames(self):
+    def to_frames(self, incoming_frames=[]):
         frames = []
 
-        for frame_idx in range(self.num_frames()):
-            frame = np.zeros([self.height, self.width, 3], dtype=np.uint8)
-            reconstructed = self.data.get_pb_normalized_landmarks(frame_idx)
+        for frame_idx in range(self.num_frames):
+            if frame_idx < len(incoming_frames):
+                frame = incoming_frames[frame_idx]
+            else:
+                frame = np.zeros([self.height, self.width, 3], dtype=np.uint8)
+            #reconstructed = self.data.get_pb_normalized_landmarks(frame_idx)
+            reconstructed = self.data.get_mp_landmarks(frame_idx)
         
             mp_drawing.draw_landmarks(frame, reconstructed, mp_pose.POSE_CONNECTIONS,
                                 mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2), 

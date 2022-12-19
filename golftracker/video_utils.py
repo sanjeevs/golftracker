@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-
 def transform_frame(frame, scale=100, rotate=""):
 
     width = int(frame.shape[1] * scale / 100)
@@ -19,24 +18,33 @@ def transform_frame(frame, scale=100, rotate=""):
 
 
 def split_video_to_frames(video_fname, scale=100, rotate=0):
-    """ Split a video file into frames. """
+    """ Split a video file and return frames and other info."""
 
     frames = []
     cap = cv2.VideoCapture(video_fname)
     if not cap.isOpened():
         raise ValueError(f"Could not open file '{video_fname}'")
-    while 1:
-        if cap.grab():
-            flag, frame = cap.retrieve()
-            if not flag:
-                break
-            else:
-                out_frame = transform_frame(frame, scale, rotate)
-                frames.append(out_frame)
-        else:
-            break
 
-    return frames
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    
+    while 1:
+        flag, frame = cap.read()
+        if not flag:
+            break
+        else:
+            # Video frames seem to be in correct RGB format. So no conversion needed
+            # rgb_frame = frame #cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            out_frame = transform_frame(frame, scale, rotate)
+            frames.append(out_frame)
+          
+    (height, width, _) = frames[0].shape
+
+    # Paranoia check.
+    assert frames[0].dtype == 'uint8'
+    print(f">>New video has width={width}, ht={height}, fps={fps}")
+    cap.release()
+
+    return (frames, (width, height, fps))
 
 
 def join_frames_to_video(video_fname, fps, frames):

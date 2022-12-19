@@ -7,16 +7,13 @@ from golftracker import gt_const
 
 
 class Points:
-    def __init__(self, landmarks, height, width):
+    def __init__(self, row, height, width):
         self.data = {}
         i = 0
 
         for entry in gt_const.MP_POSE_LANDMARKS:
-            if landmarks:
-                self.data[entry] = [landmarks[i] * width, landmarks[i + 1] * height]
-                i += 4
-            else:
-                self.data[entry] = []
+            self.data[entry] = [row[i] * width, row[i + 1] * height]
+            i += 4
 
     def __getitem__(self, key):
         if key not in self.data:
