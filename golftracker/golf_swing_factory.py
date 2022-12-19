@@ -16,7 +16,7 @@ from golftracker import ml_pose_operation as ml_op
 
 
 def create_from_video(video_fname, pose_model=None):
-    frames = video_utils.split_video_to_frames(video_fname)
+    (frames, _) = video_utils.split_video_to_frames(video_fname)
     if len(frames) == 0:
         raise ValueError(f"Found no frames in '{video_fname}'")
     return create_golf_swing(frames, pose_model)
