@@ -1,26 +1,42 @@
 #
 # Root object
 # Data storage as processing of the video continues.
-
-import json
-import copy
-from golftracker import golf_data
-from golftracker import gt_const
-from golftracker import points
+#
+# Root class
+#
 import pandas as pd
 import numpy as np
 import pickle
+from collections import defaultdict
+import os
+
+from golftracker import golf_data
+from golftracker import gt_const
+from golftracker import points
+from golftracker import video_utils
+from golftracker import file_utils
 
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
 class GolfSwing:
-    def __init__(self, height, width, num_frames):
+    def __init__(self, height, width, num_frames, fps=30):
         self.height = height
         self.width = width
         self.num_frames = num_frames
+        self.fps = fps
+        self.video_fname = ""
         self.data = golf_data.GolfData(num_frames)
+
+    def set_meta_info(self, video_fname):
+        self.video_fname = file_utils.basename(video_fname)
+        self.video_size = os.path.getsize(video_fname)
+        
+    
+    def get_video_frames(self):
+        (frames, _) = video_utils.split_video_to_frames(self.video_fname)
+        return frames
 
     def get_screen_points(self, frame_idx):
         """ Return the x, y coordinates of all points on the frame. """
@@ -61,3 +77,11 @@ class GolfSwing:
             frames.append(frame)
 
         return frames
+
+    def get_poses_in_frames(self):
+        rslt = defaultdict(list)
+        for frame_idx in range(self.num_frames):
+            entry = self.get_golf_pose(frame_idx)
+            if entry:
+                rslt[entry[0]].append(frame_idx)
+        return rslt

@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import argparse
 
+from golftracker import golf_swing_repository
+from golftracker import video_utils
 
 def stack_images(scale, imgArray):
     """ Helper routine copied from web. """
@@ -56,81 +58,52 @@ def stack_images(scale, imgArray):
 def create_parser():
     """Create a command line parser."""
     parser = argparse.ArgumentParser(
-        description="Merge the default values to json file(s)"
+        description="Display the golf swing from the pkl data base"
     )
 
-    parser.add_argument("in_video", type=str, help="Input video file name")
-
-    parser.add_argument("out_video", type=str, help="Ouput video file name")
-
-    parser.add_argument(
-        "--scale",
-        "-s",
-        default=100,
-        type=int,
-        help="resize the incoming video file by scale percent",
-    )
-
-    parser.add_argument(
-        "--rotate", "-r", default="", help="rotate the incoming video file",
-    )
+    parser.add_argument("swing_db", type=str, help="Input golf swing data base")
 
     return parser
 
 
-def transform_frame(opt, frame):
-    if opt.rotate == "90":
-        out_frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-    elif opt.rotate == "180":
-        out_frame = cv2.rotate(frame, cv2.ROTATE_180)
-    else:
-        out_frame = frame
-    return out_frame
-
-
 def main():
     opt = create_parser().parse_args()
-    in_cap = cv2.VideoCapture(opt.in_video)
-    if not in_cap.isOpened():
-        raise ValueError(f"Could not open in video {opt.in_video}")
+    gs = golf_swing_repository.reconstitute(opt.swing_db)
+    print(f">>Video file is {gs.video_fname}")
+    (video_frames, _) = video_utils.split_video_to_frames(gs.video_fname)
+    frames = gs.to_frames(video_frames)
 
-    out_cap = cv2.VideoCapture(opt.out_video)
-    if not out_cap.isOpened():
-        raise ValueError(f"Could not open out video {opt.out_video}")
+    cv2.namedWindow("LabelPoses")
+  
 
-    frame_cnt = 1
-    while in_cap.isOpened():
-        flag, frame = in_cap.read()
-        if not flag:
-            raise ValueError(f"Error reading from from in video")
-        in_frame = transform_frame(opt, frame)
+    if len(frames) > 0:
+        idx = 0
+        key_pressed = ''
 
-        flag, frame = out_cap.read()
-        if not flag:
-            raise ValueError(f"Error reading from from out video")
-        out_frame = transform_frame(opt, frame)
-
-        cv2.putText(
-            out_frame,
-            f"Fr:  {frame_cnt}",
-            (50, 50),
-            cv2.FONT_HERSHEY_COMPLEX,
-            2,
-            (0, 150, 0),
-            2
-        )
+        print(f">> Press 'q' to save to csv OR Esc to return")
+        while key_pressed != ord('q') and key_pressed != 27: # Esc key
             
+            frame = frames[idx]
 
-        img_stack = stack_images(opt.scale / 100, ([in_frame, out_frame]))
-        cv2.imshow("Stack", img_stack)
-        key_pressed = cv2.waitKey(0) & 0xFF
-        if key_pressed == ord("q"):
-            break
-        frame_cnt += 1
+            if key_pressed == ord('p'):
+                # Previous frame
+                idx -= 1
+                
 
-    in_cap.release()
-    out_cap.release()
+            if key_pressed == ord('n') or key_pressed == 32:
+                # Next frame
+                idx += 1
 
+            # Sanitize
+            if(idx < 0) :
+                idx = 0
+            if (idx >= len(frames)):
+                idx = len(frames) -1
+
+           
+            cv2.imshow("LabelPoses", frames[idx])
+            key_pressed = cv2.waitKey(-1) & 0xff
+    
     cv2.destroyAllWindows()
 
 

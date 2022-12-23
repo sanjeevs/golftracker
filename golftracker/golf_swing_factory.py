@@ -19,7 +19,9 @@ def create_from_video(video_fname, pose_model=None):
     (frames, _) = video_utils.split_video_to_frames(video_fname)
     if len(frames) == 0:
         raise ValueError(f"Found no frames in '{video_fname}'")
-    return create_golf_swing(frames, pose_model)
+    gs = create_golf_swing(frames, pose_model)
+    gs.set_meta_info(video_fname)
+    return gs
 
 
 def create_from_image(image_fname, pose_model=None):

@@ -90,15 +90,15 @@ def create_pose_class(key_pressed, handedness):
     elif key_pressed == ord('t'):
         return gt.GolfPose.LhTop if handedness == "left" else gt.GolfPose.RhTop
     elif key_pressed == ord('f'):
-        return gt.GolfPose.LhTop if handedness == "left" else gt.GolfPose.RhTop
+        return gt.GolfPose.LhFinish if handedness == "left" else gt.GolfPose.RhFinish
     else:
         return None
 
 
-def save_pose_coordinates_to_csv(fname, mode, pose_results, pose_classes):
+def save_pose_coordinates_to_csv(fname, mode, golfswing, pose_classes):
     """ Save golf poses to csv fname. """
 
-    num_coords = len(pose_results[0])
+    num_coords = len(golfswing.get_mp_landmarks_flat_row(0))
     landmarks = ['class']
     for val in range(1, num_coords+1):
         landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
@@ -110,9 +110,8 @@ def save_pose_coordinates_to_csv(fname, mode, pose_results, pose_classes):
 
         for idx, golf_pose in pose_classes.items():
             if golf_pose:
-                rslt = pose_results[idx]
-                pose_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in rslt]).flatten())
-            
+                pose_row = golfswing.get_mp_landmarks_flat_row(idx)
+              
                 # Append class name 
                 pose_row.insert(0, golf_pose)
             
@@ -128,46 +127,26 @@ def main():
     if opt.out == "":
         opt.out = os.path.basename(opt.video).split('.')[0] + ".csv"
 
-    if os.path.exists(opt.out):
-        opt.mode = "a"
-        print(f"\n>> Appending '{opt.out}' training data for '{opt.video}'")
-    else:
-        opt.mode = "w"
-        print(f"\n>> Creating '{opt.out}' training data for '{opt.video}'")
-
+    
     in_frames, (h, w, fps) = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
  
     gs = golf_swing_factory.create_golf_swing(in_frames)
-
-    #
-    # Hack: rotate the frames if the head is below the heel.
-    points = gs.get_screen_points(0)
-    nose = points['nose']
-    right_heel = points['right_heel']
-   
-    if right_heel[1] < nose[1]:
-        print(f">>Detected that the head is below the heel. Rotating the frame.")
-        rotated_frames = []
-        for frame in in_frames:
-            rotated_frames.append(video_utils.transform_frame(frame, 100, "180"))
-        in_frames = rotated_frames
-
     frames = gs.to_frames(in_frames)
-    pose_results = defaultdict(lambda: None)
 
     # -----------------------------------------------
     # Loop  for user to select the type of golf pose
     #----------------------------------------------------       
-    pose_classes = defaultdict(lambda: None)
+    pose_classes = {}
+
     cv2.namedWindow("LabelPoses")
-    #fig = plt.figure()
-    #ax =fig.subplots()
+  
 
     if len(frames) > 0:
         idx = 0
         key_pressed = ''
 
-        while key_pressed != ord('q'):
+        print(f">> Press 'q' to save to csv OR Esc to return")
+        while key_pressed != ord('q') and key_pressed != 27: # Esc key
             
             frame = frames[idx]
 
@@ -188,11 +167,36 @@ def main():
 
             if is_pose_key_detected(key_pressed):
                 pose_classes[idx] = create_pose_class(key_pressed, opt.type).name
+                put_msg(frames[idx], f"Fr{idx}:{pose_classes[idx]}")
+            else:
+                put_msg(frames[idx], f"Fr{idx}")
 
-            put_msg(frames[idx], f"Fr{idx}:{pose_classes[idx]}")
+
             cv2.imshow("LabelPoses", frames[idx])
             key_pressed = cv2.waitKey(-1) & 0xff
-            
-    save_pose_coordinates_to_csv(opt.out, opt.mode, pose_results=pose_results, pose_classes=pose_classes)
+    
+    if key_pressed == 27:  #Esc key to abort the save
+        print(f">>Escape key detected. Not saving any pose data")
+        pose_classes = {}
+
+    else:
+        hist = defaultdict(list)
+        for k, v in pose_classes.items():
+            hist[v].append(k)
+
+        for k, v in hist.items():
+            print(f">>{k} in frames={v}")
+
+        if os.path.exists(opt.out):
+            opt.mode = "a"
+            print(f"\n>> Appending {len(pose_classes)} labels in '{opt.out}' for '{opt.video}'")
+        else:
+            opt.mode = "w"
+            print(f"\n>> Creating {len(pose_classes)} labels in '{opt.out}' for '{opt.video}'")
+
+        save_pose_coordinates_to_csv(opt.out, opt.mode, gs, pose_classes)
+
+    cv2.destroyAllWindows()
+    
 if __name__ == "__main__":
     main()

@@ -29,3 +29,10 @@ class GolfData:
             return self.golf_poses[frame_idx]
         else:
             return None
+
+    def get_pose_frames(self, golf_pose):
+        lst = []
+        for frame_idx in self.golf_poses.keys():
+            if self.get_golf_pose(frame_idx)[0] == golf_pose:
+                lst.append(frame_idx)
+        return lst

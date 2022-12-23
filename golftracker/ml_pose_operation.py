@@ -8,7 +8,7 @@ from golftracker import gt_const as gt
 def run(golf_swing, model):
 
     for idx in range(golf_swing.num_frames):
-        X = pd.DataFrame([golf_swing.mp_landmarks_flat_row(idx)])
+        X = pd.DataFrame([golf_swing.get_mp_landmarks_flat_row(idx)])
 
         pose_class = model.predict(X)[0]
         pose_prob = model.predict_proba(X)[0]
