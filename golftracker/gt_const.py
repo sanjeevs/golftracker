@@ -46,6 +46,7 @@ class GolfPose(Enum):
     LhStart = 4
     LhTop = 5
     LhFinish = 6
+    Unknown = 100
 
 
 def pose_row_header():

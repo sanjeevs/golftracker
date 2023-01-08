@@ -32,32 +32,38 @@ class GolfSwing:
     def set_meta_info(self, video_fname):
         self.video_fname = file_utils.basename(video_fname)
         self.video_size = os.path.getsize(video_fname)
-        
     
+    # Query Interface
+    # Return all the list.
+
     def get_video_frames(self):
+        """Return the video frames from video fname. """
         (frames, _) = video_utils.split_video_to_frames(self.video_fname)
         return frames
 
     def get_screen_points(self, frame_idx):
-        """ Return the x, y coordinates of all points on the frame. """
+        """Return the x, y coordinates of all points on the frame. """
         row = self.get_mp_landmarks_flat_row(frame_idx)
         p = points.Points(
             row, self.height, self.width
         )
         return p
 
-    def get_mp_landmarks_flat_row(self, frame_idx):
-        return self.data.get_mp_landmarks_flat_row(frame_idx)
-
-    def set_golf_pose(self, frame_idx, golf_pose, prob):
-        self.data.set_golf_pose(frame_idx, golf_pose, prob)
-
     def get_golf_pose(self, frame_idx):
-        entry = self.data.get_golf_pose(frame_idx)
-        return entry
+        """ Return the golf pose enum type for the frame.
+            If no pose detected then return state Unknown.
+        """
+        return self.data.get_golf_pose(frame_idx)
 
-    def set_mp_landmarks(self, frame_idx, landmarks):
-        self.data.set_mp_landmarks(frame_idx, landmarks)
+    def get_pose_frames(self, golf_pose):
+        """Return all the frames that match the given pose."""
+        return self.data.get_pose_frames(golf_pose)
+
+    def get_mp_landmarks_flat_row(self, frame_idx):
+        """Helper function to return media pipe values in a flat row. 
+           used for training data for ml pose model.
+        """
+        return self.data.get_mp_landmarks_flat_row(frame_idx)
 
     def to_frames(self, incoming_frames=[]):
         frames = []
@@ -81,7 +87,21 @@ class GolfSwing:
     def get_poses_in_frames(self):
         rslt = defaultdict(list)
         for frame_idx in range(self.num_frames):
-            entry = self.get_golf_pose(frame_idx)
-            if entry:
-                rslt[entry[0]].append(frame_idx)
+            pose = self.get_golf_pose(frame_idx)
+            if pose:
+                rslt[pose].append(frame_idx)
         return rslt
+
+    #
+    # Command interface
+    # Change the state of the object.
+
+    def set_golf_pose(self, frame_idx, golf_pose, prob):
+        self.data.set_golf_pose(frame_idx, golf_pose, prob)
+
+    def set_mp_landmarks(self, frame_idx, landmarks):
+        self.data.set_mp_landmarks(frame_idx, landmarks)
+
+    
+
+    

@@ -1,5 +1,6 @@
 from golftracker import golf_swing
 from golftracker import golf_swing_factory
+from golftracker import club_detection
 from golftracker import gt_const
 from golftracker import file_utils
 

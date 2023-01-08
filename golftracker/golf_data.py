@@ -9,30 +9,45 @@ class GolfData:
         self.mp_frame_landmarks = [[]] * num_frames
         self.golf_poses = {}
 
-    def set_mp_landmarks(self, frame_idx, landmarks):
-        self.mp_frame_landmarks[frame_idx] = landmarks
-
+    # 
+    # Query inteface
+    #
     def get_mp_landmarks(self, frame_idx):
         return self.mp_frame_landmarks[frame_idx]
 
     def get_mp_landmarks_flat_row(self, frame_idx):
         """ Return media pipe landmarks as a list of tuple (x, y, z, v) normalized coordinates """
-        rslt = self.mp_frame_landmarks[frame_idx].landmark
-        row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in rslt]).flatten())
+        rslt = self.get_mp_landmarks(frame_idx)
+        row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in rslt.landmark]).flatten())
         return row
-
-    def set_golf_pose(self, frame_idx, golf_pose, prob):
-        self.golf_poses[frame_idx] = (golf_pose, prob)
 
     def get_golf_pose(self, frame_idx):
         if frame_idx in self.golf_poses.keys():
-            return self.golf_poses[frame_idx]
+            return self.golf_poses[frame_idx][0]
         else:
-            return None
+            return gt.GolfPose.Unknown
+
+    def get_golf_pose_prob(self, frame_idx):
+        if frame_idx in self.golf_poses.keys():
+            return self.golf_poses[frame_idx][1]
+        else:
+            return 0.0
 
     def get_pose_frames(self, golf_pose):
         lst = []
         for frame_idx in self.golf_poses.keys():
-            if self.get_golf_pose(frame_idx)[0] == golf_pose:
+            if self.get_golf_pose(frame_idx) == golf_pose:
                 lst.append(frame_idx)
         return lst
+
+    # 
+    # Command Interface
+    # 
+    def set_mp_landmarks(self, frame_idx, landmarks):
+        self.mp_frame_landmarks[frame_idx] = landmarks
+
+    def set_golf_pose(self, frame_idx, golf_pose, prob):
+        self.golf_poses[frame_idx] = (golf_pose, prob)
+
+    
+   

@@ -12,7 +12,7 @@ class Points:
         i = 0
 
         for entry in gt_const.MP_POSE_LANDMARKS:
-            self.data[entry] = [row[i] * width, row[i + 1] * height]
+            self.data[entry] = [int(row[i] * width), int(row[i + 1] * height)]
             i += 4
 
     def __getitem__(self, key):

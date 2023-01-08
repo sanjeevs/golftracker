@@ -22,11 +22,11 @@ setup(
     author_email="snjvsingh123@gmail.com",
     entry_points={
         'console_scripts' : [
-            'create_video_fm_json=scripts.create_video_fm_json:main',
             'analyze_swing_video=scripts.analyze_swing_video:main',
             'display_golf_swing=scripts.display_golf_swing:main',
             'label_golf_poses=scripts.label_golf_poses:main',
             'resize_in_video=scripts.resize_in_video:main',
+            'track_golf_club=scripts.track_golf_club:main',
             'create_posemodel=scripts.utils.create_posemodel:main',
             'train_posemodel=scripts.utils.train_posemodel:main',
             'predict_posemodel=scripts.utils.predict_posemodel:main',

@@ -6,12 +6,14 @@ def test_poses():
     gd.set_golf_pose(0, gt.GolfPose.RhStart, 0.7)
     gd.set_golf_pose(4, gt.GolfPose.LhStart, 0.9)
 
-    pose, prob = gd.get_golf_pose(0)
+    pose= gd.get_golf_pose(0)
     assert pose == gt.GolfPose.RhStart
+    prob= gd.get_golf_pose_prob(0)
     assert prob == 0.7
 
-    pose, prob = gd.get_golf_pose(4)
+    pose = gd.get_golf_pose(4)
     assert pose == gt.GolfPose.LhStart
+    prob= gd.get_golf_pose_prob(4)
     assert prob == 0.9
 
 def test_frame_poses():
