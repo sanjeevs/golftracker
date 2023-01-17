@@ -15,6 +15,7 @@ from golftracker import gt_const
 from golftracker import points
 from golftracker import video_utils
 from golftracker import file_utils
+from golftracker import club_position
 
 import mediapipe as mp
 mp_drawing = mp.solutions.drawing_utils
@@ -28,6 +29,7 @@ class GolfSwing:
         self.fps = fps
         self.video_fname = ""
         self.data = golf_data.GolfData(num_frames)
+        self.club_position = club_position.ClubPosition()
 
     def set_meta_info(self, video_fname):
         self.video_fname = file_utils.basename(video_fname)
@@ -92,6 +94,14 @@ class GolfSwing:
                 rslt[pose].append(frame_idx)
         return rslt
 
+    def is_golfer_right_handed(self):
+        ''' A golfer is either right handed or left handed. '''
+        return True
+
+    def get_club_line(self, frame_idx):
+        """Return the club line or None if not detected."""
+        return self.club_position.get(frame_idx)
+        
     #
     # Command interface
     # Change the state of the object.
@@ -102,6 +112,17 @@ class GolfSwing:
     def set_mp_landmarks(self, frame_idx, landmarks):
         self.data.set_mp_landmarks(frame_idx, landmarks)
 
-    
+    def set_club_head_point(self, frame_idx, club_head_pt):
+        ''' From club head points on the screen compute the club.
+            These are assumed to be correct and will guide further compute.
+        '''
+        points = self.get_screen_points(frame_idx)
+        if self.is_golfer_right_handed():
+            grip_pt = points['right_wrist']
+        else:
+            grip_pt = points['left_wrist']
+        self.club_position.set(frame_idx, grip_pt, club_head_pt)
+
+
 
     

@@ -14,5 +14,5 @@ def test_detect_lines_in_region():
 	img = cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), thickness=line_thickness)
 	canny_edge_img = image_operation.CannyEdgeDetection().process(img)
 	single_channel_canny_img = cv2.cvtColor(canny_edge_img, cv2.COLOR_BGR2GRAY)
-	lines = image_operation.LineDetector().process(single_channel_canny_img)	
+	lines = image_operation.HoughLineDetector().process(single_channel_canny_img)	
 	assert len(lines) > 0

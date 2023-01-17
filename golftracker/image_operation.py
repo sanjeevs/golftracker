@@ -1,3 +1,8 @@
+'''
+Wrapper around cv2 algorithm.
+Keep it generic.
+'''
+
 import cv2
 import numpy as np
 import logging
@@ -26,7 +31,7 @@ class CannyEdgeDetection:
     def run(self, frames):
         return list(map(self.process, frames))
 
-class LineDetector:
+class HoughLineDetector:
     def __init__(self):
         self.rho = 1  # distance resolution in pixels of the Hough grid
         self.theta = np.pi / 180  # angular resolution in radians of the Hough grid
@@ -45,9 +50,10 @@ class LineDetector:
         for line in lines:
             for x1, y1, x2, y2 in line:
                 result.append((x1, y1, x2, y2))
-        log = logging.getLogger(__name__)
-        log.info(f"Found {len(lines)} lines in canny image.")
         return result
+
+    def run(self, frames):
+        return list(map(self.process, frames))
 
     def draw(self, canny_edges_img, background_img=None):
         lines = self.process(canny_edges_img)
