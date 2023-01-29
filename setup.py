@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="golftracker",
-    version="1.0.0",
+    version="1.1.0",
     description="Use open cv to detect critical elements in a golf swing.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -22,8 +22,10 @@ setup(
     author_email="snjvsingh123@gmail.com",
     entry_points={
         'console_scripts' : [
-            'analyze_swing_video=scripts.analyze_swing_video:main',
+            'create_swing_db=scripts.create_swing_db:main',
+            'info_swing_db=scripts.info_swing_db:main',
             'display_golf_swing=scripts.display_golf_swing:main',
+            'label_club_head=scripts.label_club_head:main'
             'label_golf_poses=scripts.label_golf_poses:main',
             'resize_in_video=scripts.resize_in_video:main',
             'track_golf_club=scripts.track_golf_club:main',
@@ -31,7 +33,7 @@ setup(
             'train_posemodel=scripts.utils.train_posemodel:main',
             'predict_posemodel=scripts.utils.predict_posemodel:main',
             'create_test_image=scripts.utils.create_test_image:main',
-            'dump_screen_points=scripts.utils.dump_screen_points:main'
+            'create_test_db=scripts.utils.create_test_db:main'
         ]
     },
     install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10', 

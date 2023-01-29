@@ -59,6 +59,16 @@ def pose_row_header():
 
     return header
 
+def null_pose_row():
+    """ Return null pose data when mp fails."""
+
+    row = []
+    for entry in MP_POSE_LANDMARKS:
+        for i in ["_x", "_y", "_z", "_v"]:
+            row.append(0)
+
+    return row
+
 def num_mp_landmarks():
     return len(MP_POSE_LANDMARKS)
 

@@ -130,7 +130,7 @@ def main():
     
     in_frames, (h, w, fps) = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
  
-    gs = golf_swing_factory.create_golf_swing(in_frames)
+    gs = golf_swing_factory.create_from_frames(opt.video, in_frames)
     frames = gs.to_frames(in_frames)
 
     # -----------------------------------------------

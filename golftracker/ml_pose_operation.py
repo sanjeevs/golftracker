@@ -14,5 +14,5 @@ def run(golf_swing, model):
         pose_prob = model.predict_proba(X)[0]
         max_prob = round(pose_prob[np.argmax(pose_prob)], 2)
 
-        if max_prob > 0.50:
+        if max_prob > 0.70:
             golf_swing.set_golf_pose(idx, gt.GolfPose[pose_class], max_prob)

@@ -30,7 +30,12 @@ def main():
     gs = golf_swing_repository.reconstitute(opt.swing_db)
     print(f">>Video file is {gs.video_fname}")
     (video_frames, _) = video_utils.split_video_to_frames(gs.video_fname)
-    club_lines = club_detection.run(gs, video_frames)
+
+    start_idx = gs.pose_sequence[0]
+    finish_idx = gs.pose_sequence[1]
+
+    frames = video_frames[start_idx : finish_idx]
+    club_lines = club_detection.run(gs, frames)
 
     mp_frames = gs.to_frames()
 
@@ -39,7 +44,7 @@ def main():
 
 
     if len(mp_frames) > 0:
-        idx = 0
+        idx = start_idx
         key_pressed = ''
 
         print(f">> Press 'q' OR Esc to return")
@@ -55,10 +60,10 @@ def main():
                 idx += 1
 
             # Sanitize
-            if(idx < 0) :
-                idx = 0
-            if (idx >= len(mp_frames)):
-                idx = len(mp_frames) -1
+            if(idx < start_idx) :
+                idx = start_idx
+            if (idx >= finish_idx):
+                idx = finish_idx
 
                 
             points = gs.get_screen_points(idx)
@@ -73,7 +78,7 @@ def main():
                                                 color=(0, 0, 255), thickness=3)
 
             line_img = copy.deepcopy(mp_frames[idx])
-            club_line = club_lines[idx]
+            club_line = club_lines[0]
             if club_line:
                 line_img = cv2.line(line_img, (club_line[0], club_line[1]), (club_line[2], club_line[3]), color=(0, 0, 255), thickness=3)    
             

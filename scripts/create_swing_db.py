@@ -6,6 +6,7 @@ import os
 import pickle
 
 from golftracker import golf_swing_factory
+from golftracker import video_utils
 from golftracker import golf_swing_repository
 
 def create_parser():
@@ -40,16 +41,32 @@ def main():
         model = pickle.load(fh)
         print(f">>Loaded default ML model '{opt.model}'")
     
-    
-    gs = golf_swing_factory.create_from_video(opt.in_video, model)
+    (frames, _) = video_utils.split_video_to_frames(opt.in_video)
+    gs = golf_swing_factory.create_from_frames(opt.in_video, frames, model)
 
-    golf_swing_repository.serialize(opt.out, gs)
-   
+    
     # Dump some useful statistics.
     print(f">>Analyzed {gs.num_frames} frames of golf swing.")
-    poses = gs.get_poses_in_frames()
-    for k, v in poses.items():
-        print(f"{k}=>{v}")
+    if gs.pose_sequence != (0, 0):
+        print(f">>Golf swing detected from frame_idx {gs.pose_sequence}")
+        print(f">>Truncating the frames from {gs.pose_sequence} to '{opt.out}'")
+        if gs.is_golfer_right_handed():
+            print(f">>Golfer is right handed")
+        else:
+            print(f">>OOPS Golfer is not right handed")
+            print("\n\n")
+            print(">>WARNING: Currently only support right handed golfer!!")
+        i = gs.pose_sequence[0]
+        j = gs.pose_sequence[1] + 1
+        swing_frames = frames[i:j]
+        trunc_gs = golf_swing_factory.create_from_frames(opt.in_video, swing_frames, model)
+        golf_swing_repository.serialize(opt.out, trunc_gs)
+    else:
+        print(f">>OOPS could not detect golf swing in the video.")
+        print("\n\n")
+        print(f">>WARNING: NOT CREATING DATABASE AS SWING NOT DETECTED")
+        
 
+   
 if __name__ == "__main__":
     main()

@@ -7,7 +7,8 @@ import math
 def gradient(pt1, pt2):
     """ Return the slope of the line. """
     if pt2[0] == pt1[0]:
-        return 0
+        # Instead of infinity return a large value
+        return 100
     else:
         return (pt2[1] - pt1[1]) / (pt2[0] - pt1[0])
 

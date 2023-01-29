@@ -9,7 +9,7 @@
 # The next step is to use line detection to find lines that are closest to the computed postion.
 # Adjust the computed value to the new detected position.
 
-import numpy as np 
+import numpy as np
 import cv2
 import math
 import logging
@@ -19,6 +19,7 @@ from golftracker import geom
 from golftracker import image_operation
 
 from operator import add
+
 
 def computed_golf_lines(golf_swing):
     """ Compute the club lines from golden value. """
@@ -30,33 +31,61 @@ def computed_golf_lines(golf_swing):
 
     return lines
 
+
 def run(golf_swing, video_frames):
     """ Find the golf club line for each of the frames.
         Look at the computed lines and cv2 detection of lines.
         Choose the most appropriate.
     """
+    return line_selection_algo2(golf_swing, video_frames)
+
+
+def line_selection_algo1(golf_swing, video_frames):
     club_lines = {}
     prev_club_head = None
     log = logging.getLogger(__name__)
     computed_lines = computed_golf_lines(golf_swing)
-
     for frame_idx, frame in enumerate(video_frames):
         if frame_idx in computed_lines.keys():
             club_lines[frame_idx] = computed_lines[frame_idx]
         else:
             lines = detect_cv2_lines(frame)
             points = golf_swing.get_screen_points(frame_idx)
-            lines = sort_lines_closest_to_point(lines, points['right_elbow'])
-            lines = sort_lines_closest_to_point(lines, points['right_wrist'])
+            lines = sort_lines_closest_to_point(lines, points["right_elbow"])
+            lines = sort_lines_closest_to_point(lines, points["right_wrist"])
             club_lines[frame_idx] = lines[0]
 
     return club_lines
 
 
+def line_selection_algo2(golf_swing, video_frames):
+    club_lines = {}
+    prev_club_head = None
+    log = logging.getLogger(__name__)
+    computed_lines = computed_golf_lines(golf_swing)
+    club_slope = -1
+    for frame_idx, frame in enumerate(video_frames):
+        if frame_idx in computed_lines.keys():
+            club_lines[frame_idx] = computed_lines[frame_idx]
+            club_slope = geom.slope_of_line(club_lines[frame_idx])
+            log.info(f"Fr{frame_idx}:Computed Club slope is {club_slope}")
+        else:
+            lines = detect_cv2_lines(frame)
+           
+            points = golf_swing.get_screen_points(frame_idx)
+            lines = sort_lines_closest_to_point(lines, points["right_elbow"])
+            lines = sort_lines_closest_to_point(lines, points["right_wrist"])
+            lines = sort_lines_matching_slope(lines[0:9], club_slope)
+            club_lines[frame_idx] = lines[0]
+            club_slope = geom.slope_of_line(club_lines[frame_idx])
+
+    return club_lines
+
+
 def detect_cv2_lines(frame):
-    if not frame:
+    if len(frame) == 0:
         return []
-        
+
     canny = image_operation.CannyEdgeDetection()
     line_detector = image_operation.HoughLineDetector()
 
@@ -70,11 +99,24 @@ def sort_lines_closest_to_point(lines, point):
     """Sort the incoming lines in descending probability of being a club."""
     if lines == []:
         return []
-    
-    dist_lst = list(map(lambda l: geom.shortest_dist_from_point_to_line(point, l), lines))
-    decorated_lst = list(zip(lines, dist_lst))    
+
+    dist_lst = list(
+        map(lambda l: geom.shortest_dist_from_point_to_line(point, l), lines)
+    )
+    decorated_lst = list(zip(lines, dist_lst))
     decorated_lst.sort(key=lambda l: l[1])
-    
+
     sorted_lines = [decorated_lst[i][0] for i in range(len(decorated_lst))]
-    
+
+    return sorted_lines
+
+
+def sort_lines_matching_slope(lines, slope):
+    """Sort the incoming lines in descending probability of being a club."""
+    slope_lst = list(map(lambda l: abs(geom.slope_of_line(l) - slope), lines))
+    decorated_lst = list(zip(lines, slope_lst))
+    decorated_lst.sort(key=lambda l: l[1])
+
+    sorted_lines = [decorated_lst[i][0] for i in range(len(decorated_lst))]
+
     return sorted_lines
