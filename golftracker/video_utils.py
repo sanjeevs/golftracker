@@ -81,9 +81,13 @@ def create_blank_frames(num_frames, height=100, width=200):
     """
     frames = []
     for _ in range(num_frames):
-        blank_frame = np.zeros((height, width, 3), np.uint8)
-        frames.append(blank_frame)
+        frames.append(create_blank_frame(height, width))
     return frames
+
+
+def create_blank_frame(height, width):
+    blank_frame = np.zeros((height, width, 3), np.uint8)
+    return blank_frame
 
 
 def stack_images(imgArray, scale, labels=[]):

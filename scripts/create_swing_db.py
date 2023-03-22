@@ -1,5 +1,6 @@
-# Dumps out the initial creation of golf swing to json.
-# Other scripts can use the db, instead of rerunning mp every time.
+'''
+Process the incoming video and create a database.
+'''
 
 import argparse
 import os
@@ -21,7 +22,9 @@ def create_parser():
     parser.add_argument(
         "--out", "-o", default="", type=str, help="Output swing pkl database produced"
     )
-
+    parser.add_argument(
+        "--truncate", "-t", default=False, action='store_true', help="Truncate the video db"
+    )
     return parser
 
 
@@ -41,30 +44,20 @@ def main():
         model = pickle.load(fh)
         print(f">>Loaded default ML model '{opt.model}'")
     
-    (frames, _) = video_utils.split_video_to_frames(opt.in_video)
-    gs = golf_swing_factory.create_from_frames(opt.in_video, frames, model)
+    gs = golf_swing_factory.create_from_video(opt.in_video, model)
 
     
     # Dump some useful statistics.
     print(f">>Analyzed {gs.num_frames} frames of golf swing.")
-    if gs.pose_sequence != (0, 0):
-        print(f">>Golf swing detected from frame_idx {gs.pose_sequence}")
-        print(f">>Truncating the frames from {gs.pose_sequence} to '{opt.out}'")
-        if gs.is_golfer_right_handed():
-            print(f">>Golfer is right handed")
-        else:
-            print(f">>OOPS Golfer is not right handed")
-            print("\n\n")
-            print(">>WARNING: Currently only support right handed golfer!!")
-        i = gs.pose_sequence[0]
-        j = gs.pose_sequence[1] + 1
-        swing_frames = frames[i:j]
-        trunc_gs = golf_swing_factory.create_from_frames(opt.in_video, swing_frames, model)
-        golf_swing_repository.serialize(opt.out, trunc_gs)
+    if gs.is_valid_swing():
+        print(f">>Golf swing detected between frame_idx {gs.pose_sequence}")
+        print(f">>Golfer is {gs.handed}")
+        golf_swing_repository.serialize(opt.out, gs)
     else:
         print(f">>OOPS could not detect golf swing in the video.")
         print("\n\n")
         print(f">>WARNING: NOT CREATING DATABASE AS SWING NOT DETECTED")
+        print(f">>Run the cmd 'label_golf_poses {opts.in_video}' to manually detect the poses")
         
 
    

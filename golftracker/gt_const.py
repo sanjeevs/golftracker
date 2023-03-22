@@ -1,6 +1,6 @@
 from enum import Enum
 from mediapipe.framework.formats import landmark_pb2
-
+import numpy as np
 
 MP_POSE_LANDMARKS = [
     "nose",
@@ -38,6 +38,7 @@ MP_POSE_LANDMARKS = [
     "right_foot_index",
 ]
 
+ML_POSE_PROB_THRESHOLD = 0.7
 
 class GolfPose(Enum):
     RhStart = 1
@@ -48,8 +49,12 @@ class GolfPose(Enum):
     LhFinish = 6
     Unknown = 100
 
+class Handedness(Enum):
+    LeftHanded=1
+    RightHanded=2
+    Unknown=3
 
-def pose_row_header():
+def mp_landmark_row_header():
     """ Return the header row for pose data."""
 
     header = []
@@ -58,16 +63,6 @@ def pose_row_header():
             header.append(entry + i)
 
     return header
-
-def null_pose_row():
-    """ Return null pose data when mp fails."""
-
-    row = []
-    for entry in MP_POSE_LANDMARKS:
-        for i in ["_x", "_y", "_z", "_v"]:
-            row.append(0)
-
-    return row
 
 def num_mp_landmarks():
     return len(MP_POSE_LANDMARKS)
@@ -84,3 +79,23 @@ def create_pb_normalized_landmarks(lst):
 
     reconstructed = landmark_pb2.NormalizedLandmarkList(landmark=landmark_lst)
     return reconstructed
+
+def get_mp_landmarks_flat_row(frame_landmark):
+    """ 
+    Helper function to convert media pipe landmark list into a flat row.
+
+    :param frame_landmarks: List of proto buf for each landmark in a list.
+    :return: list of tuple (x, y, z, v) normalized coordinates
+    :rtype: list    
+    """
+    if frame_landmark:
+        return list(
+            np.array(
+                [
+                [landmark.x, landmark.y, landmark.z, landmark.visibility]
+                for landmark in frame_landmark.landmark
+                ]
+                ).flatten()
+            )
+    else:
+        return []

@@ -35,9 +35,11 @@ def main():
     finish_idx = gs.pose_sequence[1]
 
     frames = video_frames[start_idx : finish_idx]
-    club_lines = club_detection.run(gs, frames)
+    club_lines = [] #club_detection.run(gs, frames)
 
-    mp_frames = gs.to_frames()
+    mp_frames = copy.deepcopy(frames)
+    for i in range(len(mp_frames)):
+        gs.draw_frame(i, mp_frames[i])
 
     #cv2.namedWindow("LabelPoses")
     print(f"Found {len(mp_frames)} frames with starting pose")
@@ -66,22 +68,19 @@ def main():
                 idx = finish_idx
 
                 
-            points = gs.get_screen_points(idx)
+            points = gs.get_mp_points(idx, gs.height, gs.width)
 
             #model_img = np.zeros(mp_frames[idx].shape, dtype=np.uint8)
             model_img = copy.deepcopy(mp_frames[idx])
             #model_img = double_pendlum.draw(blank_img, points)
-            club_line = gs.get_club_line(idx)
+            club_line = None #gs.get_club_line(idx)
             if club_line:
                 model_img = cv2.line(model_img, (club_line[0], club_line[1]), 
                                                 (club_line[2], club_line[3]),
                                                 color=(0, 0, 255), thickness=3)
 
             line_img = copy.deepcopy(mp_frames[idx])
-            club_line = club_lines[0]
-            if club_line:
-                line_img = cv2.line(line_img, (club_line[0], club_line[1]), (club_line[2], club_line[3]), color=(0, 0, 255), thickness=3)    
-            
+           
             stacked_images = video_utils.stack_images(([video_frames[idx], mp_frames[idx]], 
                                                        [model_img, line_img]), scale=0.6,
                                                        labels=([f"Frame{idx}", "MediaPipe"],

@@ -13,9 +13,9 @@ import csv
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-from golftracker import video_utils, golf_swing_factory
 from golftracker import gt_const as gt 
-
+from golftracker import video_utils
+from golftracker import golf_swing_factory
 from collections import defaultdict
 
 
@@ -128,10 +128,13 @@ def main():
         opt.out = os.path.basename(opt.video).split('.')[0] + ".csv"
 
     
-    in_frames, (h, w, fps) = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
+    # We will draw the media pipe pose on the incoming video frame.
+    frames, (h, w, fps) = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
  
-    gs = golf_swing_factory.create_from_frames(opt.video, in_frames)
-    frames = gs.to_frames(in_frames)
+    gs = golf_swing_factory.create_from_video(opt.video, None)
+   
+    for i in range(gs.num_frames):
+        gs.draw_frame(i, frames[i])
 
     # -----------------------------------------------
     # Loop  for user to select the type of golf pose

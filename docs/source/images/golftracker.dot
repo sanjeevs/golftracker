@@ -1,0 +1,43 @@
+digraph G {
+
+  subgraph cluster_0 {
+    style="filled";
+    color="grey";
+    run_media_pipe -> run_ml_pose_model -> crop_start_end_pose -> detect_golf_club;
+    label = "process video";
+  }
+
+  
+  video_file -> run_media_pipe;
+ 
+  detect_golf_club -> swing_model;
+  
+  golf_analysis -> swing_model
+  swing_model -> golf_analysis
+  
+  golf_analysis -> swing_result
+  
+  swing_model -> display_swing_video;
+  
+  display_swing_video -> swing_video;
+  
+  subgraph cluster_1 {
+    style = filled;
+    color=bisque;
+    node [style=filled,color=white];
+    label="analyze_swing";
+    golf_analysis;
+  }
+  
+  subgraph cluster_2 {
+      label="output_video"
+      style="filled";
+      display_swing_video;
+      color=coral;
+  }
+  
+  video_file [shape=folder];
+  swing_model [shape=box3d, xlabel="pickle_db"];
+  swing_result[shape=note];
+  swing_video [shape=folder];
+}

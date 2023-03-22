@@ -1,6 +1,7 @@
-#
-# Point geometry
-#
+'''
+Geometry algorithms.
+'''
+
 import math
 
 
@@ -76,3 +77,29 @@ def shortest_dist_from_point_to_line(point, line):
     y_intercept = y_intercept_of_line(line)
     dist = abs((slope * point[0]) - point[1] + y_intercept)/math.sqrt((slope * slope) + 1)
     return dist
+
+def sort_lines_closest_to_point(lines, point):
+    """Sort the incoming lines in descending probability of being a club."""
+    if lines == []:
+        return []
+
+    dist_lst = list(
+        map(lambda l: shortest_dist_from_point_to_line(point, l), lines)
+    )
+    decorated_lst = list(zip(lines, dist_lst))
+    decorated_lst.sort(key=lambda l: l[1])
+
+    sorted_lines = [decorated_lst[i][0] for i in range(len(decorated_lst))]
+
+    return sorted_lines
+
+
+def sort_lines_matching_slope(lines, slope):
+    """Sort the incoming lines in descending probability of being a club."""
+    slope_lst = list(map(lambda l: abs(geom.slope_of_line(l) - slope), lines))
+    decorated_lst = list(zip(lines, slope_lst))
+    decorated_lst.sort(key=lambda l: l[1])
+
+    sorted_lines = [decorated_lst[i][0] for i in range(len(decorated_lst))]
+
+    return sorted_lines

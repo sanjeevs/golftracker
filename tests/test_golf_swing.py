@@ -1,7 +1,5 @@
 from golftracker import golf_swing
-from golftracker import golf_swing_factory
-from golftracker import club_detection
-from golftracker import gt_const
+from golftracker import gt_const as gt
 from golftracker import file_utils
 
 import numpy as np
@@ -10,18 +8,14 @@ import json
 
 
 def test_null_init():
-    gs = golf_swing.GolfSwing(10, 20, 30)
+    gs = golf_swing.GolfSwing(10, 20, 30,  10, "video_fname", 100)
     assert gs.height == 10
     assert gs.width == 20
     assert gs.num_frames == 30
+    assert gs.video_fname == "video_fname"
+    assert gs.get_mp_points(10, 100, 100) == {}
+    assert gs.get_golf_pose(10) == gt.GolfPose.Unknown
+    assert gs.computed_club_head_points == [None] * 30
 
-def test_video_name():
-	gs = golf_swing.GolfSwing(10, 20, 30)
-	fname = os.path.join('tests', 'assets', 'test_blank_3.mov')
-	gs.set_meta_info(fname)
-	# Golfswing stores just the basename. When we reconsitute need to patch the path.
-	f = file_utils.search_file(os.path.join('tests', 'assets'), gs.video_fname)
-	gs.video_fname = f
-	frames = gs.get_video_frames()
-	assert len(frames) == 3
-
+    gs.set_given_club_head_point(0, (1, 2))
+    assert gs.given_club_head_points[0] == (1, 2)
