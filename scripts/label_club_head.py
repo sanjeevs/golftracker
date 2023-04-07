@@ -102,7 +102,8 @@ def main():
     if ans == "yes" or ans == "y" or ans == "Y" or ans == "":
         print(f">>Updating {len(points)} points '{opt.swing_db}' file")
         for frame_idx, value in norm_points.items():
-            gs.set_club_head_point(frame_idx, value)
+            gs.set_given_club_head_point(frame_idx, value)
+        gs.run_club_head_detection(video_frames)
         golf_swing_repository.serialize(opt.swing_db, gs)
     else:
         print(f">>SKIP updating the pkl filke '{opt.swing_db}'")

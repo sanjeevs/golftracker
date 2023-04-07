@@ -1,5 +1,5 @@
 from golftracker import geom
-
+import numpy as np
 
 def test_gradient():
     pt1 = [0, 0]
@@ -34,3 +34,13 @@ def test_multi_lines():
     points['right_wrist'] = (1, 2)
     sort_l = geom.sort_lines_closest_to_point(lines, points['right_wrist'])
     assert sort_l[0] == [1, 2.5, 3, 4]
+
+def test_mask_none():
+    height = 100
+    width = 200
+    blank_frame = np.zeros((height, width, 3), np.uint8)
+    mask = geom.create_mask(blank_frame, (0, 0, width, height))
+    assert np.array_equal(mask, blank_frame)
+    # Check if the array memory is different
+    blank_frame[0] = (255, 255, 0)
+    assert not np.array_equal(mask, blank_frame)

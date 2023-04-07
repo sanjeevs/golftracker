@@ -3,7 +3,6 @@ from golftracker import video_utils
 from golftracker import gt_const as gt
 
 import os
-import pickle
 from unittest.mock import Mock
 
 def test_create_from_blank_video():

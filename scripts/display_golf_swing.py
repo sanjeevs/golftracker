@@ -8,8 +8,8 @@ import copy
 
 from golftracker import golf_swing_repository
 from golftracker import video_utils
+from golftracker import image_utils
 
-from golftracker import club_detection
 from golftracker import gt_const 
 from golftracker import double_pendlum
 
@@ -28,17 +28,26 @@ def main():
     logging.basicConfig(level=os.environ.get("LOGCLEVEL", "INFO"))
     opt = create_parser().parse_args()
     gs = golf_swing_repository.reconstitute(opt.swing_db)
-    print(f">>Video file is {gs.video_fname}")
+    
     (video_frames, _) = video_utils.split_video_to_frames(gs.video_fname)
 
     start_idx = gs.pose_sequence[0]
     finish_idx = gs.pose_sequence[1]
+    print(f">>Video file is {gs.video_fname} with start_idx={start_idx} and finish_idx={finish_idx}")
 
-    frames = video_frames[start_idx : finish_idx]
+    frames = video_frames[start_idx : finish_idx + 1]
+    frame_shape = video_frames[0].shape
+
     club_lines = [] #club_detection.run(gs, frames)
+
+
+    sw_frames = []
+    for i in range(len(frames)):
+        sw_frames.append(np.zeros(frame_shape, dtype=np.uint8))
 
     mp_frames = copy.deepcopy(frames)
     for i in range(len(mp_frames)):
+        gs.draw_frame(i, sw_frames[i])
         gs.draw_frame(i, mp_frames[i])
 
     #cv2.namedWindow("LabelPoses")
@@ -70,7 +79,6 @@ def main():
                 
             points = gs.get_mp_points(idx, gs.height, gs.width)
 
-            #model_img = np.zeros(mp_frames[idx].shape, dtype=np.uint8)
             model_img = copy.deepcopy(mp_frames[idx])
             #model_img = double_pendlum.draw(blank_img, points)
             club_line = None #gs.get_club_line(idx)
@@ -81,9 +89,9 @@ def main():
 
             line_img = copy.deepcopy(mp_frames[idx])
            
-            stacked_images = video_utils.stack_images(([video_frames[idx], mp_frames[idx]], 
+            stacked_images = image_utils.stack_images(([video_frames[idx], sw_frames[idx]], 
                                                        [model_img, line_img]), scale=0.6,
-                                                       labels=([f"Frame{idx}", "MediaPipe"],
+                                                       labels=([f"Frame{idx}", "SWView"],
                                                                ["LabelClub", f"{gs.get_golf_pose(idx)}"]))
             cv2.imshow("StackedImages", stacked_images)
             key_pressed = cv2.waitKey(-1) & 0xff

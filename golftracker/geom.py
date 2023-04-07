@@ -4,7 +4,6 @@ Geometry algorithms.
 
 import math
 
-
 def gradient(pt1, pt2):
     """ Return the slope of the line. """
     if pt2[0] == pt1[0]:
@@ -96,7 +95,7 @@ def sort_lines_closest_to_point(lines, point):
 
 def sort_lines_matching_slope(lines, slope):
     """Sort the incoming lines in descending probability of being a club."""
-    slope_lst = list(map(lambda l: abs(geom.slope_of_line(l) - slope), lines))
+    slope_lst = list(map(lambda l: abs(slope_of_line(l) - slope), lines))
     decorated_lst = list(zip(lines, slope_lst))
     decorated_lst.sort(key=lambda l: l[1])
 

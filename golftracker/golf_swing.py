@@ -9,6 +9,7 @@ from golftracker import media_pipe_landmarks
 from golftracker import ml_pose_operation as ml_op
 from golftracker import golf_poses
 from golftracker import golf_handedness
+from golftracker import club_head_detection as ch_op
 from golftracker import gt_const as gt
 
 import cv2
@@ -32,9 +33,8 @@ class GolfSwing:
         self.handed = gt.Handedness.Unknown       # Is it left or right handed.
 
     # Query Interface
-    # Return all the list.
     def get_mp_points(self, frame_idx, height=-1, width=-1):
-        """Return the x, y coordinates of all points on the frame. """
+        """Return a dict with (x, y) coordinates of media pipe landmarks on frame. """
         if height == -1:
             height = self.height
         if width == -1:
@@ -84,7 +84,17 @@ class GolfSwing:
 
     def set_given_club_head_point(self, frame_idx, point):
         self.given_club_head_points[frame_idx] = point
-       
+    
+    def run_club_head_detection(self, frames):
+        """Run club head detecton algo to find the club head."""
+        finger_points = []  # Extract the thumb position as place of fingers.
+        for frame_idx in range(len(frames)):
+            mp_points = self.get_mp_points(frame_idx, self.height, self.width)
+            finger_points.append(mp_points['left_thumb'])
+
+        self.computed_club_head_points = ch_op.run(frames, self.pose_results,
+                                     finger_points, self.given_club_head_points)
+
     def draw_frame(self, frame_idx, background_frame):
         # Draw media pipe
         self.mp_results.draw_frame(frame_idx, background_frame)
