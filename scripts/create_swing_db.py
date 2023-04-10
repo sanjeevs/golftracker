@@ -49,15 +49,17 @@ def main():
     
     # Dump some useful statistics.
     print(f">>Analyzed {gs.num_frames} frames of golf swing.")
+
     if gs.is_valid_swing():
         print(f">>Golf swing detected between frame_idx {gs.pose_sequence}")
-        print(f">>Golfer is {gs.handed}")
+        print(f">>Golfer is {gs.handed}")    
         golf_swing_repository.serialize(opt.out, gs)
+
     else:
         print(f">>OOPS could not detect golf swing in the video.")
+        print(f">>ERROR: COULD NOT CREATE THE PKL DATABASE!!!")
         print("\n\n")
-        print(f">>WARNING: NOT CREATING DATABASE AS SWING NOT DETECTED")
-        print(f">>Run the cmd 'label_golf_poses {opts.in_video}' to manually detect the poses")
+        print(f">>Run the cmd 'label_golf_poses {opt.in_video}' to create csv file")
         
 
    

@@ -199,6 +199,7 @@ def main():
 
         save_pose_coordinates_to_csv(opt.out, opt.mode, gs, pose_classes)
 
+        pirnt(f">>Run the cmd 'train_posemodel ")
     cv2.destroyAllWindows()
     
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ Test Media Pipe
 """
 from golftracker import media_pipe_operation as mp 
 from mediapipe.framework.formats import landmark_pb2
-from golftracker import video_utils
+from golftracker import image_utils
 import os
 import cv2
 
@@ -12,7 +12,7 @@ import cv2
 def test_null():
     """Test when media pipe fails to detect the human."""
     num_frames = 10
-    frames = video_utils.create_blank_frames(num_frames)
+    frames = image_utils.create_blank_frames(num_frames)
     video_landmarks = mp.run(frames)
     assert len(video_landmarks) == num_frames
     assert video_landmarks == [[]] * num_frames

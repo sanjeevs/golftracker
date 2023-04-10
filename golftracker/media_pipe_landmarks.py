@@ -20,7 +20,7 @@ class MediaPipeLandmarks:
     def set_mp_results(self, video_landmarks):
         self.video_landmarks = video_landmarks
 
-    def get_landmarks_flat_row(self, idx):
+    def get_mp_landmarks_flat_row(self, idx):
         frame_landmark = self.video_landmarks[idx]
         return gt.get_mp_landmarks_flat_row(frame_landmark)
       
@@ -36,7 +36,7 @@ class MediaPipeLandmarks:
         """
         data = {}
         i = 0
-        row = self.get_landmarks_flat_row(frame_idx)
+        row = self.get_mp_landmarks_flat_row(frame_idx)
         if row:
             for entry in gt.MP_POSE_LANDMARKS:
                 data[entry] = [int(row[i] * width), int(row[i + 1] * height)]

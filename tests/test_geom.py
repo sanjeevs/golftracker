@@ -1,4 +1,6 @@
 from golftracker import geom
+from golftracker import image_operations
+
 import numpy as np
 
 def test_gradient():
@@ -39,7 +41,7 @@ def test_mask_none():
     height = 100
     width = 200
     blank_frame = np.zeros((height, width, 3), np.uint8)
-    mask = geom.create_mask(blank_frame, (0, 0, width, height))
+    mask = image_operations.create_mask(blank_frame, (0, 0, width, height))
     assert np.array_equal(mask, blank_frame)
     # Check if the array memory is different
     blank_frame[0] = (255, 255, 0)

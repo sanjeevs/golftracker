@@ -11,6 +11,8 @@ from golftracker import golf_poses
 from golftracker import golf_handedness
 from golftracker import club_head_detection as ch_op
 from golftracker import gt_const as gt
+from golftracker import canny_edge_generator as ce
+from golftracker import hough_line_generator as hl 
 
 import cv2
 
@@ -27,10 +29,16 @@ class GolfSwing:
         # Placeholder for results of operations
         self.mp_results = media_pipe_landmarks.MediaPipeLandmarks(num_frames)     
         self.pose_results= [gt.GolfPose.Unknown]  * num_frames
-        self.computed_club_head_points = [None] * num_frames  # Normalized dict of club head.
+        self.computed_club_head_points = [None] * num_frames  #
         self.given_club_head_points = [None] * num_frames     # User input club head points
         self.pose_sequence = (None, None)         # Start to end pose frames
         self.handed = gt.Handedness.Unknown       # Is it left or right handed.
+
+        # Placeholder for cv2 processing
+        self.canny_edge_gen = ce.CannyEdgeGenerator(num_frames)
+        self.hough_line_gen = hl.HoughLineGenerator(num_frames)
+        self.hough_lines = [None] * num_frames
+
 
     # Query Interface
     def get_mp_points(self, frame_idx, height=-1, width=-1):
@@ -40,6 +48,9 @@ class GolfSwing:
         if width == -1:
             width = self.width
         return self.mp_results.get_screen_points(frame_idx, height, width)
+
+    def get_mp_landmarks_flat_row(self, frame_idx):
+        return self.mp_results.get_mp_landmarks_flat_row(frame_idx)
 
     def get_golf_pose(self, frame_idx):
         """ Return the golf pose enum type for the frame.
@@ -69,7 +80,7 @@ class GolfSwing:
     def set_ml_pose_models(self, pose_model):
         """ Run pose model on each frame and store the poses. """
         for frame_idx in range(self.num_frames):
-            row = self.mp_results.get_landmarks_flat_row(frame_idx)
+            row = self.mp_results.get_mp_landmarks_flat_row(frame_idx)
             pose = ml_op.run(pose_model, row, gt.ML_POSE_PROB_THRESHOLD)
             self.pose_results[frame_idx] = pose
 
@@ -92,7 +103,9 @@ class GolfSwing:
             mp_points = self.get_mp_points(frame_idx, self.height, self.width)
             finger_points.append(mp_points['left_thumb'])
 
-        self.computed_club_head_points = ch_op.run(frames, self.pose_results,
+        self.canny_frames = self.canny_edge_gen.run(frames)
+        self.hough_lines  = self.hough_line_gen.run(self.canny_frames)
+        self.computed_club_head_points = ch_op.run(self.hough_lines, self.pose_results,
                                      finger_points, self.given_club_head_points)
 
     def draw_frame(self, frame_idx, background_frame):
