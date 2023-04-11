@@ -102,3 +102,28 @@ def sort_lines_matching_slope(lines, slope):
     sorted_lines = [decorated_lst[i][0] for i in range(len(decorated_lst))]
 
     return sorted_lines
+
+def segment_line(pt1, pt2, ntimes):
+    """
+    Return equidistant point on the line.
+
+    >>> segment_line([0, 0], [100, 100], 0)
+    []
+
+    >>> segment_line([0,0], [100, 100], 1)
+    [(50, 50)]
+
+    >>> segment_line([0, 0], [100, 100], 2)
+    [(33, 33), (66, 66)]
+    """
+
+    x_width = int((pt2[1] - pt1[1]) / (ntimes + 1))
+    y_width = int((pt2[0] - pt1[0]) / (ntimes + 1))
+
+    result = []
+    for i in range(ntimes):
+        x = pt1[0] + x_width * (i + 1)
+        y = pt1[1] + y_width * (i + 1)
+        result.append((x, y))
+
+    return result
