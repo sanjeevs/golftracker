@@ -11,8 +11,11 @@ from golftracker import golf_poses
 from golftracker import golf_handedness
 from golftracker import club_head_detection as ch_op
 from golftracker import gt_const as gt
-from golftracker import canny_edge_generator as ce
-from golftracker import hough_line_generator as hl 
+from golftracker import canny_edge_detector as ce
+from golftracker import canny_edge_params
+from golftracker import hough_line_detector as hl
+from golftracker import hough_line_params
+from golftracker import geom
 
 import cv2
 
@@ -35,10 +38,9 @@ class GolfSwing:
         self.handed = gt.Handedness.Unknown       # Is it left or right handed.
 
         # Placeholder for cv2 processing
-        self.canny_edge_gen = ce.CannyEdgeGenerator(num_frames)
-        self.hough_line_gen = hl.HoughLineGenerator(num_frames)
-        self.hough_lines = [None] * num_frames
-
+        self.canny_edge_params = canny_edge_params.CannyEdgeParams()
+        self.hough_line_params = hough_line_params.HoughLineParams()
+       
 
     # Query Interface
     def get_mp_points(self, frame_idx, height=-1, width=-1):
@@ -96,17 +98,23 @@ class GolfSwing:
     def set_given_club_head_point(self, frame_idx, point):
         self.given_club_head_points[frame_idx] = point
     
-    def run_club_head_detection(self, frames):
-        """Run club head detecton algo to find the club head."""
-        finger_points = []  # Extract the thumb position as place of fingers.
-        for frame_idx in range(len(frames)):
-            mp_points = self.get_mp_points(frame_idx, self.height, self.width)
-            finger_points.append(mp_points['left_thumb'])
+    def run_hg_line_detection(self, frame):
+        """
+        Return all the lines that are detected in the frame.
+        """
+        canny_edge_det = ce.CannyEdgeDetector(self.canny_edge_params)
+        canny_frame = canny_edge_det.process(frame)
 
-        self.canny_frames = self.canny_edge_gen.run(frames)
-        self.hough_lines  = self.hough_line_gen.run(self.canny_frames)
-        self.computed_club_head_points = ch_op.run(self.hough_lines, self.pose_results,
-                                     finger_points, self.given_club_head_points)
+        hough_line_det = hg.HoughLineDetector(self.hough_line_params)
+        hough_lines = hough_line_det.process(canny_frame)
+        return hough_lines
+
+    def filter_frame_lines(self, frame_idx, lines):
+        """Return the lines that are suitable for detection club."""
+        mp_points = self.get_mp_points(frame_idx, self.height, self.width)
+        finger_point = mp_points['left_thumb']
+        result = geom.filter_lines_far_from_point(lines, finger_point, max_dist=10)
+        return result
 
     def draw_frame(self, frame_idx, background_frame):
         # Draw media pipe

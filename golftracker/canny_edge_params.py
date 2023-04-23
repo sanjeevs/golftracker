@@ -11,3 +11,9 @@ class CannyEdgeParams:
         self.canny_threshold1 = 100
         self.canny_threshold2 = 200
         self.dilate_kernel = (5, 5)
+
+    def __str__(self):
+        return f"BinThreshold={self.bin_threshold}, " \
+               f"BinMax={self.bin_maxvalue}, "\
+               f"Thresh1={self.canny_threshold1}, " \
+               f"Thresh2={self.canny_threshold2}"

@@ -46,3 +46,25 @@ def test_mask_none():
     # Check if the array memory is different
     blank_frame[0] = (255, 255, 0)
     assert not np.array_equal(mask, blank_frame)
+
+def test_sort_lines_closes_to_pt():
+    line1 = [20, 20, 100, 200]
+    line2 = [30, 30, 300, 300]
+    line3 = [250, 100, 300, 300]
+    lines = [line1, line2, line3]
+    s0 = geom.sort_lines_closest_to_point(lines, (300, 10), 1)
+    assert len(s0) == 0
+
+    s1 = geom.sort_lines_closest_to_point(lines, (300, 10), 100)
+    assert len(s1) == 1
+    assert s1[0] == [250, 100, 300, 300]
+
+def test_sort_lines_matching_slope():
+    line1 = [20, 20, 100, 200]
+    line2 = [30, 30, 300, 300]
+    line3 = [250, 100, 300, 300]
+    lines = [line1, line2, line3]
+    s0 = geom.sort_lines_matching_slope(lines, 10, 0)
+    assert len(s0) == 0
+    s0 = geom.sort_lines_matching_slope(lines, 1, 0)
+    assert len(s0) == 1

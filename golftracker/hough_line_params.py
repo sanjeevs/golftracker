@@ -10,3 +10,8 @@ class HoughLineParams:
         self.threshold = 15  # minimum number of votes (intersections in Hough grid cell)
         self.min_line_length = 50  # minimum number of pixels making up a line
         self.max_line_gap = 20  # maximum gap in pixels between connectable line segments
+
+    def __str__(self):
+        return f"rho={self.rho}, theta={self.theta}, threshold={self.threshold}, " \
+               f"min_line_length={self.min_line_length}, " \
+               f"max_line_gap={self.max_line_gap}"

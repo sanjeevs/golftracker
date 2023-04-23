@@ -23,13 +23,6 @@ def create_blank_frame(height, width):
     blank_frame = np.zeros((height, width, 3), np.uint8)
     return blank_frame
 
-
-def draw_lines(frame, lines):
-    for line in lines:
-        cv2.line(frame, (line[0], line[1]), (line[2], line[3]), color=(128, 128, 0), thickness=2)
-    return frame
-
-
 def stack_images(imgArray, scale, labels=[]):
     """ Helper routine copied from web.
         https://github.com/murtazahassan/OpenCV-Python-Tutorials-and-Projects/blob/master/Basics/Joining_Multiple_Images_To_Display.py
@@ -70,3 +63,30 @@ def stack_images(imgArray, scale, labels=[]):
                 cv2.putText(ver,labels[d][c],(eachImgWidth*c+10,eachImgHeight*d+20),cv2.FONT_HERSHEY_COMPLEX,0.7,(255,0,255),2)
     return ver
 
+
+def create_roi(point, width, height):
+    '''
+    Calculate the coordinates of the top-left and bottom-right corners of the rectangle.
+    '''
+    x1 = point[0] - width // 2
+    y1 = point[1] - height // 2
+    x2 = point[0] + width // 2
+    y2 = point[1] + height // 2
+
+    return (x1, y1), (x2, y2)
+
+def create_right_triangle(img, pt1, pt2):
+    # Compute the third point of the triangle
+    dx = pt2[0] - pt1[0]
+    dy = pt2[1] - pt1[1]
+    pt3 = [pt1[0] + dy, pt1[1] - dx]
+
+    # Draw the triangle
+    pts = np.array([pt1, pt2, pt3], np.int32)
+    return pts
+
+def draw_triangle(img, pt1, pt2, pt3, color, thickness):
+    # Draw the three lines that form the triangle
+    cv2.line(img, pt1, pt2, color, thickness)
+    cv2.line(img, pt2, pt3, color, thickness)
+    cv2.line(img, pt3, pt1, color, thickness)

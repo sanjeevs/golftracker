@@ -77,7 +77,27 @@ def shortest_dist_from_point_to_line(point, line):
     dist = abs((slope * point[0]) - point[1] + y_intercept)/math.sqrt((slope * slope) + 1)
     return dist
 
-def sort_lines_closest_to_point(lines, point):
+def filter_lines_far_from_point(lines, point, max_dist):
+    """Return a list of lines that are no further than max_dist from point."""
+    result = []
+    for line in lines:
+        dist = shortest_dist_from_point_to_line(point, line)
+        if dist < max_dist:
+            result.append(line)
+    return result
+
+def filter_lines_with_wrong_slope(lines, slope, max_diff):
+    """Return a list of lines that are too different in slope."""
+    result = []
+    for line in lines:
+        s1 = slope_of_line(line)
+        if (s1 * slope) > 0:  # Same sign
+            if (abs(s1 - slope)) < max_diff:
+                result.append(line)
+    return result
+
+
+def sort_lines_closest_to_point(lines, point, max_dist=50):
     """Sort the incoming lines in descending probability of being a club."""
     if lines == []:
         return []
@@ -90,18 +110,38 @@ def sort_lines_closest_to_point(lines, point):
 
     sorted_lines = [decorated_lst[i][0] for i in range(len(decorated_lst))]
 
-    return sorted_lines
+    result = []
+    for line in sorted_lines:
+        dist = shortest_dist_from_point_to_line(point, line)
+        if dist < max_dist:
+            result.append(line)
+        else:
+            break
+
+    return result
 
 
-def sort_lines_matching_slope(lines, slope):
+def sort_lines_matching_slope(lines, slope, max_diff=2):
     """Sort the incoming lines in descending probability of being a club."""
+    if lines == []:
+        return []
+
     slope_lst = list(map(lambda l: abs(slope_of_line(l) - slope), lines))
     decorated_lst = list(zip(lines, slope_lst))
     decorated_lst.sort(key=lambda l: l[1])
 
     sorted_lines = [decorated_lst[i][0] for i in range(len(decorated_lst))]
 
-    return sorted_lines
+    result = []
+    for line in sorted_lines:
+        s1 = slope_of_line(line)
+        if (s1 * slope) < 0:
+            break
+        if (abs(s1 - slope)) > max_diff:
+            break
+        result.append(line)
+
+    return result
 
 def segment_line(pt1, pt2, ntimes):
     """
@@ -127,3 +167,25 @@ def segment_line(pt1, pt2, ntimes):
         result.append((x, y))
 
     return result
+
+
+def compute_velocity(coordinates, fps):
+    """
+    Computes the velocity of a point given a list of all the coordinates in a video.
+
+    Parameters:
+        - coordinates (list): A list of tuples containing the (x, y) coordinates of a point in each frame of the video.
+        - fps (int): The frames per second of the video.
+
+    Returns:
+        - velocities (list): A list of tuples containing the (x_velocity, y_velocity) of the point in each frame of the video.
+    """
+    velocities = []
+    for i in range(1, len(coordinates)):
+        x1, y1 = coordinates[i-1]
+        x2, y2 = coordinates[i]
+        time_delta = 1 / fps
+        x_velocity = (x2 - x1) / time_delta
+        y_velocity = (y2 - y1) / time_delta
+        velocities.append((x_velocity, y_velocity))
+    return velocities

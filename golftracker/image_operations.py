@@ -9,22 +9,10 @@ import logging
 
 from golftracker import geom
 
-
-def detect_cv2_lines(frame):
-    """
-    Detect lines in a frame using canny edge and line detection.
-    """
-    if len(frame) == 0:
-        return []
-
-    canny = CannyEdgeDetection()
-    line_detector = HoughLineDetector()
-
-    canny_img = canny.process(frame)
-    single_channel_canny_edges = cv2.cvtColor(canny_img, cv2.COLOR_BGR2GRAY)
-    lines = line_detector.process(single_channel_canny_edges)
-    return lines
-
+RED = (0, 0, 255)
+YELLOW = (0, 255, 255)
+GREEN = (0, 255, 0)
+GREY = (128, 128, 128)
 
 def create_mask(frame, rectangle):
     """
@@ -37,3 +25,18 @@ def create_mask(frame, rectangle):
     cv2.rectangle(mask, (x1, y1), (x2, y2), (255, 255, 255), -1)
     result = cv2.bitwise_and(frame, frame, mask=mask)
     return result
+
+def draw_lines(frame, lines):
+    """
+    Draw the lines on the frame.
+    The order of color is Red, Yellow, Green, Blue...
+    """
+    for i, line in enumerate(lines):
+        if i == 0:
+            cv2.line(frame, (line[0], line[1]), (line[2], line[3]), color=RED, thickness=3)
+        elif i == 1:
+            cv2.line(frame, (line[0], line[1]), (line[2], line[3]), color=YELLOW, thickness=3)
+        elif i == 2:
+            cv2.line(frame, (line[0], line[1]), (line[2], line[3]), color=GREEN, thickness=3)
+        else:
+            cv2.line(frame, (line[0], line[1]), (line[2], line[3]), color=GREY, thickness=1)

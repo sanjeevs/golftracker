@@ -27,37 +27,41 @@ def run(lines_lst, pose_results, finger_points, given_club_head_points):
                 club_head_points[idx] = last_given_club_head_point
 
     # Phase 2: estimate the points using a linear scale.
-    # Phase 2: Select lines that make sense
+    est_club_head_points = estimate_club_head(club_head_points)
+
+    # Phase 3: Prioritze the lines detected based on estimate.
     for idx in range(num_frames):
-        if not club_head_points[idx]:
+        if est_club_head_points[idx]:
             finger_point = finger_points[idx]
-            club_line = detect_club_lines(lines_lst[idx], finger_point, pose_results[idx])
-            club_head = detect_club_head(club_line, pose_results[idx])
-            if club_head:
+            est_ch_point = est_club_head_points[idx]
+            club_lines = detect_club_lines(lines_lst[idx], finger_point, est_ch_point)
+            if len(club_lines) > 0:
+                club_head = (club_lines[0][2], club_lines[0][3])
                 club_head_points[idx] = club_head
 
     return club_head_points
 
 
-def detect_club_lines(cv2_lines, finger_point, pose_result):
+def detect_club_lines(cv2_lines, finger_point, est_ch_point):
     """
     Return the best estimate of the club line.
     """
+    est_slope = geom.gradient(finger_point, est_ch_point)
     club_lines = [None]
-    club_lines = geom.sort_lines_closest_to_point(cv2_lines, finger_point)
-    est_slope = 1 # FIXME: pose_result.club_line_slope
-    if est_slope:
-        club_lines = geom.sort_lines_matching_slope(club_lines, est_slope)
+    club_lines = geom.sort_lines_closest_to_point(cv2_lines, est_ch_point)
+    club_lines = geom.sort_lines_closest_to_point(club_lines, finger_point)
+    club_lines = geom.sort_lines_matching_slope(club_lines, est_slope)
 
     return club_lines
 
-def detect_club_head(club_line, pose_result):
-    """ Detect the positon of the club head."""
-    return (0, 0)
 
 def estimate_club_head(club_head_points):
     """
-    Estimate the position of the club head using a linear model.
+    Estimate the position of the missing club head using a linear model.
+
+    >>> estimate_club_head([(0, 0), None, (100, 100), None, (200, 200)])
+    [None, (50, 50), None, (150, 150), None]
+    
     """
     num_frames = len(club_head_points)
     est_club_head_points = [None] * num_frames
@@ -75,6 +79,6 @@ def estimate_club_head(club_head_points):
                                                    num_segments)
                 for i in range(len(mid_points)):
                     est_club_head_points[lsb_idx + 1 + i] = mid_points[i]
-                lsb_idx = None
+                lsb_idx = msb_idx
 
     return est_club_head_points
