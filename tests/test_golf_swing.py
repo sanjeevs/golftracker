@@ -13,7 +13,6 @@ def test_null_init():
     assert gs.width == 20
     assert gs.num_frames == 30
     assert gs.video_fname == "video_fname"
-    assert gs.get_mp_points(10, 100, 100) == {}
     assert gs.get_golf_pose(10) == gt.GolfPose.Unknown
     assert gs.computed_club_head_points == [None] * 30
 

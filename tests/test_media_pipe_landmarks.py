@@ -13,4 +13,4 @@ def test_single_entry():
 	lst = [1.0] * gt.num_mp_landmarks() * 4
 	normalized_landmarks = gt.create_pb_normalized_landmarks(lst)
 	mp_results.set_mp_results([normalized_landmarks])
-	assert mp_results.get_screen_points(0, 100, 200)['nose'] == [200, 100]
+	assert mp_results.get_norm_screen_points(0)['nose'] == [1, 1]

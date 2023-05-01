@@ -23,7 +23,7 @@ setup(
     entry_points={
         'console_scripts' : [
             'create_swing_db=scripts.create_swing_db:main',
-            'info_swing_db=scripts.info_swing_db:main',
+            'dump_swing_db=scripts.dump_swing_db:main',
             'display_golf_swing=scripts.display_golf_swing:main',
             'label_club_head=scripts.label_club_head:main',
             'label_golf_poses=scripts.label_golf_poses:main',

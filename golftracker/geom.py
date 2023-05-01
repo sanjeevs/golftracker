@@ -168,24 +168,14 @@ def segment_line(pt1, pt2, ntimes):
 
     return result
 
-
-def compute_velocity(coordinates, fps):
-    """
-    Computes the velocity of a point given a list of all the coordinates in a video.
-
-    Parameters:
-        - coordinates (list): A list of tuples containing the (x, y) coordinates of a point in each frame of the video.
-        - fps (int): The frames per second of the video.
-
-    Returns:
-        - velocities (list): A list of tuples containing the (x_velocity, y_velocity) of the point in each frame of the video.
-    """
+def compute_velocities(coords, fps):
     velocities = []
-    for i in range(1, len(coordinates)):
-        x1, y1 = coordinates[i-1]
-        x2, y2 = coordinates[i]
-        time_delta = 1 / fps
-        x_velocity = (x2 - x1) / time_delta
-        y_velocity = (y2 - y1) / time_delta
-        velocities.append((x_velocity, y_velocity))
+    for i in range(1, len(coords)):
+        dx = coords[i][0] - coords[i-1][0]
+        dy = coords[i][1] - coords[i-1][1]
+        time_elapsed  = 1 / fps
+        velocity = math.sqrt(dx**2 + dy**2) / time_elapsed 
+        direction = math.atan2(dy, dx)
+        sign = 1 if direction > 0 else -1
+        velocities.append(sign * velocity)
     return velocities

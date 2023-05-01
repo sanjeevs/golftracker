@@ -68,3 +68,9 @@ def test_sort_lines_matching_slope():
     assert len(s0) == 0
     s0 = geom.sort_lines_matching_slope(lines, 1, 0)
     assert len(s0) == 1
+
+def test_velocities():
+    points = [[203, 436], [200, 433], [200, 432]]
+    velocities = geom.compute_velocities(points, 30)
+    assert len(velocities) == 2
+    print(velocities)

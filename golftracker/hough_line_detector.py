@@ -36,7 +36,6 @@ class HoughLineDetector:
 
         # Convert to a flat array of lines.
         result = []
-        for line in lines:
-            for x1, y1, x2, y2 in line:
-                result.append((x1, y1, x2, y2))
+        if lines is not None:
+            result = [(x1, y1, x2, y2) for line in lines for x1, y1, x2, y2 in line]
         return result

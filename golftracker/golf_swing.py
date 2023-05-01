@@ -43,13 +43,18 @@ class GolfSwing:
        
 
     # Query Interface
-    def get_mp_points(self, frame_idx, height=-1, width=-1):
+    def get_norm_screen_points(self, frame_idx):
         """Return a dict with (x, y) coordinates of media pipe landmarks on frame. """
-        if height == -1:
-            height = self.height
-        if width == -1:
-            width = self.width
-        return self.mp_results.get_screen_points(frame_idx, height, width)
+        return self.mp_results.get_norm_screen_points(frame_idx)
+
+    def get_norm_point_path(self, pt_name):
+        """Return a list of (x, y) norm coord of the point in entire video"""
+        return [self.get_norm_point_coord(fame_idx) for frame_idx in range(self.num_frames)]
+        
+    def scale(self, norm_points):
+        """ Utility to scale the normalized coordinates to image dim."""
+        scaled_points = [(int(x * self.width), int(y * self.height)) for x, y in norm_points]
+        return scaled_points
 
     def get_mp_landmarks_flat_row(self, frame_idx):
         return self.mp_results.get_mp_landmarks_flat_row(frame_idx)
@@ -92,8 +97,7 @@ class GolfSwing:
         starting_frame = golf_poses.get_pose_first_start(self.pose_results)
         ending_frame = golf_poses.get_pose_last_finish(self.pose_results)
         self.pose_sequence = (starting_frame, ending_frame)
-        if starting_frame is not None:
-            self.handed = golf_handedness.run(self.get_mp_points(starting_frame))
+        self.handed = golf_handedness.run([])
 
     def set_given_club_head_point(self, frame_idx, point):
         self.given_club_head_points[frame_idx] = point
@@ -112,7 +116,7 @@ class GolfSwing:
     def filter_frame_lines(self, frame_idx, lines):
         """Return the lines that are suitable for detection club."""
         mp_points = self.get_mp_points(frame_idx, self.height, self.width)
-        finger_point = mp_points['left_thumb']
+        finger_point = mp_points['right_thumb']
         result = geom.filter_lines_far_from_point(lines, finger_point, max_dist=10)
         return result
 
