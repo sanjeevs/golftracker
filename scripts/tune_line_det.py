@@ -12,6 +12,7 @@ import copy
 from golftracker import golf_swing_repository
 from golftracker import video_utils
 from golftracker import image_utils
+from golftracker import geom
 from golftracker import image_operations as image_op
 from golftracker import gt_const
 
@@ -47,6 +48,15 @@ hough_line_params = gs.hough_line_params
 
 (video_frames, _) = video_utils.split_video_to_frames(gs.video_fname)
 num_frames = len(video_frames)
+
+thumb_points = gs.get_mp_point_trace("right_thumb")
+print(f">>Extracted {len(thumb_points)}")
+print(thumb_points)
+
+thumb_velocities = geom.compute_velocities(thumb_points, gs.fps)
+print(f">>Extracted {len(thumb_velocities)}")
+print(thumb_velocities)
+
 if frame_idx >= num_frames:
     print(f"ERROR: No frame idx {frame_idx} detected in {num_frames} frames")
     raise InvalidInput("Invalid video frame detected")
@@ -64,7 +74,16 @@ def draw_main():
 
     hough_line_det = hough_line_detector.HoughLineDetector(hough_line_params)
     lines = hough_line_det.process(canny_frame)
+    lines = gs.filter_frame_lines(frame_idx, lines)
     line_frame = np.zeros((width, height, 3), np.uint8)
+    mp_points = gs.get_mp_points(frame_idx)
+    points_to_draw = ['right_thumb', 'right_elbow', 'right_shoulder', 'left_shoulder']
+    for pt in points_to_draw:
+        cv2.circle(line_frame, mp_points[pt], 10, (0, 0, 255), -1)
+    pt1, pt2, pt3,  pt4 = [mp_points[pt] for pt in points_to_draw]
+    cv2.line(line_frame, pt1, pt2, (255, 0, 0), 3)
+    cv2.line(line_frame, pt2, pt3, (255, 0, 0), 3)
+    cv2.line(line_frame, pt3, pt4, (255, 0, 0), 3)
     image_op.draw_lines(line_frame, lines)
 
     filter_frame = np.zeros((width, height, 3), np.uint8)
@@ -146,28 +165,28 @@ cv2.createTrackbar("max_gap", "HoughLineTrackbar", hough_line_params.max_line_ga
 cv2.setTrackbarMin("max_gap", "HoughLineTrackbar", 1)
 
 skip_save = 0
-while True:
-    key_pressed = cv2.waitKey(0)
-    if key_pressed == ord("s"):
-        save()
-        break
-    elif key_pressed == ord("q"):  # Esc key
-        ans = input(f">>> Do you want to update the pkl file '{opt.swing_db}'  (y/n) ")
-        if ans == "yes" or ans == "y" or ans == "Y" or ans == "":
-            skip_save = 0
-        else:
-            skip_save = 1
-        break
-    elif key_pressed == 3 or key_pressed == 27: # Ctrl-C
-        skip_save = 1
-        break
-    else:
-        print(f"Invalid Key Pressed:{key_pressed}")
+key_pressed = ''
 
-if not skip_save:
+while key_pressed != ord('q') and key_pressed != 27 and key_pressed != ord('s'):
+    if key_pressed == ord('p'):
+        # Previous frame
+        frame_idx = max(frame_idx -1, 0)
+                
+    if key_pressed == ord('n') or key_pressed == 32:
+        # Next frame
+        frame_idx = min(frame_idx + 1, num_frames -1)
+
+    key_pressed = cv2.waitKey(-1) & 0xff
+
+    frame = video_frames[frame_idx]
+    draw_main()
+
+if key_pressed == ord("s"):
     save()
-else:
-    print(f">>SKIP updating the pkl filke '{opt.swing_db}'")
+elif key_pressed == ord("q"):  
+    ans = input(f">>> Do you want to update the pkl file '{opt.swing_db}'  (y/n) ")
+    if ans == "yes" or ans == "y" or ans == "Y" or ans == "":
+        save()
 
 cv2.destroyAllWindows()
 sys.exit(0)

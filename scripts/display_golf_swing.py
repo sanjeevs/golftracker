@@ -77,20 +77,13 @@ def main():
 
             if key_pressed == ord('p'):
                 # Previous frame
-                idx -= 1
+                idx = max(idx -1, start_idx)
                 
-
             if key_pressed == ord('n') or key_pressed == 32:
                 # Next frame
-                idx += 1
+                idx = min(idx + 1, finish_idx)
 
-            # Sanitize
-            if(idx < start_idx) :
-                idx = start_idx
-            if (idx >= finish_idx):
-                idx = finish_idx
-
-                
+            
             points = gs.get_mp_points(idx, gs.height, gs.width)
 
             model_img = copy.deepcopy(mp_frames[idx])
