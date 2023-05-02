@@ -38,7 +38,7 @@ class MediaPipeLandmarks:
         row = self.get_mp_landmarks_flat_row(frame_idx)
         if row:
             for entry in gt.MP_POSE_LANDMARKS:
-                data[entry] = [int(row[i]), int(row[i + 1])]
+                data[entry] = [row[i], row[i + 1]]
                 i += 4
         return data
 
@@ -48,7 +48,7 @@ class MediaPipeLandmarks:
         if not row:
             raise ValueError(f"Could not find mp row in frame_idx={frame_idx}")
         i = gt.MP_POSE_LANDMARKS.index(pt_name)
-        return [int(row[i]), int(row[i+1])]
+        return [row[i], row[i+1]]
     
     def draw_frame(self, frame_idx, background_frame):
         """

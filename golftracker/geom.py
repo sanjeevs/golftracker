@@ -4,6 +4,80 @@ Geometry algorithms.
 
 import math
 
+def split_pt(points):
+    '''
+    Convert coordinates into x and y list.
+
+    >>> split_pt([(10, 20), (20, 30)])
+    ([10, 20], [20, 30])
+    '''
+    x_coords = [pt[0] for pt in points]
+    y_coords = [pt[1] for pt in points]
+    return (x_coords, y_coords)
+
+def to_pairs(x_coords, y_coords):
+    """
+    Convert x and y list into pair.
+
+    >>> to_pairs([1, 2], [3, 4])
+    [(1, 3), (2, 4)]
+    """
+    pairs = list(zip(x_coords, y_coords))
+    return pairs
+
+def scale(norm_points, width, height):
+        """ Utility to scale the normalized coordinates to image dim.
+        >>> scale([(0.12, 0.34), (0.25, 0.75)], 100, 200)
+        [(12, 68), (25, 150)]
+        """
+        scaled_points = [
+            (int(x * width), int(y * height)) for x, y in norm_points
+        ]
+        return scaled_points
+
+def origin_to_center(x, y, screen_width, screen_height):
+    """
+    Move origin to the center of the screen
+    >>> origin_to_center(0, 0, 400, 800)
+    (-200.0, 400.0)
+    """
+    origin_x = screen_width / 2
+    origin_y = screen_height / 2
+    
+    # Calculate the Cartesian coordinates using the formulas mentioned earlier
+    cartesian_x = x - origin_x
+    cartesian_y = origin_y - y
+    
+    # Return the Cartesian coordinates as a tuple
+    return (cartesian_x, cartesian_y)
+
+def origin_to_lb(x, y, screen_width, screen_height):
+    """
+    Determine the location of the origin in left bottom of the screen.
+    >>> origin_to_lb(0, 0, 400, 800)
+    (0, 800)
+    """
+    origin_x = 0
+    origin_y = screen_height
+    
+    # Calculate the Cartesian coordinates using the formulas mentioned earlier
+    cartesian_x = x - origin_x
+    cartesian_y = origin_y - y
+    
+    # Return the Cartesian coordinates as a tuple
+    return (cartesian_x, cartesian_y)
+
+def scale_origin_to_lb(norm_points, width, height):
+    '''
+    Scale and move the origin to left bottom of the screen.
+    '''
+    scaled_points = scale(norm_points, width, height)
+    cartesian_pts = [
+        origin_to_lb(x, y, width, height)
+        for (x, y) in scaled_points
+    ]
+    return cartesian_pts
+    
 def gradient(pt1, pt2):
     """ Return the slope of the line. """
     if pt2[0] == pt1[0]:
