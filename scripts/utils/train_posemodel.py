@@ -36,7 +36,6 @@ def main():
     df = pd.read_csv(opt.csvfile)
     print(f">>> Reading in {len(df.index)} frames from csv file")
 
-    print(df)
     X = df.drop('class', axis = 1)
     y = df['class']
 

@@ -1,9 +1,4 @@
-#
-# Root object
-# Data storage as processing of the video continues.
-#
-# Root class
-#
+''' Root class '''
 
 from golftracker import media_pipe_landmarks
 from golftracker import ml_pose_operation as ml_op
@@ -49,7 +44,7 @@ class GolfSwing:
     def get_norm_point_path(self, pt_name):
         """Return a list of (x, y) norm coord of the point in entire video"""
         return [
-            self.get_norm_point_coord(fame_idx) for frame_idx in range(self.num_frames)
+            self.mp_results.get_norm_point_coord(idx, pt_name) for idx in range(self.num_frames)
         ]
 
     def get_mp_landmarks_flat_row(self, frame_idx):
@@ -80,14 +75,14 @@ class GolfSwing:
         """Store the landmarks in a flat row. """
         self.mp_results.set_mp_results(video_landmarks)
 
-    def set_ml_pose_models(self, pose_model):
+    def classify_golf_poses(self, pose_model):
         """ Run pose model on each frame and store the poses. """
         for frame_idx in range(self.num_frames):
             row = self.mp_results.get_mp_landmarks_flat_row(frame_idx)
             pose = ml_op.run(pose_model, row, gt.ML_POSE_PROB_THRESHOLD)
             self.pose_results[frame_idx] = pose
 
-    def set_golf_swing_sequence(self):
+    def find_golf_swing_sequence(self):
         """Run the golf swing sequencer to detect the subset of frames with swing."""
         starting_frame = golf_poses.get_pose_first_start(self.pose_results)
         ending_frame = golf_poses.get_pose_last_finish(self.pose_results)

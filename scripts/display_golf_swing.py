@@ -9,7 +9,7 @@ import copy
 from golftracker import golf_swing_repository
 from golftracker import video_utils
 from golftracker import image_utils
-
+from golftracker import path_model
 from golftracker import gt_const 
 
 
@@ -43,9 +43,9 @@ def main():
     frame_shape = video_frames[0].shape
 
     # Check if club head detection has run.
-    if gs.computed_club_head_points[0] == None:
-        print(f">>Club head detection not yet run....Running it")
-        gs.run_club_head_detection(frames)
+    # if gs.computed_club_head_points[0] == None:
+    #     print(f">>Club head detection not yet run....Running it")
+    #     gs.run_club_head_detection(frames)
 
     sw_frames = []
     for i in range(len(frames)):
@@ -56,13 +56,17 @@ def main():
         gs.draw_frame(i, sw_frames[i])
         gs.draw_frame(i, mp_frames[i])
 
-    canny_frames = gs.canny_edge_gen.run(frames)
+    canny_frames = copy.deepcopy(frames) #gs.canny_edge_gen.run(frames)
+    right_thumb_path = path_model.get_path(gs, "right_shoulder")
+    for i, f in enumerate(canny_frames):
+        canny_frames[i] = cv2.circle(f, right_thumb_path[i], 5, color=(255, 0, 0), thickness=-1)
+
     lines_frames = copy.deepcopy(frames)
-    for idx in range(len(lines_frames)):
-        for line in gs.hough_lines[idx]:
-            pt1 = (line[0], line[1])
-            pt2 = (line[2], line[3])
-            cv2.line(lines_frames[idx], pt1, pt2, (0, 0, 255))
+    # for idx in range(len(lines_frames)):
+    #     for line in gs.hough_lines[idx]:
+    #         pt1 = (line[0], line[1])
+    #         pt2 = (line[2], line[3])
+    #         cv2.line(lines_frames[idx], pt1, pt2, (0, 0, 255))
 
     #cv2.namedWindow("LabelPoses")
     print(f"Found {len(mp_frames)} frames with starting pose")
@@ -84,7 +88,7 @@ def main():
                 idx = min(idx + 1, finish_idx)
 
             
-            points = gs.get_mp_points(idx, gs.height, gs.width)
+            #points = gs.get_mp_points(idx, gs.height, gs.width)
 
             model_img = copy.deepcopy(mp_frames[idx])
             #model_img = double_pendlum.draw(blank_img, points)
@@ -99,8 +103,9 @@ def main():
             stacked_images = image_utils.stack_images(([video_frames[idx], sw_frames[idx]], 
                                                        [canny_frames[idx], lines_frames[idx]]), scale=0.4,
                                                        labels=([f"Frame{idx}", f"{gs.get_golf_pose(idx)}"],
-                                                               ["CannyImg", "HoughLines"]))
-            cv2.imshow("StackedImages", stacked_images)
+                                                               ["RightThumb", "HoughLines"]))
+            #cv2.imshow("StackedImages", stacked_images)
+            cv2.imshow("Default", canny_frames[idx])
             key_pressed = cv2.waitKey(-1) & 0xff
     
     cv2.destroyAllWindows()

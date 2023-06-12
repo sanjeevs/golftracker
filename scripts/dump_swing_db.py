@@ -33,11 +33,16 @@ def main():
         opt.csv = os.path.splitext(opt.pkl_db)[0] + ".csv"
 
     print(f">>Saving point values in '{opt.csv}'' file")
+    headers = []
+    for elem in gt.MP_POSE_LANDMARKS:
+        headers.append(elem + "_x")
+        headers.append(elem + "_y")
+
     with open(opt.csv, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(gt.MP_POSE_LANDMARKS)
+        writer.writerow(headers)
 
         for frame_idx in range(gs.num_frames):
-            points = gs.get_norm_mp_points(frame_idx)  
+            points = gs.get_norm_screen_points(frame_idx)  
             row = [coord for pair in points.values() for coord in pair]
             writer.writerow(row)

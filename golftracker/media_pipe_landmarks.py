@@ -19,6 +19,10 @@ class MediaPipeLandmarks:
         self.video_landmarks = [[]] * num_frames
 
     def set_mp_results(self, video_landmarks):
+        '''
+        Store the result of the media pipe operation.
+        Each landmark is a tuple of 4 values (x, y, z, visibility)
+        '''
         self.video_landmarks = video_landmarks
 
     def get_mp_landmarks_flat_row(self, idx):
@@ -39,7 +43,7 @@ class MediaPipeLandmarks:
         if row:
             for entry in gt.MP_POSE_LANDMARKS:
                 data[entry] = [row[i], row[i + 1]]
-                i += 4
+                i += 4 #(x, y, z, v)
         return data
 
     def get_norm_point_coord(self, frame_idx, pt_name):
@@ -48,7 +52,7 @@ class MediaPipeLandmarks:
         if not row:
             raise ValueError(f"Could not find mp row in frame_idx={frame_idx}")
         i = gt.MP_POSE_LANDMARKS.index(pt_name)
-        return [row[i], row[i+1]]
+        return [row[i*4], row[i*4+1]]  #(x, y, z, v)
     
     def draw_frame(self, frame_idx, background_frame):
         """

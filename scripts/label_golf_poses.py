@@ -6,6 +6,7 @@
 import argparse
 import cv2
 import os
+import pickle
 import numpy as np
 import mediapipe as mp
 import csv
@@ -34,11 +35,7 @@ def create_parser():
     )
 
     parser.add_argument(
-        "--out",
-        "-o",
-        default='',
-        type=str,
-        help="Output csv file name. Append if it exists"
+        "--model", "-m", default="", type=str, help="ML model used"
     )
 
     parser.add_argument(
@@ -47,6 +44,14 @@ def create_parser():
         default='right',
         type=str,
         help="Set to right/left handedness of the player"
+    )
+
+    parser.add_argument(
+        "--out",
+        "-o",
+        default='',
+        type=str,
+        help="Output csv file name. Append if it exists"
     )
 
     parser.add_argument(
@@ -98,7 +103,7 @@ def create_pose_class(key_pressed, handedness):
 def save_pose_coordinates_to_csv(fname, mode, golfswing, pose_classes):
     """ Save golf poses to csv fname. """
 
-    num_coords = len(golfswing.get_mp_landmarks_flat_row(0))
+    num_coords = len(gt.MP_POSE_LANDMARKS)
     landmarks = ['class']
     for val in range(1, num_coords+1):
         landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
@@ -127,12 +132,18 @@ def main():
     if opt.out == "":
         opt.out = os.path.basename(opt.video).split('.')[0] + ".csv"
 
+    if opt.model == "":
+        opt.model = os.path.join("..", "models", "pose_model.pkl")
+
+    with open(opt.model, "rb") as fh:
+        pose_model = pickle.load(fh)
+        print(f">>Loaded default ML model '{opt.model}'")
+
+    (frames, gs) = golf_swing_factory.create_from_video(opt.video, opt.scale, opt.rotate)
+    gs.classify_golf_poses(pose_model)
+    gt.print_golf_poses(gs.pose_results)
     
-    # We will draw the media pipe pose on the incoming video frame.
-    frames, (h, w, fps) = video_utils.split_video_to_frames(opt.video, opt.scale, opt.rotate)
- 
-    gs = golf_swing_factory.create_from_video(opt.video, None)
-   
+
     for i in range(gs.num_frames):
         gs.draw_frame(i, frames[i])
 
@@ -143,7 +154,6 @@ def main():
 
     cv2.namedWindow("LabelPoses")
   
-
     if len(frames) > 0:
         idx = 0
         key_pressed = ''
@@ -190,16 +200,11 @@ def main():
         for k, v in hist.items():
             print(f">>{k} in frames={v}")
 
-        if os.path.exists(opt.out):
-            opt.mode = "a"
-            print(f"\n>> Appending {len(pose_classes)} labels in '{opt.out}' for '{opt.video}'")
-        else:
-            opt.mode = "w"
-            print(f"\n>> Creating {len(pose_classes)} labels in '{opt.out}' for '{opt.video}'")
+       
+        print(f"\n>> Creating {len(pose_classes)} labels in '{opt.out}' for '{opt.video}'")
 
-        save_pose_coordinates_to_csv(opt.out, opt.mode, gs, pose_classes)
+        save_pose_coordinates_to_csv(opt.out, "w", gs, pose_classes)
 
-        pirnt(f">>Run the cmd 'train_posemodel ")
     cv2.destroyAllWindows()
     
 if __name__ == "__main__":

@@ -41,11 +41,13 @@ def main():
         opt.model = os.path.join("..", "models", "pose_model.pkl")
 
     with open(opt.model, "rb") as fh:
-        model = pickle.load(fh)
+        pose_model = pickle.load(fh)
         print(f">>Loaded default ML model '{opt.model}'")
     
-    gs = golf_swing_factory.create_from_video(opt.in_video, model)
-
+    gs = golf_swing_factory.create_from_video(opt.in_video)
+    gs.classify_golf_poses(pose_model)
+    gs.find_golf_swing_sequence()
+    print(f">>Golf sequence is from {gs.pose_sequence}")
     
     # Dump some useful statistics.
     print(f">>Analyzed {gs.num_frames} frames of golf swing.")

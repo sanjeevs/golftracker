@@ -22,7 +22,6 @@ def run(lines_lst, pose_results, finger_points, given_club_head_points):
         elif last_given_finger_point:
             curr_finger_point = finger_points[idx]
             movement = geom.length(curr_finger_point, last_given_finger_point)
-            print(f">>Frame[{idx}]:Movement={movement}")
             if abs(movement) < 50:  # Hand tuning
                 club_head_points[idx] = last_given_club_head_point
 

@@ -49,6 +49,19 @@ class GolfPose(Enum):
     LhFinish = 6
     Unknown = 100
 
+def print_golf_poses(poses):
+    mapping = {
+        GolfPose.RhStart: 'S',
+        GolfPose.RhTop: 'T',
+        GolfPose.RhFinish: 'F',
+        GolfPose.Unknown: '.',
+        GolfPose.LhStart: 's',
+        GolfPose.LhTop: 't',
+        GolfPose.LhFinish: 'f',
+    }
+    for i in range(0, len(poses), 16):
+        print(''.join(mapping.get(pose, pose.name) for pose in poses[i:i+16]))
+
 class Handedness(Enum):
     LeftHanded=1
     RightHanded=2

@@ -34,7 +34,8 @@ setup(
             'predict_posemodel=scripts.utils.predict_posemodel:main',
             'create_test_image=scripts.utils.create_test_image:main',
             'create_test_db=scripts.utils.create_test_db:main',
-            'tune_line_det=scripts.tune_line_det'
+            'tune_line_det=scripts.tune_line_det',
+            'plot_swing_points=scripts.plot_swing_points:main'
         ]
     },
     install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10', 
