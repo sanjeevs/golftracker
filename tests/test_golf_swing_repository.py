@@ -6,9 +6,8 @@ import os
 
 def test_export(tmp_path):
     fname = os.path.join('tests', 'assets', 'test_blank_3.mov')
-    ml_model = None
 
-    gs = golf_swing_factory.create_from_video(fname, ml_model)
+    frames, gs = golf_swing_factory.create_from_video(fname)
     assert gs.video_fname == os.path.join('tests', 'assets', 'test_blank_3.mov')
     video_size = gs.video_size
     db = tmp_path / "gs.pkl"
@@ -23,9 +22,8 @@ def test_export(tmp_path):
 
 def test_search_path(tmp_path):
     fname = os.path.join('tests', 'assets', 'test_blank_3.mov')
-    ml_model = None
 
-    gs = golf_swing_factory.create_from_video(fname, ml_model)
+    frames, gs = golf_swing_factory.create_from_video(fname)
     # Clobber the path to the mov file.
     gs.video_fname = 'test_blank_3.mov'
     video_size = gs.video_size

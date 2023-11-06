@@ -7,7 +7,7 @@ import cv2
 def test_club_head_detection():
     fname = os.path.join('tests', 'assets', 'test_pose1.jpg')
    
-    gs = golf_swing_factory.create_from_image(fname, None)
+    (frames, gs) = golf_swing_factory.create_from_image(fname)
     gs.set_given_club_head_point(0, (1, 2))
     frame = cv2.imread(fname)
     assert len(gs.given_club_head_points) == 1
