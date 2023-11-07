@@ -202,8 +202,13 @@ def main():
 
        
         print(f"\n>> Creating {len(pose_classes)} labels in '{opt.out}' for '{opt.video}'")
-
         save_pose_coordinates_to_csv(opt.out, "w", gs, pose_classes)
+
+        print(f"\n>> Run the cmd 'train_posemodel -f <model_pkl> {opt.out}' to train model.")
+        print(f">> Default: train_posemodel -f {os.path.join('..', 'model', 'pose_models.pkl')} "
+                f" {opt.out}")
+
+        
 
     cv2.destroyAllWindows()
     

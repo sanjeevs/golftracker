@@ -44,7 +44,7 @@ def main():
         pose_model = pickle.load(fh)
         print(f">>Loaded default ML model '{opt.model}'")
     
-    gs = golf_swing_factory.create_from_video(opt.in_video)
+    frames, gs = golf_swing_factory.create_from_video(opt.in_video)
     gs.classify_golf_poses(pose_model)
     gs.find_golf_swing_sequence()
     print(f">>Golf sequence is from {gs.pose_sequence}")

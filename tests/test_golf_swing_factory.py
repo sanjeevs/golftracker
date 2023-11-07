@@ -11,7 +11,7 @@ def test_create_from_blank_video():
     (frames, gs) = golf_swing_factory.create_from_video(fname)
     assert gs.height == 100
     assert gs.num_frames == 3
-    assert gs.video_fname == fname
+    assert gs.video_input.fname == fname
 
     # Becasuse we are using a mock, the return value 
     for i in range(3):

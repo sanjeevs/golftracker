@@ -8,11 +8,13 @@ import json
 
 
 def test_null_init():
-    gs = golf_swing.GolfSwing(10, 20, 30,  10, "video_fname", 100)
+    video_input = golf_swing.VideoInput(fname="video_fname", size=100,
+            scale=1, rotate=0)
+    gs = golf_swing.GolfSwing(10, 20, 30,  10, video_input)
     assert gs.height == 10
     assert gs.width == 20
     assert gs.num_frames == 30
-    assert gs.video_fname == "video_fname"
+    assert gs.video_input.fname == "video_fname"
     assert gs.get_golf_pose(10) == gt.GolfPose.Unknown
     assert gs.computed_club_head_points == [None] * 30
 

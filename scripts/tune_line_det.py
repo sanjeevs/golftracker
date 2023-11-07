@@ -46,16 +46,13 @@ gs = golf_swing_repository.reconstitute(opt.swing_db)
 canny_edge_params = gs.canny_edge_params
 hough_line_params = gs.hough_line_params
 
-(video_frames, _) = video_utils.split_video_to_frames(gs.video_fname)
+video_frames = gs.get_video_frames()
 num_frames = len(video_frames)
 
-thumb_points = gs.get_mp_point_trace("right_thumb")
-print(f">>Extracted {len(thumb_points)}")
-print(thumb_points)
+thumb_points = gs.get_screen_point_path("right_thumb")
+print(f">>Extracted {len(thumb_points)} thumb points")
 
 thumb_velocities = geom.compute_velocities(thumb_points, gs.fps)
-print(f">>Extracted {len(thumb_velocities)}")
-print(thumb_velocities)
 
 if frame_idx >= num_frames:
     print(f"ERROR: No frame idx {frame_idx} detected in {num_frames} frames")
@@ -76,7 +73,7 @@ def draw_main():
     lines = hough_line_det.process(canny_frame)
     lines = gs.filter_frame_lines(frame_idx, lines)
     line_frame = np.zeros((width, height, 3), np.uint8)
-    mp_points = gs.get_mp_points(frame_idx)
+    mp_points = gs.get_screen_points(frame_idx)
     points_to_draw = ['right_thumb', 'right_elbow', 'right_shoulder', 'left_shoulder']
     for pt in points_to_draw:
         cv2.circle(line_frame, mp_points[pt], 10, (0, 0, 255), -1)

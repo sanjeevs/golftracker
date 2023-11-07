@@ -36,6 +36,7 @@ class MediaPipeLandmarks:
         :param frame_idx: Frame index
         :rtype: dict
         :return: Dictionary of all the landmark coordinates.
+                 Key is defined in const MP_POSE_LANDMARKS.
         """
         data = {}
         i = 0
