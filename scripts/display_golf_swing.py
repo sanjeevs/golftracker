@@ -4,7 +4,7 @@ import argparse
 import logging
 import os
 import copy
-
+import sys
 
 from golftracker import golf_swing_repository
 from golftracker import video_utils

@@ -59,16 +59,19 @@ class GolfSwing:
 
     def get_screen_points(self, frame_idx):
         norm_dict = self.get_norm_screen_points(frame_idx)
-        return {k: [int(v[0] * self.width), int(v[1] * self.height)] for k, v in norm_dict.items()}
+        return {k: [int(v[0] * self.width), int(v[1] * self.height)] 
+                for k, v in norm_dict.items()}
 
     def get_norm_point_path(self, pt_name):
         """Return a list of (x, y) norm coord of the point in entire video"""
         return [
-            self.mp_results.get_norm_point_coord(idx, pt_name) for idx in range(self.num_frames)
+            self.mp_results.get_norm_point_coord(idx, pt_name) 
+                    for idx in range(self.num_frames)
         ]
 
     def get_screen_point_path(self, pt_name):
-        return [[v[0] * self.width, v[1] * self.height] for v in self.get_norm_point_path(pt_name)]
+        return [ (int(v[0]) * self.width, int(v[1]) * self.height)
+                for v in self.get_norm_point_path(pt_name)]
 
     def get_mp_landmarks_flat_row(self, frame_idx):
         return self.mp_results.get_mp_landmarks_flat_row(frame_idx)

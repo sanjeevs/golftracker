@@ -56,7 +56,7 @@ thumb_velocities = geom.compute_velocities(thumb_points, gs.fps)
 
 if frame_idx >= num_frames:
     print(f"ERROR: No frame idx {frame_idx} detected in {num_frames} frames")
-    raise InvalidInput("Invalid video frame detected")
+    raise ValueError("Invalid video frame detected")
 
 frame = video_frames[frame_idx]
 width, height, _ = frame.shape
