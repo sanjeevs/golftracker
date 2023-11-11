@@ -20,6 +20,8 @@ def create_parser():
     )
 
     parser.add_argument("swing_db", type=str, help="Input golf swing data base")
+    parser.add_argument("--stack", type=int, default=2, help="Shows '1/2/4' stacked images ")
+    parser.add_argument("--scale", type=int, default=75, help="scales the stacked images in pcnt")
 
     return parser
 
@@ -29,7 +31,7 @@ def main():
     opt = create_parser().parse_args()
     gs = golf_swing_repository.reconstitute(opt.swing_db)
     
-    (video_frames, _) = video_utils.split_video_to_frames(gs.video_fname)
+    video_frames = gs.get_video_frames()
 
     start_idx = gs.pose_sequence[0]
     finish_idx = gs.pose_sequence[1]
@@ -37,7 +39,7 @@ def main():
         print(f">>Could not detect the start or end pose. Run 'label_golf_poses' and 'create_swing_db'")
         sys.exit(1)
     
-    print(f">>Video file is {gs.video_fname} with start_idx={start_idx} and finish_idx={finish_idx}")
+    print(f">>Video file is {gs.video_input.fname} with start_idx={start_idx} and finish_idx={finish_idx}")
 
     frames = video_frames[start_idx : finish_idx + 1]
     frame_shape = video_frames[0].shape
@@ -47,13 +49,13 @@ def main():
     #     print(f">>Club head detection not yet run....Running it")
     #     gs.run_club_head_detection(frames)
 
-    sw_frames = []
+    out_frames = []
     for i in range(len(frames)):
-        sw_frames.append(np.zeros(frame_shape, dtype=np.uint8))
+        out_frames.append(np.zeros(frame_shape, dtype=np.uint8))
 
     mp_frames = copy.deepcopy(frames)
     for i in range(len(mp_frames)):
-        gs.draw_frame(i, sw_frames[i])
+        gs.draw_frame(i, out_frames[i])
         gs.draw_frame(i, mp_frames[i])
 
     canny_frames = copy.deepcopy(frames) #gs.canny_edge_gen.run(frames)
@@ -100,12 +102,40 @@ def main():
 
             #line_img = copy.deepcopy(mp_frames[idx])
             
-            stacked_images = image_utils.stack_images(([video_frames[idx], sw_frames[idx]], 
-                                                       [canny_frames[idx], lines_frames[idx]]), scale=0.4,
-                                                       labels=([f"Frame{idx}", f"{gs.get_golf_pose(idx)}"],
-                                                               ["RightThumb", "HoughLines"]))
-            #cv2.imshow("StackedImages", stacked_images)
-            cv2.imshow("Default", canny_frames[idx])
+            if opt.stack > 2:
+                img_array = [[None, None], [None, None]]
+                labels = [[None, None], [None, None]]
+                img_array[0][0] = video_frames[idx]
+                labels[0][0] = f"Frame{idx}"
+                img_array[0][1] = out_frames[idx]
+                labels[0][1] = f"{gs.get_golf_pose(idx)}"
+                img_array[1][0] = canny_frames[idx]
+                labels[1][0] = "CannyEdge"
+                img_array[1][1] = lines_frames[idx]
+                labels[1][1] = "HoughLines"
+
+                stacked_images = image_utils.stack_images(imgArray=img_array,
+                  scale=0.4, labels=labels)
+             
+            elif opt.stack == 2:
+                img_array = [[None, None]]
+                labels = [[None, None]]
+                img_array[0][0] = video_frames[idx]
+                labels[0][0] = f"Frame{idx}"
+                img_array[0][1] = out_frames[idx]
+                labels[0][1] = f"{gs.get_golf_pose(idx)}"
+            else:
+                img_array = [[None]]
+                labels = [[None]]
+                img_array[0][0] = video_frames[idx]
+                labels[0][0] = f"Frame{idx}"
+
+            stacked_images = image_utils.stack_images(imgArray=img_array,
+                labels=labels, scale=opt.scale/100)
+                     
+            cv2.imshow("StackedImages", stacked_images)
+
+            
             key_pressed = cv2.waitKey(-1) & 0xff
     
     cv2.destroyAllWindows()

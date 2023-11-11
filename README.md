@@ -10,6 +10,8 @@ The goal of the process is to analyze a golf swing by processing a video that ha
 
 ### Swing Capture
 
+The purpose of this is to capture the various points in a golf swing that will be subsequently used for analysis. The major steps are below. 
+
 #### Frame Extraction and Landmark Detection:
 
 The video is first processed to extract all frames.
@@ -41,7 +43,20 @@ By combining the landmarks of the golfer's body from Google MediaPipe with the d
 
 Finally, with an integrated set of landmarks—those of the golfer and the club head—the golf swing can be thoroughly analyzed. This analysis could reveal insights into the swing mechanics and suggest areas for improvement.
 
-By integrating body landmarks with club head positions, this approach aims to provide a comprehensive analysis of the golf swing, potentially offering valuable feedback for improving the golfer's technique.
+Some of the key points are listed below.
+
+#### Swing Plane
+
+Analyze whether the club is moving in the swing plane. It is common wisdom that being in the correct swing plane will lead to a solid contact and so increased consistency, accuracy and distance. Check the [YouTube](https://youtu.be/-fdkmLEdLiA) for details.
+
+#### Head Movement
+
+Check if there is excessive head movement during the swing.
+
+#### Arm Movement
+
+Ensure correct arm position at the takeaway, backswing, downswing, impact and follow-through.
+
 
 ## Status
 
@@ -64,9 +79,13 @@ python -m venv venv
 pip install golftracker
 ```
 
+I have uploaded some of the test vidoes on [GoogleDrive](https://drive.google.com/drive/folders/1ElxhtWFyLM9psTiCbrei8Ubj0A-c5-gh?usp=sharing) for testing.
+
+
 ## Status
 Currently I am working on the golfswing capture portion.
 The current steps are listed here [GolfSwingCapture](docs/source/golfswing_capture.md)
+Initial thoughts on swing analysis are here [GolfSwingAnalysis](docs/source/golfswing_analysis.md)
 
 ## Development
 ---------------

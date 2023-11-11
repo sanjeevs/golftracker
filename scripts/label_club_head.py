@@ -74,9 +74,9 @@ def main():
     opt = create_parser().parse_args()
 
     gs = golf_swing_repository.reconstitute(opt.swing_db)
-    print(f">>Video file is {gs.video_fname}")
-    (video_frames, _) = video_utils.split_video_to_frames(gs.video_fname)
-
+    print(f">>Video file is {gs.video_input.fname}")
+    video_frames = gs.get_video_frames()
+    
     cv2.namedWindow("Default")
     # setting mouse handler for the image
     # and calling the click_event() function
