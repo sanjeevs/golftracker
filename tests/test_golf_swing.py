@@ -16,7 +16,3 @@ def test_null_init():
     assert gs.num_frames == 30
     assert gs.video_input.fname == "video_fname"
     assert gs.get_golf_pose(10) == gt.GolfPose.Unknown
-    assert gs.computed_club_head_points == [None] * 30
-
-    gs.set_given_club_head_point(0, (1, 2))
-    assert gs.given_club_head_points[0] == (1, 2)

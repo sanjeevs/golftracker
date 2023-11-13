@@ -16,7 +16,7 @@ def test_create_from_blank_video():
     # Becasuse we are using a mock, the return value 
     for i in range(3):
             assert gs.get_golf_pose(i) == gt.GolfPose.Unknown
-    mp_points = gs.get_norm_screen_points(0)
+    mp_points = gs.get_mp_norm_points_dict(0)
     assert mp_points == {}
 
 def test_create_from_mock_ml_pose1():
