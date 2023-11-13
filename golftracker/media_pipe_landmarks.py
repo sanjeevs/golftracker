@@ -29,7 +29,7 @@ class MediaPipeLandmarks:
         frame_landmark = self.video_landmarks[idx]
         return gt.get_mp_landmarks_flat_row(frame_landmark)
     
-    def get_norm_screen_points(self, frame_idx):
+    def get_norm_points_dict(self, frame_idx):
         """ 
         Return the landmarks for a frame in norm screen coordinates.
 
@@ -47,7 +47,7 @@ class MediaPipeLandmarks:
                 i += 4 #(x, y, z, v)
         return data
 
-    def get_norm_point_coord(self, frame_idx, pt_name):
+    def get_norm_point(self, frame_idx, pt_name):
 
         row = self.get_mp_landmarks_flat_row(frame_idx)
         if not row:

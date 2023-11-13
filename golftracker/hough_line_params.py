@@ -15,3 +15,10 @@ class HoughLineParams:
         return f"rho={self.rho}, theta={self.theta}, threshold={self.threshold}, " \
                f"min_line_length={self.min_line_length}, " \
                f"max_line_gap={self.max_line_gap}"
+
+    def load_from_json(self, params):
+        self.rho = params.get('rho', self.rho)
+        self.theta = params.get('theta', self.theta)
+        self.threshold = params.get('threshold', self.threshold)
+        self.min_line_length = params.get('min_line_length', self.min_line_length)
+        self.max_line_gap = params.get('max_line_gap', self.max_line_gap)

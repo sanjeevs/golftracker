@@ -17,3 +17,13 @@ class CannyEdgeParams:
                f"BinMax={self.bin_maxvalue}, "\
                f"Thresh1={self.canny_threshold1}, " \
                f"Thresh2={self.canny_threshold2}"
+
+    def load_from_json(self, params):
+      lst = tuple(params.get('gaussian_blur_kernel', self.gaussian_blur_kernel))
+      self.gaussian_blur_kernel = (int(lst[0]), int(lst[1]))
+      self.bin_threshold = int(params.get('bin_threshold', self.bin_threshold))
+      self.bin_maxvalue = int(params.get('bin_maxvalue', self.bin_maxvalue))
+      self.canny_threshold1 = int(params.get('canny_threshold1', self.canny_threshold1))
+      self.canny_threshold2 = int(params.get('canny_threshold2', self.canny_threshold2))
+      lst = tuple(params.get('dilate_kernel', self.dilate_kernel))
+      self.dilate_kernel = (int(lst[0]), int(lst[1]))

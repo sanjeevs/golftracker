@@ -90,3 +90,20 @@ def draw_triangle(img, pt1, pt2, pt3, color, thickness):
     cv2.line(img, pt1, pt2, color, thickness)
     cv2.line(img, pt2, pt3, color, thickness)
     cv2.line(img, pt3, pt1, color, thickness)
+
+def scale_norm_point(pt, width, height):
+    return (int(pt[0] * width), int(pt[1] * height))
+
+def norm_2_screen(norm_points, width, height):
+    '''
+    Convert the normalized points to screen points.
+    Can handle dict, list or a scalar value.
+    '''
+    if isinstance(norm_points, dict):
+        return {k: scale_norm_point(v, width, height) for k, v in norm_points.items()}
+    elif isinstance(norm_points, list):
+        return [scale_norm_point(v, width, height) for v in norm_points]
+    elif isinstance(norm_points, (tuple, list)) and len(norm_points) == 2:
+        return scale_norm_point(norm_points, width, height)
+    else:
+        raise TypeError("Unsupported input type for normalized points")
