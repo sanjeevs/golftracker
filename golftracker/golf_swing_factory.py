@@ -40,7 +40,9 @@ def create_from_image(img_fname):
     return ([frame], __create(height, width, [frame], fps, video_input))
 
 def __create(height, width, frames, fps, video_input):
-    gs = golf_swing.GolfSwing(height, width, len(frames), fps, video_input)
+    video_spec = golf_swing.VideoSpec(height=height, width=width, num_frames = len(frames),
+            fps=fps)
+    gs = golf_swing.GolfSwing(video_spec, video_input)
     video_landmarks = mp_op.run(frames)
-    gs.set_mp_landmarks (video_landmarks)
+    gs.set_mp_landmarks(video_landmarks)
     return gs

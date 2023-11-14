@@ -15,19 +15,18 @@ class MediaPipeLandmarks:
     """
 
     def __init__(self, num_frames):
-        self.num_frames = num_frames
         self.video_landmarks = [[]] * num_frames
 
-    def set_mp_results(self, video_landmarks):
+    def set_video_landmarks(self, video_landmarks):
         '''
         Store the result of the media pipe operation.
         Each landmark is a tuple of 4 values (x, y, z, visibility)
         '''
         self.video_landmarks = video_landmarks
 
-    def get_mp_landmarks_flat_row(self, idx):
-        frame_landmark = self.video_landmarks[idx]
-        return gt.get_mp_landmarks_flat_row(frame_landmark)
+    def get_mp_landmarks_flat_row(self, frame_idx):
+        frame_landmarks = self.video_landmarks[frame_idx]
+        return gt.get_mp_landmarks_flat_row(frame_landmarks)
     
     def get_norm_points_dict(self, frame_idx):
         """ 

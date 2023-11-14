@@ -2,7 +2,7 @@ from golftracker import image_utils
 import pytest
 
 def test_scale_norm():
-    p = image_utils.scale_norm_point((0.5, 0.5), 100, 200)
+    p = image_utils.scale_norm_point((0.5, 0.5), width=100, height=200)
     assert p == (50, 100)
 
 def test_norm_2_screen():
