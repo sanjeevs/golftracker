@@ -7,6 +7,7 @@ from golftracker import video_utils
 from golftracker import image_utils
 
 from collections import namedtuple
+import cv2
 
 VideoInput = namedtuple("VideoInput", ['fname', 'size', 'scale', 'rotate'])
 VideoSpec = namedtuple("VideoSpec", ['height', 'width', 'num_frames', 'fps'])
