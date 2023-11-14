@@ -1,0 +1,66 @@
+@startuml
+
+' Define a package or boundary for the aggregate
+package "GolfSwing Aggregate" {
+    class GolfSwing {
+      - MediaPipeLandmarks mp_results
+      - PoseResults pose_results
+      - ClubHeadResult club_head_results
+    }
+
+    class MediaPipeLandmarks {
+      - List video_landmarks
+      + (x, y) get_norm_point(frame_idx, point_name)
+    }
+
+    class PoseResults {
+      - List<GolfPoses> golfPoses
+      - (int, int) pose_sequence
+      - String handed
+    }
+
+    class ClubHeadResult {
+      - List<(int, int)> screenCoordinates
+    }
+}
+
+' Other classes
+class PoseModel {
+  + PoseResults run(MediaPipeLandlands)
+}
+
+class ClubHeadDetector {
+  + ClubHeadResult run(GolfSwing)
+}
+
+class GolfSwingFactory {
+  + {static} GolfSwing create_from_video(String, PoseModel, ClubHeadDetector) : GolfSwing
+}
+
+class GolfSwingRepository {
+  + GolfSwing reconstitute(String, List<String>) : GolfSwing
+}
+
+' Relationships
+media_pipe_operations ..> MediaPipeLandmarks : creates >>
+PoseModel ..> PoseResults : creates >>
+ClubHeadDetector ..> ClubHeadResult : creates >>
+ClubHeadDetector -left-> GolfSwing : decorates >>
+PoseModel -left-> GolfSwing : decorates >>
+GolfSwingFactory ..> GolfSwing : creates >>
+GolfSwingRepository ..> GolfSwing : returns >>
+
+' Aggregations
+GolfSwing o-down-> MediaPipeLandmarks : stores >
+GolfSwing o-down-> PoseResults : stores >
+GolfSwing o-down-> ClubHeadResult : stores >
+
+' Notes
+note "Root of the Aggregate" as N1
+N1 .left.> GolfSwing
+note "Decorator." as N2
+N2 .left.> ClubHeadDetector
+note "Decorator." as N3
+N3 .right.> PoseModel
+
+@enduml
