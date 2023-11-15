@@ -22,17 +22,23 @@ def main():
     opt = create_parser().parse_args()
 
     gs = golf_swing_repository.reconstitute(opt.pkl_db)
+    width, height, fps = gs.video_spec.width, gs.video_spec.height, gs.video_spec.fps
 
     print(f">>Loading pickle database {opt.pkl_db}")
     print(
-        f">>Found {gs.num_frames} frames of w={gs.width}, h={gs.height} at {gs.fps} fps"
+        f">>VideoSpec: NumFrames={gs.num_frames} Width={width}, Height={height}, Fps={fps}"
     )
-    print(f">>Video file is {gs.video_fname} of size {gs.video_size} bytes")
+    print(
+        f">>VideoFile: Fname={gs.video_input.fname}, Size={gs.video_input.size} bytes"
+    )
 
+    print(
+        f">>PoseResult: {gs.pose_result}"
+    )
     if opt.csv == "":
         opt.csv = os.path.splitext(opt.pkl_db)[0] + ".csv"
 
-    print(f">>Saving point values in '{opt.csv}'' file")
+    print(f">>Saving media pipe point values in '{opt.csv}'' file")
     headers = []
     for elem in gt.MP_POSE_LANDMARKS:
         headers.append(elem + "_x")
@@ -43,6 +49,6 @@ def main():
         writer.writerow(headers)
 
         for frame_idx in range(gs.num_frames):
-            points = gs.get_norm_screen_points(frame_idx)  
+            points = gs.get_mp_norm_points_dict(frame_idx)  
             row = [coord for pair in points.values() for coord in pair]
             writer.writerow(row)

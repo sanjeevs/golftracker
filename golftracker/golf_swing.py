@@ -5,25 +5,18 @@ from golftracker import pose_result
 from golftracker import club_head_result
 from golftracker import video_utils
 from golftracker import image_utils
-
-from collections import namedtuple
 import cv2
-
-VideoInput = namedtuple("VideoInput", ['fname', 'size', 'scale', 'rotate'])
-VideoSpec = namedtuple("VideoSpec", ['height', 'width', 'num_frames', 'fps'])
 
 class GolfSwing:
     def __init__(self, video_spec, video_input):
-        self.height = video_spec.height
-        self.width = video_spec.width
-        self.num_frames = video_spec.num_frames
-        self.fps = video_spec.fps
+        self.video_spec = video_spec
         self.video_input = video_input
 
         # Lazy eval for frames.
         self.frames = []
 
         # Results
+        self.num_frames = video_spec.num_frames
         self.mp_result = media_pipe_landmarks.MediaPipeLandmarks(self.num_frames)
         self.pose_result = pose_result.PoseResult(self.num_frames)
         self.club_head_result = club_head_result.ClubHeadResult(self.num_frames)
@@ -32,8 +25,8 @@ class GolfSwing:
     def get_video_frames(self):
         if not self.frames:
             (self.frames, _) = video_utils.split_video_to_frames(
-                    self.video_input.fname, scale=self.video_input.scale, 
-                    rotate=self.video_input.rotate)
+                    self.video_input.fname, scale=self.video_spec.scale, 
+                    rotate=self.video_spec.rotate)
         return self.frames
 
 
@@ -62,7 +55,7 @@ class GolfSwing:
         """Return a list of (x, y) norm coord of the point in entire video"""
         return [
             self.mp_result.get_mp_norm_point(idx, pt_name) 
-                    for idx in range(self.num_frames)
+                    for idx in range(self.video_spec.num_frames)
         ]
 
 

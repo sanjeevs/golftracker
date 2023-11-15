@@ -16,7 +16,7 @@ mp_pose = mp.solutions.pose
 
 from golftracker import gt_const as gt 
 from golftracker import video_utils
-from golftracker import golf_swing_factory
+from golftracker import golf_swing_repository
 from collections import defaultdict
 
 
@@ -31,11 +31,7 @@ def create_parser():
     )
 
     parser.add_argument(
-        "video", type=str, help="Input video file"
-    )
-
-    parser.add_argument(
-        "--model", "-m", default="", type=str, help="ML model used"
+        "swing_db", type=str, help="Input swing pkl database"
     )
 
     parser.add_argument(
@@ -130,19 +126,10 @@ def main():
         print(f"KeyPressed '{chr(key)}'' ==> {create_pose_class(key, opt.type)}: {KEY_STATE_ENCODING[key]}")
 
     if opt.out == "":
-        opt.out = os.path.basename(opt.video).split('.')[0] + ".csv"
+        opt.out = os.path.basename(opt.swing_db).split('.')[0] + ".csv"
 
-    if opt.model == "":
-        opt.model = os.path.join("..", "models", "pose_model.pkl")
-
-    with open(opt.model, "rb") as fh:
-        pose_model = pickle.load(fh)
-        print(f">>Loaded default ML model '{opt.model}'")
-
-    (frames, gs) = golf_swing_factory.create_from_video(opt.video, opt.scale, opt.rotate)
-    gs.classify_golf_poses(pose_model)
-    gt.print_golf_poses(gs.pose_results)
-    
+    gs = golf_swing_repository.reconstitute(opt.swing_db)
+    frames = gs.get_video_frames()
 
     for i in range(gs.num_frames):
         gs.draw_frame(i, frames[i])
@@ -201,7 +188,7 @@ def main():
             print(f">>{k} in frames={v}")
 
        
-        print(f"\n>> Creating {len(pose_classes)} labels in '{opt.out}' for '{opt.video}'")
+        print(f"\n>> Creating {len(pose_classes)} labels in '{opt.out}' for '{opt.swing_db}'")
         save_pose_coordinates_to_csv(opt.out, "w", gs, pose_classes)
 
         print(f"\n>> Run the cmd 'train_posemodel -f <model_pkl> {opt.out}' to train model.")

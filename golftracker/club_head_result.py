@@ -11,9 +11,9 @@ class ClubHeadResult:
         Merges two lists, preserving non-None values in the original list.
         Only None values in the original list are replaced by corresponding values in the new list.
         """
-        for i in range(min(len(self.points), len(new))):
+        for i in range(min(len(self.points), len(new.points))):
             if self.points[i] is None:
-                self.points[i] = new[i]
+                self.points[i] = new.points[i]
 
     def replace_all(self, new):
         """
@@ -21,7 +21,7 @@ class ClubHeadResult:
         Assumes both lists are of the same length.
         """
         for i in range(len(self.points)):
-            self.points[i] = new[i]
+            self.points[i] = new.points[i]
 
 
     def reset_and_update(self, new):

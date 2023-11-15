@@ -9,6 +9,9 @@ import pickle
 from golftracker import golf_swing_factory
 from golftracker import video_utils
 from golftracker import golf_swing_repository
+from golftracker import pose_model
+from golftracker import club_head_params
+from golftracker import club_head_detector
 
 def create_parser():
     """Create a command line parser."""
@@ -25,6 +28,15 @@ def create_parser():
     parser.add_argument(
         "--truncate", "-t", default=False, action='store_true', help="Truncate the video db"
     )
+    parser.add_argument(
+        "--scale", "-s", default=100, type=int, 
+            help="resize the incoming video file by scale percent",
+    )
+
+    parser.add_argument(
+        "--rotate", "-r", default="", help="rotate the incoming video file",
+    )
+
     return parser
 
 
@@ -41,27 +53,33 @@ def main():
         opt.model = os.path.join("..", "models", "pose_model.pkl")
 
     with open(opt.model, "rb") as fh:
-        pose_model = pickle.load(fh)
+        ml_model = pickle.load(fh)
         print(f">>Loaded default ML model '{opt.model}'")
     
-    frames, gs = golf_swing_factory.create_from_video(opt.in_video)
-    gs.classify_golf_poses(pose_model)
-    gs.find_golf_swing_sequence()
-    print(f">>Golf sequence is from {gs.pose_sequence}")
+    video_input = video_utils.VideoInput(fname=opt.in_video, 
+            size=os.path.getsize(opt.in_video))
+    frames, video_spec = video_utils.split_video_to_frames(opt.in_video,
+            scale=opt.scale, rotate=opt.rotate)
+
+    pmodel = pose_model.PoseModel(ml_model)
+    ch_params = club_head_params.ClubHeadParams()
+    ch_model = club_head_detector.ClubHeadDetector(ch_params)
+
+    gs = golf_swing_factory.create_from_video(video_input, video_spec, frames, 
+            pmodel, ch_model)
+    print(f">>Golf sequence is from {gs.pose_result.sequence}")
     
     # Dump some useful statistics.
-    print(f">>Analyzed {gs.num_frames} frames of golf swing.")
+    print(f">>Analyzed {gs.video_spec.num_frames} frames of golf swing.")
 
-    if gs.is_valid_swing():
-        print(f">>Golf swing detected between frame_idx {gs.pose_sequence}")
-        print(f">>Golfer is {gs.handed}")    
+    if gs.pose_result.is_valid_swing():
+        print(f">>Golf swing detected between frame_idx {gs.pose_result.sequence}")
+        print(f">>Golfer is {gs.pose_result.handed}")    
         golf_swing_repository.serialize(opt.out, gs)
 
     else:
         print(f">>OOPS could not detect golf swing in the video.")
-        print(f">>ERROR: COULD NOT CREATE THE PKL DATABASE!!!")
-        print("\n\n")
-        print(f">>Run the cmd 'label_golf_poses {opt.in_video}' to create csv file")
+        print(f">>Run the cmd 'label_golf_poses {opt.out}' to create csv file")
         
 
    

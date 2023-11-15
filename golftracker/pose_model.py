@@ -32,15 +32,14 @@ class PoseModel:
         
         start_idx = self.get_first_start_pose_frame_idx(result.poses)
         end_idx = self.get_last_finish_pose_frame_idx(result.poses)
-        result.pose_sequence = (start_idx, end_idx)
+        result.sequence = (start_idx, end_idx)
 
-        if start_idx:
+        result.handed == gt.Handedness.Unknown
+        if start_idx is not None:
             if result.poses[start_idx] ==  gt.GolfPose.RhStart:
-                result.handed = gt.Handedness.RighHanded
+                result.handed = gt.Handedness.RightHanded
             elif pose_result.poses[start_idx] == gt.GolfPose.LhStart:
                 result.handed = gt.Handedness.LeftHanded
-    
-        result.handed == gt.Handedness.Unknown
 
         return result
 

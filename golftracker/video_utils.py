@@ -1,16 +1,21 @@
 import cv2
 import numpy as np
+from collections import namedtuple
 
-def transform_frame(frame, scale=100, rotate=""):
+VideoInput = namedtuple("VideoInput", ['fname', 'size'])
+VideoSpec = namedtuple("VideoSpec", ['height', 'width', 'num_frames', 'fps',
+        'scale', 'rotate'])
+
+def transform_frame(frame, scale=100, rotate=0):
 
     width = int(frame.shape[1] * scale / 100)
     height = int(frame.shape[0] * scale / 100)
     dim = (width, height)
     resized = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
 
-    if rotate == "90":
+    if rotate == 90:
         out_frame = cv2.rotate(resized, cv2.ROTATE_90_CLOCKWISE)
-    elif rotate == "180":
+    elif rotate == 180:
         out_frame = cv2.rotate(resized, cv2.ROTATE_180)
     else:
         out_frame = resized
@@ -44,7 +49,10 @@ def split_video_to_frames(video_fname, scale=100, rotate=0):
     print(f">>New video has width={width}, ht={height}, fps={fps}")
     cap.release()
 
-    return (frames, (width, height, fps))
+    video_spec = VideoSpec(width=width, height=height, fps=fps, 
+            num_frames=len(frames), scale=scale, rotate=rotate)
+
+    return (frames, video_spec)
 
 
 def join_frames_to_video(video_fname, fps, frames):

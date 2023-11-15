@@ -12,7 +12,8 @@ class ClubHeadDetector:
     def run(self, golf_swing):
         ch_result = club_head_result.ClubHeadResult(golf_swing.num_frames)
        
-        height, width = golf_swing.height, golf_swing.width
+        height = golf_swing.video_spec.height
+        width = golf_swing.video_spec.width
 
         # Copy over the labels created by the user.
         for k, v in self.params.club_head_norm_points_dict.items():
