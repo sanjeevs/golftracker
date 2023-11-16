@@ -11,11 +11,14 @@ import copy
 
 from golftracker import golf_swing_repository
 from golftracker import golf_swing
+from golftracker import club_head_params
+from golftracker import club_head_detector
+
 from golftracker import video_utils
 
 img = None
 frame_idx = 0
-points = {}
+points_dict = {}
 
 
 def put_msg(frame, msg):
@@ -38,37 +41,31 @@ def put_msg(frame, msg):
 def click_event(event, x, y, flags, params):
     global img
     global frame_idx
-    global points
+    global points_dict
 
     if event == cv2.EVENT_LBUTTONDOWN:
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(img, str(x) + "," + str(y), (x, y), font, 1, (255, 0, 0), 2)
-        points[frame_idx] = (x, y)
+        points_dict[frame_idx] = (x, y)
         cv2.imshow("Default", img)
 
 
 def create_parser():
     """Create a command line parser."""
     parser = argparse.ArgumentParser(
-        description="Display the golf swing from the pkl data base"
+        description="Label the club head position in pkl data base"
     )
 
     parser.add_argument("swing_db", type=str, help="Input golf swing data base")
-    parser.add_argument(
-        "-o",
-        "--out",
-        type=str,
-        default="club_head.csv",
-        help="Coordinates of points selected",
-    )
-
+    parser.add_argument("-f", "--force", action='store_true', 
+            help="Overwrite the club head pos in pkl db")
     return parser
 
 
 def main():
     global img
     global frame_idx
-    global points
+    global points_dict
 
     logging.basicConfig(level=os.environ.get("LOGCLEVEL", "INFO"))
     opt = create_parser().parse_args()
@@ -82,7 +79,7 @@ def main():
     # and calling the click_event() function
     cv2.setMouseCallback("Default", click_event)
 
-    points = {}
+    points_dict = {}
     for frame_idx in range(len(video_frames)):
         img = video_frames[frame_idx]
         pose = gs.get_golf_pose(frame_idx)
@@ -94,25 +91,17 @@ def main():
 
     cv2.destroyAllWindows()
 
-    norm_points = {
-        k: (float(v[0]) / gs.width, float(v[1]) / gs.height) for k, v in points.items()
-    }
-   
-    ans = input(f">>> Do you want to update the pkl file '{opt.swing_db}'  (y/n) ")
-    if ans == "yes" or ans == "y" or ans == "Y" or ans == "":
-        print(f">>Updating {len(points)} points '{opt.swing_db}' file")
-        for frame_idx, value in norm_points.items():
-            gs.set_given_club_head_point(frame_idx, value)
-        gs.run_club_head_detection(video_frames)
-        golf_swing_repository.serialize(opt.swing_db, gs)
+    ch_params = club_head_params.ClubHeadParams()
+    ch_params.club_head_points_dict = points_dict
+    ch_detector = club_head_detector.ClubHeadDetector(ch_params)
+    ch_result = ch_detector.run(gs)
+
+    if opt.force:
+        gs.club_head_result.reset_and_update(ch_result)
     else:
-        print(f">>SKIP updating the pkl filke '{opt.swing_db}'")
+        gs.club_head_result.update(ch_result)
 
-    print(f">>Writing {len(points)} normalized points to csv file '{opt.out}'")
-    with open(opt.out, "w") as csvfile:
-        for key, value in norm_points.items():
-            csvfile.write(f"{key}, {value[0]}, {value[1]}\n")
-
+    golf_swing_repository.serialize(opt.swing_db, gs)
 
 if __name__ == "__main__":
     main()

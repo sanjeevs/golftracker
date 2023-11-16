@@ -32,9 +32,9 @@ def main():
     gs = golf_swing_repository.reconstitute(opt.swing_db)
     
     video_frames = gs.get_video_frames()
-
-    start_idx = gs.pose_sequence[0]
-    finish_idx = gs.pose_sequence[1]
+            
+    start_idx = gs.pose_result.sequence[0]
+    finish_idx = gs.pose_result.sequence[1]
     if start_idx == None or finish_idx == None:
         print(f">>Could not detect the start or end pose. Run 'label_golf_poses' and 'create_swing_db'")
         sys.exit(1)
@@ -44,35 +44,19 @@ def main():
     frames = video_frames[start_idx : finish_idx + 1]
     frame_shape = video_frames[0].shape
 
-    # Check if club head detection has run.
-    # if gs.computed_club_head_points[0] == None:
-    #     print(f">>Club head detection not yet run....Running it")
-    #     gs.run_club_head_detection(frames)
-
-    out_frames = []
+    # out canvas to draw the computed images
+    background = []
     for i in range(len(frames)):
-        out_frames.append(np.zeros(frame_shape, dtype=np.uint8))
+        background.append(np.zeros(frame_shape, dtype=np.uint8))
 
-    mp_frames = copy.deepcopy(frames)
+    # Output to compute.
+    mp_frames = copy.deepcopy(background)
     for i in range(len(mp_frames)):
-        gs.draw_frame(i, out_frames[i])
         gs.draw_frame(i, mp_frames[i])
 
-    canny_frames = copy.deepcopy(frames) #gs.canny_edge_gen.run(frames)
-    right_thumb_path = path_model.get_path(gs, "right_shoulder")
-    for i, f in enumerate(canny_frames):
-        canny_frames[i] = cv2.circle(f, right_thumb_path[i], 5, color=(255, 0, 0), thickness=-1)
-
-    lines_frames = copy.deepcopy(frames)
-    # for idx in range(len(lines_frames)):
-    #     for line in gs.hough_lines[idx]:
-    #         pt1 = (line[0], line[1])
-    #         pt2 = (line[2], line[3])
-    #         cv2.line(lines_frames[idx], pt1, pt2, (0, 0, 255))
-
-    #cv2.namedWindow("LabelPoses")
-    print(f"Found {len(mp_frames)} frames with starting pose")
-
+    
+    img_array = [[None, None], [None, None]]
+    labels = [[None, None], [None, None]]
 
     if len(mp_frames) > 0:
         idx = start_idx
@@ -89,50 +73,17 @@ def main():
                 # Next frame
                 idx = min(idx + 1, finish_idx)
 
+            images = [
+                    (video_frames[idx], f"Frame {idx}"),
+                    (mp_frames[idx], f"hello"),
+                    (video_frames[idx], f"Frame {idx}"),
+                    (mp_frames[idx], f"{gs.get_golf_pose(idx)}")
+            ]
+
+            stacked_images = image_utils.stack_images(images=images, scale=opt.scale/100, 
+                    num_windows=opt.stack)
             
-            #points = gs.get_mp_points(idx, gs.height, gs.width)
 
-            model_img = copy.deepcopy(mp_frames[idx])
-            #model_img = double_pendlum.draw(blank_img, points)
-            club_line = None #gs.get_club_line(idx)
-            if club_line:
-                model_img = cv2.line(model_img, (club_line[0], club_line[1]), 
-                                                (club_line[2], club_line[3]),
-                                                color=(0, 0, 255), thickness=3)
-
-            #line_img = copy.deepcopy(mp_frames[idx])
-            
-            if opt.stack > 2:
-                img_array = [[None, None], [None, None]]
-                labels = [[None, None], [None, None]]
-                img_array[0][0] = video_frames[idx]
-                labels[0][0] = f"Frame{idx}"
-                img_array[0][1] = out_frames[idx]
-                labels[0][1] = f"{gs.get_golf_pose(idx)}"
-                img_array[1][0] = canny_frames[idx]
-                labels[1][0] = "CannyEdge"
-                img_array[1][1] = lines_frames[idx]
-                labels[1][1] = "HoughLines"
-
-                stacked_images = image_utils.stack_images(imgArray=img_array,
-                  scale=0.4, labels=labels)
-             
-            elif opt.stack == 2:
-                img_array = [[None, None]]
-                labels = [[None, None]]
-                img_array[0][0] = video_frames[idx]
-                labels[0][0] = f"Frame{idx}"
-                img_array[0][1] = out_frames[idx]
-                labels[0][1] = f"{gs.get_golf_pose(idx)}"
-            else:
-                img_array = [[None]]
-                labels = [[None]]
-                img_array[0][0] = video_frames[idx]
-                labels[0][0] = f"Frame{idx}"
-
-            stacked_images = image_utils.stack_images(imgArray=img_array,
-                labels=labels, scale=opt.scale/100)
-                     
             cv2.imshow("StackedImages", stacked_images)
 
             

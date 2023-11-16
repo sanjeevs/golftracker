@@ -6,27 +6,19 @@ class ClubHeadResult:
     def __init__(self, num_frames):
         self.points = [None] * num_frames
 
-    def merge_with_preserve(self, new):
-        """
-        Merges two lists, preserving non-None values in the original list.
-        Only None values in the original list are replaced by corresponding values in the new list.
-        """
-        for i in range(min(len(self.points), len(new.points))):
-            if self.points[i] is None:
+    def update(self, new):
+        for i in range(len(new.points)):
+            if new.points[i]:
                 self.points[i] = new.points[i]
-
-    def replace_all(self, new):
-        """
-        Replaces all elements of the original list with elements from the new list.
-        Assumes both lists are of the same length.
-        """
-        for i in range(len(self.points)):
-            self.points[i] = new.points[i]
-
+        
 
     def reset_and_update(self, new):
         """
         Clears the original list and updates it with elements from the new list.
         """
         self.points.clear()
-        self.points.extend(new)
+        self.points.extend(new.points)
+
+    def __str__(self):
+        not_none = [(i, pt) for i, pt in enumerate(self.points) if pt is not None]
+        return f"Found {len(not_none)} club head points. {not_none}"

@@ -44,6 +44,6 @@ def __create(video_spec, video_input, frames, pose_model, club_head_detector):
     if club_head_detector:
         # Estimate the club head position.
         club_head_result = club_head_detector.run(gs)
-        gs.club_head_result.replace_all(club_head_result)
+        gs.club_head_result.reset_and_update(club_head_result)
 
     return gs

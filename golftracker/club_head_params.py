@@ -6,7 +6,7 @@ from golftracker import hough_line_params
 
 class ClubHeadParams:
     def __init__(self):
-        self.club_head_norm_points_dict = {}
+        self.club_head_points_dict = {}
         self.canny_edge_params = canny_edge_params.CannyEdgeParams()
         self.hough_line_params = hough_line_params.HoughLineParams()
 

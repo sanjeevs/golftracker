@@ -54,7 +54,7 @@ class GolfSwing:
     def get_mp_norm_point_path(self, pt_name):
         """Return a list of (x, y) norm coord of the point in entire video"""
         return [
-            self.mp_result.get_mp_norm_point(idx, pt_name) 
+            self.mp_result.get_norm_point(idx, pt_name) 
                     for idx in range(self.video_spec.num_frames)
         ]
 

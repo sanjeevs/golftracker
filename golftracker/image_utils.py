@@ -23,7 +23,28 @@ def create_blank_frame(height, width):
     blank_frame = np.zeros((height, width, 3), np.uint8)
     return blank_frame
 
-def stack_images(imgArray, scale, labels=[]):
+
+def stack_images(images, scale, num_windows):
+    img_2d, label_2d = [], []
+
+    if num_windows == 1:
+        # Add first image and its label for one window
+        img_2d.append([images[0][0]])
+        label_2d.append([images[0][1]])
+    else:
+        # Handle cases for two or more windows
+        for i in range(num_windows):
+            # This will add the first two images and labels for two windows,
+            # and the first four images and labels for more than two windows
+            if i % 2 == 0:
+                img_2d.append([])
+                label_2d.append([])
+            img_2d[-1].append(images[i][0])
+            label_2d[-1].append(images[i][1])
+
+    return stack_2d_images(imgArray=img_2d, scale=scale, labels=label_2d)
+
+def stack_2d_images(imgArray, scale, labels=[]):
     """ Helper routine copied from web.
         https://github.com/murtazahassan/OpenCV-Python-Tutorials-and-Projects/blob/master/Basics/Joining_Multiple_Images_To_Display.py
     """
@@ -37,8 +58,11 @@ def stack_images(imgArray, scale, labels=[]):
     if rowsAvailable:
         for x in range ( 0, rows):
             for y in range(0, cols):
-                imgArray[x][y] = cv2.resize(imgArray[x][y], (sizeW, sizeH), None, scale, scale)
-                if len(imgArray[x][y].shape) == 2: imgArray[x][y]= cv2.cvtColor( imgArray[x][y], cv2.COLOR_GRAY2BGR)
+                imgArray[x][y] = cv2.resize(imgArray[x][y], (sizeW, sizeH), 
+                        None, scale, scale)
+                if len(imgArray[x][y].shape) == 2: 
+                    imgArray[x][y]= cv2.cvtColor( imgArray[x][y], cv2.COLOR_GRAY2BGR)
+
         imageBlank = np.zeros((height, width, 3), np.uint8)
         hor = [imageBlank]*rows
         hor_con = [imageBlank]*rows
@@ -49,8 +73,11 @@ def stack_images(imgArray, scale, labels=[]):
         ver_con = np.concatenate(hor)
     else:
         for x in range(0, rows):
-            imgArray[x] = cv2.resize(imgArray[x], (sizeW, sizeH), None, scale, scale)
-            if len(imgArray[x].shape) == 2: imgArray[x] = cv2.cvtColor(imgArray[x], cv2.COLOR_GRAY2BGR)
+            imgArray[x] = cv2.resize(imgArray[x], (sizeW, sizeH), 
+                    None, scale, scale)
+            if len(imgArray[x].shape) == 2: 
+                imgArray[x] = cv2.cvtColor(imgArray[x], cv2.COLOR_GRAY2BGR)
+
         hor= np.hstack(imgArray)
         hor_con= np.concatenate(imgArray)
         ver = hor
@@ -59,8 +86,11 @@ def stack_images(imgArray, scale, labels=[]):
         eachImgHeight = int(ver.shape[0] / rows)
         for d in range(0, rows):
             for c in range (0,cols):
-                cv2.rectangle(ver,(c*eachImgWidth,eachImgHeight*d),(c*eachImgWidth+len(labels[d][c])*13+27,30+eachImgHeight*d),(255,255,255),cv2.FILLED)
-                cv2.putText(ver,labels[d][c],(eachImgWidth*c+10,eachImgHeight*d+20),cv2.FONT_HERSHEY_COMPLEX,0.7,(255,0,255),2)
+                cv2.rectangle(ver, (c*eachImgWidth,eachImgHeight*d),
+                        (c*eachImgWidth+len(labels[d][c])*13+27,30+eachImgHeight*d),
+                        (255,255,255),cv2.FILLED)
+                cv2.putText(ver,labels[d][c],(eachImgWidth*c+10,eachImgHeight*d+20),
+                        cv2.FONT_HERSHEY_COMPLEX,0.7,(255,0,255),2)
     return ver
 
 

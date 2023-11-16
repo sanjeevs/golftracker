@@ -2,9 +2,7 @@ import pytest
 from golftracker import club_head_detector, golf_swing, club_head_params, image_utils
 from unittest.mock import patch, MagicMock
 
-# Using the patch decorator to mock scale_norm_point
-@patch('golftracker.image_utils.scale_norm_point', return_value=(320, 240))
-def test_club_head_detector(mock_scale_norm_point):
+def test_club_head_detector():
     # Create a mock for the golf_swing object
     mock_golf_swing = MagicMock()
     mock_golf_swing.num_frames = 10
@@ -13,7 +11,7 @@ def test_club_head_detector(mock_scale_norm_point):
 
     # Create a mock for the club_head_params
     mock_club_head_params = MagicMock()
-    mock_club_head_params.club_head_norm_points_dict = {0: (0.5, 0.5)}
+    mock_club_head_params.club_head_points_dict = {0: (320, 240)}
 
     # Initialize the ClubHeadDetector with the mocked parameters
     detector = club_head_detector.ClubHeadDetector(mock_club_head_params)

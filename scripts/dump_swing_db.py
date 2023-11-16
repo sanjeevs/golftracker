@@ -35,10 +35,14 @@ def main():
     print(
         f">>PoseResult: {gs.pose_result}"
     )
+    print(
+        f">>ClubHead: {gs.club_head_result}"
+    )
     if opt.csv == "":
-        opt.csv = os.path.splitext(opt.pkl_db)[0] + ".csv"
+        opt.csv = "mp_norm_" + os.path.splitext(opt.pkl_db)[0] + ".csv"
 
-    print(f">>Saving media pipe point values in '{opt.csv}'' file")
+    print(f">>Saving media pipe point values in '{opt.csv}' file")
+    
     headers = []
     for elem in gt.MP_POSE_LANDMARKS:
         headers.append(elem + "_x")

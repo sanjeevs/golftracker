@@ -16,9 +16,8 @@ class ClubHeadDetector:
         width = golf_swing.video_spec.width
 
         # Copy over the labels created by the user.
-        for k, v in self.params.club_head_norm_points_dict.items():
-            screen_pt = image_utils.scale_norm_point(k, width, height)
-            ch_result.points[k] = screen_pt
+        for k, v in self.params.club_head_points_dict.items():
+            ch_result.points[k] = v
 
         return ch_result
 

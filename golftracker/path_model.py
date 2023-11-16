@@ -6,8 +6,8 @@ from golftracker import geom
 from scipy.interpolate import interp1d
 
 def get_path(gs, pt):
-    norm_path = gs.get_norm_point_path(pt)
-    scaled_path = geom.scale(norm_path, gs.width, gs.height)
+    norm_path = gs.get_mp_norm_point_path(pt)
+    scaled_path = geom.scale(norm_path, gs.video_spec.width, gs.video_spec.height)
     return scaled_path
 
 def moving_average(positions, window_size):
