@@ -6,7 +6,7 @@ The `media_pipe_operation` service processes the frames and returns a list of la
 import mediapipe as mp
 import logging
 import cv2
-
+from golftracker import image_utils
 
 def run(frames):
     """
@@ -37,7 +37,7 @@ def run(frames):
     return video_landmarks
 
 
-def draw(frame, frame_landmarks):
+def draw(frame, frame_landmarks, line_color="red"):
     """
     Draw the landmarks on the incoming frame.
     
@@ -51,6 +51,9 @@ def draw(frame, frame_landmarks):
     mp_drawing = mp.solutions.drawing_utils
     mp_pose = mp.solutions.pose
 
+    line_rgb = image_utils.RGB_VALUES.get(line_color, (255, 0, 0))
+    line_bgr = tuple(reversed(line_rgb))
+
     mp_drawing.draw_landmarks(
                 frame,
                 frame_landmarks,
@@ -59,7 +62,7 @@ def draw(frame, frame_landmarks):
                     color=(245, 117, 66), thickness=2, circle_radius=2
                 ),
                 mp_drawing.DrawingSpec(
-                    color=(245, 66, 230), thickness=2, circle_radius=2
+                    color=line_bgr, thickness=2, circle_radius=2
                 ),
             )
 

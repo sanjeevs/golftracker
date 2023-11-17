@@ -1,6 +1,16 @@
 import cv2
 import numpy as np
 import copy
+from collections.abc import Sequence
+
+RGB_VALUES = {
+    "red": (255, 0, 0),
+    "green": (0, 255, 0),
+    "blue": (0, 0, 255),
+    "yellow": (255, 255, 0),
+    "light_gray": (211, 211, 211),
+    "pale_blue": (173, 216, 230),    
+}
 
 def create_blank_frames(num_frames, height=100, width=200):
     """ 
@@ -24,23 +34,48 @@ def create_blank_frame(height, width):
     return blank_frame
 
 
+def _clean_input_stack_images(images, n):
+    '''
+    Clean up input to stack_images.
+    1. Must be even number of images.
+    2. Each entry must have the frame and the label.
+    '''
+    if n <= 1:
+        return images
+    else:
+        if n % 2 == 1:
+            min_num_images = n + 1
+        else:
+            min_num_images = n
+
+        out_images = []
+        for i in range(min(len(images), n)):
+            item = images[i]
+            if not isinstance(item, Sequence):
+                out_images.append([item, ""])
+            else:
+                out_images.append(item)
+        left_len = min_num_images - len(out_images)
+        if left_len > 0:
+            for i in range(left_len):
+                h, w, _ = images[0][0].shape
+                out_images.append([create_blank_frame(h, w), "Blank"])
+        return out_images, min_num_images
+
+
 def stack_images(images, scale, num_windows):
+    img_lst, n = _clean_input_stack_images(images, num_windows)
     img_2d, label_2d = [], []
 
-    if num_windows == 1:
+    if n == 1:
         # Add first image and its label for one window
-        img_2d.append([images[0][0]])
-        label_2d.append([images[0][1]])
+        img_2d.append([img_lst[0][0]])
+        label_2d.append([img_lst[0][1]])
     else:
         # Handle cases for two or more windows
-        for i in range(num_windows):
-            # This will add the first two images and labels for two windows,
-            # and the first four images and labels for more than two windows
-            if i % 2 == 0:
-                img_2d.append([])
-                label_2d.append([])
-            img_2d[-1].append(images[i][0])
-            label_2d[-1].append(images[i][1])
+        for i in range(0, n, 2):
+            img_2d.append([img_lst[i][0], img_lst[i+1][0]])
+            label_2d.append([img_lst[i][1], img_lst[i+1][1]])
 
     return stack_2d_images(imgArray=img_2d, scale=scale, labels=label_2d)
 
@@ -131,9 +166,16 @@ def norm_2_screen(norm_points, width, height):
     '''
     if isinstance(norm_points, dict):
         return {k: scale_norm_point(v, width, height) for k, v in norm_points.items()}
-    elif isinstance(norm_points, list):
-        return [scale_norm_point(v, width, height) for v in norm_points]
-    elif isinstance(norm_points, (tuple, list)) and len(norm_points) == 2:
-        return scale_norm_point(norm_points, width, height)
+    elif isinstance(norm_points, (tuple, list)):
+        result = []
+        for i, v in enumerate(norm_points):
+            if isinstance(v, (int, float)):
+                if i % 2 == 0:
+                    result.append(int(v * width))
+                else:
+                    result.append(int(v * height))
+            else:
+                result.append(scale_norm_point(v, width, height))
+        return result
     else:
         raise TypeError("Unsupported input type for normalized points")

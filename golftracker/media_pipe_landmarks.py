@@ -54,9 +54,9 @@ class MediaPipeLandmarks:
         i = gt.MP_POSE_LANDMARKS.index(pt_name)
         return [row[i*4], row[i*4+1]]  #(x, y, z, v)
     
-    def draw_frame(self, frame_idx, background_frame):
+    def draw_frame(self, frame_idx, background_frame, line_color):
         """
         Draw the media pipe landmarks on the background frames.
         """
         frame_landmarks = self.video_landmarks[frame_idx]
-        ml_op.draw(background_frame, frame_landmarks)
+        ml_op.draw(background_frame, frame_landmarks, line_color)

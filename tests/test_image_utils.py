@@ -15,7 +15,7 @@ def test_norm_2_screen():
     assert obj.norm_2_screen([(0.5, 0.5), (1, 1)], 100, 200) == [(50, 100), (100, 200)]
 
     # Test with tuple
-    assert obj.norm_2_screen((0.5, 0.5), 100, 200) == (50, 100)
+    assert obj.norm_2_screen((0.5, 0.5), 100, 200) == [50, 100]
 
     # Test with unsupported type
     with pytest.raises(TypeError):

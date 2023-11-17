@@ -20,6 +20,6 @@ class ClubHeadParams:
 
         ch_dict = json_data.get("ClubHeadPos", {})
         for k, v in ch_dict.items(): 
-            self.club_head_norm_points_dict[int(k)] = tuple(v)
+            self.club_head_points_dict[int(k)] = tuple(v)
 
 

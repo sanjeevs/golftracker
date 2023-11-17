@@ -17,9 +17,9 @@ JSON_DATA = {
     "max_line_gap": 20
   },
   "ClubHeadPos": {
-    1: [0.1, 0.1111],
+    1: [1, 1111],
     2: [102, 152],
-    5: [0.105, 0.155],
+    5: [105, 155],
   }
 }
 
@@ -29,7 +29,7 @@ def test_json_load():
     assert p.canny_edge_params.gaussian_blur_kernel == (4, 5)
     assert p.canny_edge_params.canny_threshold1 == 700
     assert p.hough_line_params.threshold == 25
-    assert p.club_head_norm_points_dict.get(0, None) == None
-    assert p.club_head_norm_points_dict[1] == (0.1, 0.1111)
-    assert p.club_head_norm_points_dict[5] == (0.105, 0.155)
+    assert p.club_head_points_dict.get(0, None) == None
+    assert p.club_head_points_dict[1] == (1, 1111)
+    assert p.club_head_points_dict[5] == (105, 155)
 

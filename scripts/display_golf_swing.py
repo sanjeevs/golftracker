@@ -54,10 +54,11 @@ def main():
     for i in range(len(mp_frames)):
         gs.draw_frame(i, mp_frames[i])
 
+    time_lapses = copy.deepcopy(background)
+    for i in range(len(frames)):
+        gs.draw_frame(i, time_lapses[i], line_color="blue")
+        gs.draw_frame(start_idx, time_lapses[i], line_color="pale_blue")
     
-    img_array = [[None, None], [None, None]]
-    labels = [[None, None], [None, None]]
-
     if len(mp_frames) > 0:
         idx = start_idx
         key_pressed = ''
@@ -75,15 +76,24 @@ def main():
 
             images = [
                     (video_frames[idx], f"Frame {idx}"),
-                    (mp_frames[idx], f"hello"),
-                    (video_frames[idx], f"Frame {idx}"),
+                    mp_frames[idx],
+                    (time_lapses[idx], f"Lapse {idx}"),
                     (mp_frames[idx], f"{gs.get_golf_pose(idx)}")
             ]
 
             stacked_images = image_utils.stack_images(images=images, scale=opt.scale/100, 
                     num_windows=opt.stack)
             
+            if idx > 0:
+                prev_flat_row = image_utils.norm_2_screen(
+                    gs.get_mp_landmarks_flat_row(idx-1), gs.video_spec.height, gs.video_spec.width)
+                flat_row = image_utils.norm_2_screen(
+                    gs.get_mp_landmarks_flat_row(idx), gs.video_spec.height, gs.video_spec.width)
 
+                print(prev_flat_row)
+                print(flat_row)
+                if prev_flat_row == flat_row:
+                    print(f"SPS: Found frame {idx -1} same as {idx}")
             cv2.imshow("StackedImages", stacked_images)
 
             

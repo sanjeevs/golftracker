@@ -73,9 +73,9 @@ class GolfSwing:
     #
     # Visualize golf swing.
     # 
-    def draw_frame(self, frame_idx, background_frame):
+    def draw_frame(self, frame_idx, background_frame, line_color='blue'):
         # Draw media pipe
-        self.mp_result.draw_frame(frame_idx, background_frame)
+        self.mp_result.draw_frame(frame_idx, background_frame, line_color)
 
         (h, w, _) = background_frame.shape
         # Draw a line from the hand to the club head.
