@@ -8,6 +8,8 @@ from golftracker import file_utils
 
 def serialize(fname, golf_swing):
     """ Save the golf swing into a pickle data base."""
+    # Need to remove the frames if it exists.
+    golf_swing.frames = []
     with open(fname, "wb") as fh:
         pickle.dump(golf_swing, fh)
 

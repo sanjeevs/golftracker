@@ -49,9 +49,10 @@ def click_event(event, x, y, flags, params):
 
     if event == cv2.EVENT_LBUTTONDOWN:
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(img, str(x) + "," + str(y), (x, y), font, 1, (255, 0, 0), 2)
+        cv2.putText(img, str(x) + "," + str(y), (x, y), font, 1, 
+            image_utils.BGR_VALUES['light_gray'], 2)
         points_dict[frame_idx] = (x, y)
-        cv2.imshow("Default", img)
+        cv2.imshow("LabelClubHead", img)
 
 
 def create_parser():
@@ -66,6 +67,7 @@ def create_parser():
     parser.add_argument("-f", "--force", action='store_true', 
             help="Overwrite the club head pos in pkl db")
     parser.add_argument("--state", type=str, default="", help="input state file")
+    parser.add_argument("--init", action="store_true", help="init the result first.")
     return parser
 
 
@@ -78,13 +80,13 @@ def main():
     opt = create_parser().parse_args()
 
     gs = golf_swing_repository.reconstitute(opt.swing_db)
-    print(f">>Video file is {gs.video_input.fname}")
+    print(f">>Loading video file is {gs.video_input.fname}")
+   
     video_frames = gs.get_video_frames()
-    
-    cv2.namedWindow("Default")
+    cv2.namedWindow("LabelClubHead")
     # setting mouse handler for the image
     # and calling the click_event() function
-    cv2.setMouseCallback("Default", click_event)
+    cv2.setMouseCallback("LabelClubHead", click_event)
 
     points_dict = {}
     
@@ -95,9 +97,8 @@ def main():
         msg = f"Fr{frame_idx}:{gt.abbrev_pose(pose)}:{ch_source}"
         put_msg(img, msg)
         if ch_pt is not None:
-            cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['light_gray'], 
-                    -1)
-        cv2.imshow("Default", img)
+            cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['red'], -1)
+        cv2.imshow("LabelClubHead", img)
 
         # Key handling
         key_pressed = cv2.waitKey(-1) & 0xFF
@@ -113,6 +114,11 @@ def main():
             print(f"Ignore key pressed. Valid keys are 'j, n/spacebar, p, q/esc'")
     cv2.destroyAllWindows()
 
+    if opt.init:
+        print(f">>Init the club head result in swing.")
+        gs.init_club_head_result()
+
+    print(f'Points={points_dict}')
     ch_params = club_head_params.ClubHeadParams()
     ch_params.club_head_points_dict = points_dict
     ch_detector = club_head_detector.ClubHeadDetector(ch_params)

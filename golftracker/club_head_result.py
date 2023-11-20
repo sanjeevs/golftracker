@@ -37,5 +37,6 @@ class ClubHeadResult:
                 self.points[idx] = None
                 self.algos = "Invalid"
             else:
-                self.points[idx] = (entry[0], entry[1])
+                self.points[idx] = (int(entry[0]), int(entry[1]))
                 self.algos[idx] = entry[2]
+

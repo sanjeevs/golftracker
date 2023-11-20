@@ -59,3 +59,4 @@ def test_export_lst1():
     assert lst[0] == [0, 1, "Label"]
     assert lst[1] == [0, 0, "Invalid"]
     assert lst[2] == [0, 0, "Invalid"]
+

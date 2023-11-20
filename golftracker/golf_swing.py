@@ -71,6 +71,10 @@ class GolfSwing:
         return (self.club_head_result.points[frame_idx], 
                 self.club_head_result.algos[frame_idx])
     
+    # Club head result
+    def init_club_head_result(self):
+        self.club_head_result = club_head_result.ClubHeadResult(self.num_frames)
+
     #
     # Visualize golf swing.
     # 
