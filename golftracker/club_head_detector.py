@@ -18,7 +18,6 @@ class ClubHeadDetector:
         # Copy over the labels created by the user.
         for k, v in self.params.club_head_points_dict.items():
             ch_result.points[k] = v
+            ch_result.algos[k] = 'Label'
 
         return ch_result
-
-   

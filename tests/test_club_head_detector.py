@@ -1,5 +1,6 @@
 import pytest
 from golftracker import club_head_detector, golf_swing, club_head_params, image_utils
+from golftracker import club_head_result
 from unittest.mock import patch, MagicMock
 
 def test_club_head_detector():
@@ -20,6 +21,5 @@ def test_club_head_detector():
     result = detector.run(mock_golf_swing)
 
     # Assertions to validate the expected output
-    assert result.points[0] == (320, 240), "The club head detector did not calculate the correct screen point."
-    assert len(result.points) == mock_golf_swing.num_frames, "The number of frames in the result does not match the expected value."
-
+    assert result.points[0] == (320, 240)
+    assert len(result.points) == mock_golf_swing.num_frames

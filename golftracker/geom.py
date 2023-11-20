@@ -217,31 +217,6 @@ def sort_lines_matching_slope(lines, slope, max_diff=2):
 
     return result
 
-def segment_line(pt1, pt2, ntimes):
-    """
-    Return equidistant point on the line.
-
-    >>> segment_line([0, 0], [100, 100], 0)
-    []
-
-    >>> segment_line([0,0], [100, 100], 1)
-    [(50, 50)]
-
-    >>> segment_line([0, 0], [100, 100], 2)
-    [(33, 33), (66, 66)]
-    """
-
-    x_width = int((pt2[1] - pt1[1]) / (ntimes + 1))
-    y_width = int((pt2[0] - pt1[0]) / (ntimes + 1))
-
-    result = []
-    for i in range(ntimes):
-        x = pt1[0] + x_width * (i + 1)
-        y = pt1[1] + y_width * (i + 1)
-        result.append((x, y))
-
-    return result
-
 def compute_velocities(coords, fps):
     velocities = []
     for i in range(1, len(coords)):
@@ -253,3 +228,16 @@ def compute_velocities(coords, fps):
         sign = 1 if direction > 0 else -1
         velocities.append(sign * velocity)
     return velocities
+
+def split_line(A, B, n):
+    x1, y1 = A
+    x2, y2 = B
+    points = []
+
+    for i in range(1, n + 1):
+        t = i / (n + 1)
+        Px = x1 + t * (x2 - x1)
+        Py = y1 + t * (y2 - y1)
+        points.append((int(Px), int(Py)))
+
+    return points

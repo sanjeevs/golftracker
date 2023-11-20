@@ -12,6 +12,9 @@ RGB_VALUES = {
     "pale_blue": (173, 216, 230),    
 }
 
+BGR_VALUES = {color: (b, g, r) for color, (r, g, b) in RGB_VALUES.items()}
+
+
 def create_blank_frames(num_frames, height=100, width=200):
     """ 
     Utility to return a list of blank frames. 

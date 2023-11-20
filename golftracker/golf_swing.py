@@ -66,9 +66,10 @@ class GolfSwing:
         """
         return self.pose_result.poses[frame_idx]
 
-    # Club head screen point
     def get_club_head_point(self, frame_idx):
-        return self.club_head_result.points[frame_idx]
+        ''' Return the club head point and the source of calc. '''
+        return (self.club_head_result.points[frame_idx], 
+                self.club_head_result.algos[frame_idx])
     
     #
     # Visualize golf swing.

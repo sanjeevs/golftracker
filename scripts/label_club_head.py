@@ -7,15 +7,19 @@ import argparse
 import logging
 import os
 import copy
-
+import os
 
 from golftracker import golf_swing_repository
 from golftracker import golf_swing
 from golftracker import club_head_params
 from golftracker import club_head_detector
+from golftracker import gt_const as gt
+from golftracker import image_utils, file_utils
 
-from golftracker import video_utils
 
+#------------------------
+# Global variables
+# ------------------------
 img = None
 frame_idx = 0
 points_dict = {}
@@ -57,8 +61,11 @@ def create_parser():
     )
 
     parser.add_argument("swing_db", type=str, help="Input golf swing data base")
+    parser.add_argument("-s", "--step", type=int, default=5, 
+            help="Increment for the jump key." )
     parser.add_argument("-f", "--force", action='store_true', 
             help="Overwrite the club head pos in pkl db")
+    parser.add_argument("--state", type=str, default="", help="input state file")
     return parser
 
 
@@ -80,15 +87,30 @@ def main():
     cv2.setMouseCallback("Default", click_event)
 
     points_dict = {}
-    for frame_idx in range(len(video_frames)):
+    
+    while frame_idx < len(video_frames):
         img = video_frames[frame_idx]
         pose = gs.get_golf_pose(frame_idx)
-        put_msg(img, f"Fr {frame_idx}:{pose.name}")
+        ch_pt, ch_source = gs.get_club_head_point(frame_idx)
+        msg = f"Fr{frame_idx}:{gt.abbrev_pose(pose)}:{ch_source}"
+        put_msg(img, msg)
+        if ch_pt is not None:
+            cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['light_gray'], 
+                    -1)
         cv2.imshow("Default", img)
-        key_pressed = cv2.waitKey(-1) & 0xFF
-        if key_pressed == ord("q") or key_pressed == 27:
-            break
 
+        # Key handling
+        key_pressed = cv2.waitKey(-1) & 0xFF
+        if key_pressed == ord('j'):
+            frame_idx = min(frame_idx + opt.step, len(video_frames) -1)
+        elif key_pressed == ord('n') or key_pressed == 32:  #spacebar
+            frame_idx = min(frame_idx + 1, len(video_frames) -1)
+        elif key_pressed == ord('p'):
+            frame_idx = max(frame_idx - 1, 0)
+        elif key_pressed == ord("q") or key_pressed == 27:
+            break
+        else:
+            print(f"Ignore key pressed. Valid keys are 'j, n/spacebar, p, q/esc'")
     cv2.destroyAllWindows()
 
     ch_params = club_head_params.ClubHeadParams()
@@ -96,12 +118,23 @@ def main():
     ch_detector = club_head_detector.ClubHeadDetector(ch_params)
     ch_result = ch_detector.run(gs)
 
+    if opt.state and os.path.exists(opt.state):
+        print(f">>Reading club head state from '{opt.state}'")
+        _ , lst = file_utils.read_from_csv(opt.state, has_header=True)
+        gs.club_head_result.import_lst(lst)
+
     if opt.force:
         gs.club_head_result.reset_and_update(ch_result)
     else:
         gs.club_head_result.update(ch_result)
 
     golf_swing_repository.serialize(opt.swing_db, gs)
+    if opt.state:
+        print(f">>Saving club head state to '{opt.state}'")
+        header, lst = gs.club_head_result.export_lst()
+        file_utils.write_to_csv(lst, opt.state, header=header)
+
+    
 
 if __name__ == "__main__":
     main()

@@ -73,4 +73,12 @@ def test_velocities():
     points = [[203, 436], [200, 433], [200, 432]]
     velocities = geom.compute_velocities(points, 30)
     assert len(velocities) == 2
-    print(velocities)
+    
+
+def test_line_split_equally():
+    point_A = (1, 1)
+    point_B = (5, 5)
+    n = 3
+    sub_points = geom.split_line(point_A, point_B, n)
+    assert len(sub_points) == 3
+    assert sub_points == [(2, 2), (3, 3), (4, 4)]
