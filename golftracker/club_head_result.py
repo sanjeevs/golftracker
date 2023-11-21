@@ -33,10 +33,11 @@ class ClubHeadResult:
 
     def import_lst(self, lst):
         for idx, entry in enumerate(lst):
-            if entry[0] == 0 and entry[1] == 0:
+            x, y = int(entry[0]), int(entry[1])
+            if x == 0 and y == 0:
                 self.points[idx] = None
-                self.algos = "Invalid"
+                self.algos[idx] = "Invalid"
             else:
-                self.points[idx] = (int(entry[0]), int(entry[1]))
+                self.points[idx] = (x, y)
                 self.algos[idx] = entry[2]
 

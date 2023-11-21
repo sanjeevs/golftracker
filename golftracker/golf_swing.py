@@ -67,6 +67,10 @@ class GolfSwing:
         return self.pose_result.poses[frame_idx]
 
     def get_club_head_point(self, frame_idx):
+        ''' Return the club head point. '''
+        return self.club_head_result.points[frame_idx]
+
+    def get_club_head_info(self, frame_idx):
         ''' Return the club head point and the source of calc. '''
         return (self.club_head_result.points[frame_idx], 
                 self.club_head_result.algos[frame_idx])
@@ -84,11 +88,14 @@ class GolfSwing:
 
         (h, w, _) = background_frame.shape
         # Draw a line from the hand to the club head.
-        club_head_point = self.get_club_head_point(frame_idx)
+        club_head_point, algo = self.get_club_head_info(frame_idx)
         if club_head_point:
-            (x1, y1) = club_head_point
+            x1, y1 = club_head_point
             right_thumb = self.get_mp_norm_point(frame_idx, "right_thumb")
-            (x2, y2) = image_utils.scale_norm_point(right_thumb, w, h)
-            cv2.line(background_frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            x2, y2 = image_utils.scale_norm_point(right_thumb, w, h)
+            if algo == "Label":
+                cv2.line(background_frame, (int(x1), int(y1)), (x2, y2), (0, 0, 255), 2)
+            else:
+                cv2.line(background_frame, (int(x1), int(y1)), (x2, y2), (0, 255, 255), 2)
 
     

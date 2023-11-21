@@ -82,6 +82,13 @@ def main():
     gs = golf_swing_repository.reconstitute(opt.swing_db)
     print(f">>Loading video file is {gs.video_input.fname}")
    
+   
+    if opt.init:
+        print(f">>Init the club head result in swing.")
+        gs.init_club_head_result()
+        golf_swing_repository.serialize(opt.swing_db, gs)
+        return
+
     video_frames = gs.get_video_frames()
     cv2.namedWindow("LabelClubHead")
     # setting mouse handler for the image
@@ -89,15 +96,17 @@ def main():
     cv2.setMouseCallback("LabelClubHead", click_event)
 
     points_dict = {}
-    
     while frame_idx < len(video_frames):
         img = video_frames[frame_idx]
         pose = gs.get_golf_pose(frame_idx)
-        ch_pt, ch_source = gs.get_club_head_point(frame_idx)
+        ch_pt, ch_source = gs.get_club_head_info(frame_idx)
         msg = f"Fr{frame_idx}:{gt.abbrev_pose(pose)}:{ch_source}"
         put_msg(img, msg)
         if ch_pt is not None:
-            cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['red'], -1)
+            if ch_source == "Label":
+                cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['red'], -1)
+            else:
+                cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['yellow'], -1)
         cv2.imshow("LabelClubHead", img)
 
         # Key handling
@@ -114,11 +123,7 @@ def main():
             print(f"Ignore key pressed. Valid keys are 'j, n/spacebar, p, q/esc'")
     cv2.destroyAllWindows()
 
-    if opt.init:
-        print(f">>Init the club head result in swing.")
-        gs.init_club_head_result()
-
-    print(f'Points={points_dict}')
+    
     ch_params = club_head_params.ClubHeadParams()
     ch_params.club_head_points_dict = points_dict
     ch_detector = club_head_detector.ClubHeadDetector(ch_params)

@@ -84,16 +84,6 @@ def main():
             stacked_images = image_utils.stack_images(images=images, scale=opt.scale/100, 
                     num_windows=opt.stack)
             
-            if idx > 0:
-                prev_flat_row = image_utils.norm_2_screen(
-                    gs.get_mp_landmarks_flat_row(idx-1), gs.video_spec.height, gs.video_spec.width)
-                flat_row = image_utils.norm_2_screen(
-                    gs.get_mp_landmarks_flat_row(idx), gs.video_spec.height, gs.video_spec.width)
-
-                print(prev_flat_row)
-                print(flat_row)
-                if prev_flat_row == flat_row:
-                    print(f"SPS: Found frame {idx -1} same as {idx}")
             cv2.imshow("StackedImages", stacked_images)
 
             
