@@ -54,7 +54,6 @@ def find_consecutive_invalid_indices(algos, start_idx=0):
         while end < len(algos) and algos[end] == "Invalid":
             end += 1
 
-        print(f"find_consec:start={start}, end={end -1}")
         return start, end -1
     except ValueError:
         return None, None
@@ -72,10 +71,13 @@ def create_sublists_around_invalids(algos):
         return n <= x <= m
 
     while True:
+        print(f"algos={algos}")
         start, end = find_consecutive_invalid_indices(algos, start_idx)
-        if start and in_between(start, 1, max_value -1) \
-                and in_between(end, 2, max_value -1):
-            result.append((start -1, end + 1))
+        if start and in_between(start, 0, max_value) \
+                and in_between(end, 0, max_value -1):
+            sublist_start = max(0, start -1)
+            sublist_end = min(end + 1, max_value)
+            result.append((sublist_start, sublist_end))
             start_idx = end + 1
             continue
         else:
