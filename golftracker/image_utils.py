@@ -9,11 +9,22 @@ RGB_VALUES = {
     "blue": (0, 0, 255),
     "yellow": (255, 255, 0),
     "light_gray": (211, 211, 211),
-    "pale_blue": (173, 216, 230),    
+    "pale_blue": (173, 216, 230),
+    "white": (255, 255, 255),
+    "highlight" : (16, 117, 245),
 }
 
 BGR_VALUES = {color: (b, g, r) for color, (r, g, b) in RGB_VALUES.items()}
 
+def put_msg(frame, msg, point=(0, 0), filled=False, color="white"):
+    width = int(frame.shape[1])
+    height = int(frame.shape[0])
+
+    if filled:
+        cv2.rectangle(frame, point, (width, 73), BGR_VALUES['highlight'], -1)
+    cv2.putText(frame, msg, 
+                    (point[0] + 10, point[1] + 60), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, BGR_VALUES[color], 2, cv2.LINE_AA)
 
 def create_blank_frames(num_frames, height=100, width=200):
     """ 

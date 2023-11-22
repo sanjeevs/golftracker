@@ -14,7 +14,6 @@ def create_parser():
     parser = argparse.ArgumentParser(description="Dump info from database")
 
     parser.add_argument("pkl_db", type=str, help="Swing database in pkl format")
-    parser.add_argument("--csv", type=str, help="csv file to dump the points", default="")
     return parser
 
 
@@ -35,24 +34,12 @@ def main():
     print(
         f">>PoseResult: {gs.pose_result}"
     )
+
+    print("\n")
+    print(f">>Poses:{gs.pose_result.poses}")
+    print("\n")
+    
     print(
         f">>ClubHead: {gs.club_head_result}"
     )
-    if opt.csv == "":
-        opt.csv = "mp_norm_" + os.path.splitext(opt.pkl_db)[0] + ".csv"
-
-    print(f">>Saving media pipe point values in '{opt.csv}' file")
     
-    headers = []
-    for elem in gt.MP_POSE_LANDMARKS:
-        headers.append(elem + "_x")
-        headers.append(elem + "_y")
-
-    with open(opt.csv, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(headers)
-
-        for frame_idx in range(gs.num_frames):
-            points = gs.get_mp_norm_points_dict(frame_idx)  
-            row = [coord for pair in points.values() for coord in pair]
-            writer.writerow(row)

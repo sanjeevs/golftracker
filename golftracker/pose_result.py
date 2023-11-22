@@ -8,7 +8,6 @@ class PoseResult:
 
     def __init__(self, num_frames):
         self.poses = [gt.GolfPose.Unknown] * num_frames
-        self.sequence = (None, None)  # Start to end pose frames
         self.handed = gt.Handedness.Unknown  # Is it left or right handed.
 
     def __str__(self):
@@ -29,3 +28,22 @@ class PoseResult:
                 status = True
 
         return status
+
+    def get_first_start_pose_frame_idx(self):
+        """ Return the first time the start pose is detected.
+            Else return None
+        """
+        start_idx = None
+        for i, pose in enumerate(self.poses):
+            if pose == gt.GolfPose.RhStart or pose == gt.GolfPose.LhStart:
+                start_idx = i
+                break
+        return start_idx
+
+    def get_last_finish_pose_frame_idx(self):
+        """Return the last golf swing finish else return None"""
+        finish_idx = None
+        for i, pose in enumerate(self.poses):
+            if pose == gt.GolfPose.RhFinish or pose == gt.GolfPose.LhFinish:
+                finish_idx = i        
+        return finish_idx

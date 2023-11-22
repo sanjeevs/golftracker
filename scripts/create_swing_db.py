@@ -75,12 +75,13 @@ def main():
     if gs.pose_result.is_valid_swing():
         print(f">>Golf swing detected between frame_idx {gs.pose_result.sequence}")
         print(f">>Golfer is {gs.pose_result.handed}")    
-        golf_swing_repository.serialize(opt.out, gs)
-
+        
     else:
         print(f">>OOPS could not detect golf swing in the video.")
-        print(f">>Run the cmd 'label_golf_poses {opt.out}' to create csv file")
-        
+        print(f">>Run'label_golf_poses {opt.out}' to create data for pose model")
+
+    print(f">>Creating the pkl database '{opt.out}'")
+    golf_swing_repository.serialize(opt.out, gs)
 
    
 if __name__ == "__main__":

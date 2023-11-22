@@ -22,11 +22,11 @@ class GolfSwing:
         self.club_head_result = club_head_result.ClubHeadResult(self.num_frames)
 
     # Get frames from video lazily
-    def get_video_frames(self):
+    def get_video_frames(self, scale=100, rotate=0):
         if not self.frames:
             (self.frames, _) = video_utils.split_video_to_frames(
-                    self.video_input.fname, scale=self.video_spec.scale, 
-                    rotate=self.video_spec.rotate)
+                    self.video_input.fname, scale=scale,
+                    rotate=rotate)
         return self.frames
 
 
@@ -60,11 +60,19 @@ class GolfSwing:
 
 
     # ML model for pose detection.
+    def set_golf_pose(self, frame_idx, pose):
+        self.pose_result.poses[frame_idx] = pose
+        
     def get_golf_pose(self, frame_idx):
         """ Return the golf pose enum type for the frame.
             If no pose detected then return state Unknown.
         """
         return self.pose_result.poses[frame_idx]
+
+    def get_golf_pose_sequence(self):
+        start_idx = self.pose_result.get_first_start_pose_frame_idx()
+        end_idx = self.pose_result.get_last_finish_pose_frame_idx()
+        return (start_idx, end_idx)
 
     def get_club_head_point(self, frame_idx):
         ''' Return the club head point. '''

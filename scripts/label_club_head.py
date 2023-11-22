@@ -24,24 +24,6 @@ img = None
 frame_idx = 0
 points_dict = {}
 
-
-def put_msg(frame, msg):
-    width = int(frame.shape[1])
-    height = int(frame.shape[0])
-
-    cv2.rectangle(frame, (0, 0), (width, 73), (245, 117, 16), -1)
-    cv2.putText(
-        frame,
-        msg,
-        (10, 60),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        2,
-        (255, 255, 255),
-        2,
-        cv2.LINE_AA,
-    )
-
-
 def click_event(event, x, y, flags, params):
     global img
     global frame_idx
@@ -68,6 +50,12 @@ def create_parser():
             help="Overwrite the club head pos in pkl db")
     parser.add_argument("--state", type=str, default="", help="input state file")
     parser.add_argument("--init", action="store_true", help="init the result first.")
+    parser.add_argument("--scale", default=100, type=int,
+        help="resize the incoming video file by scale percent",
+    )
+    parser.add_argument("--rotate", default=0, type=int,
+        help="rotate the incoming video file",
+    )
     return parser
 
 
@@ -89,7 +77,7 @@ def main():
         golf_swing_repository.serialize(opt.swing_db, gs)
         return
 
-    video_frames = gs.get_video_frames()
+    video_frames = gs.get_video_frames(scale=opt.scale, rotate=opt.rotate)
     cv2.namedWindow("LabelClubHead")
     # setting mouse handler for the image
     # and calling the click_event() function
@@ -101,7 +89,7 @@ def main():
         pose = gs.get_golf_pose(frame_idx)
         ch_pt, ch_source = gs.get_club_head_info(frame_idx)
         msg = f"Fr{frame_idx}:{gt.abbrev_pose(pose)}:{ch_source}"
-        put_msg(img, msg)
+        image_utils.put_msg(img, msg)
         if ch_pt is not None:
             if ch_source == "Label":
                 cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['red'], -1)
@@ -139,6 +127,7 @@ def main():
     else:
         gs.club_head_result.update(ch_result)
 
+    print(f">>Saving golf database to '{opt.swing_db}'")
     golf_swing_repository.serialize(opt.swing_db, gs)
     if opt.state:
         print(f">>Saving club head state to '{opt.state}'")

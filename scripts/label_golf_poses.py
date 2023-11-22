@@ -10,12 +10,13 @@ import pickle
 import numpy as np
 import mediapipe as mp
 import csv
+import copy
 
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
 from golftracker import gt_const as gt 
-from golftracker import video_utils
+from golftracker import video_utils,image_utils
 from golftracker import golf_swing_repository
 from collections import defaultdict
 
@@ -61,24 +62,13 @@ def create_parser():
     parser.add_argument(
         "--rotate", 
         "-r", 
-        default="", help="rotate the incoming video file",
+        default=0, 
+        type=int,
+        help="rotate the incoming video file",
     )
 
     return parser
 
-def put_msg(frame, msg):
-    width = int(frame.shape[1])
-    height = int(frame.shape[0])
-
-    cv2.rectangle(frame, (0, 0), (width, 73), (245, 117, 16), -1)
-    cv2.putText(frame, msg, 
-                    (10,60), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 2, (255,255,255), 2, cv2.LINE_AA)
-
-    cv2.rectangle(frame, (0, height -40), (width, height), (245, 117, 16), -1)
-    cv2.putText(frame, "s:start, t:top, f:finish", 
-                    (10, height -10), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255,255,255), 1, cv2.LINE_AA)
 
 
 def is_pose_key_detected(key_pressed):
@@ -95,30 +85,6 @@ def create_pose_class(key_pressed, handedness):
     else:
         return None
 
-
-def save_pose_coordinates_to_csv(fname, mode, golfswing, pose_classes):
-    """ Save golf poses to csv fname. """
-
-    num_coords = len(gt.MP_POSE_LANDMARKS)
-    landmarks = ['class']
-    for val in range(1, num_coords+1):
-        landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
-
-    with open(fname, mode=mode, newline='') as fh:
-        csv_writer = csv.writer(fh, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        if mode == "w":
-            csv_writer.writerow(landmarks)
-
-        for idx, golf_pose in pose_classes.items():
-            if golf_pose:
-                pose_row = golfswing.get_mp_landmarks_flat_row(idx)
-              
-                # Append class name 
-                pose_row.insert(0, golf_pose)
-            
-                csv_writer.writerow(pose_row)
-
-
 def main():
     opt = create_parser().parse_args()
 
@@ -126,10 +92,10 @@ def main():
         print(f"KeyPressed '{chr(key)}'' ==> {create_pose_class(key, opt.type)}: {KEY_STATE_ENCODING[key]}")
 
     if opt.out == "":
-        opt.out = os.path.basename(opt.swing_db).split('.')[0] + ".csv"
+        opt.out = "pose_" + os.path.basename(opt.swing_db).split('.')[0] + ".csv"
 
     gs = golf_swing_repository.reconstitute(opt.swing_db)
-    frames = gs.get_video_frames()
+    frames = gs.get_video_frames(opt.scale, opt.rotate)
 
     for i in range(gs.num_frames):
         gs.draw_frame(i, frames[i])
@@ -166,38 +132,17 @@ def main():
                 idx = len(frames) -1
 
             if is_pose_key_detected(key_pressed):
-                pose_classes[idx] = create_pose_class(key_pressed, opt.type).name
-                put_msg(frames[idx], f"Fr{idx}:{pose_classes[idx]}")
-            else:
-                put_msg(frames[idx], f"Fr{idx}")
+                pose = create_pose_class(key_pressed, opt.type)
+                gs.set_golf_pose(idx, pose)
 
-
-            cv2.imshow("LabelPoses", frames[idx])
+            pose = gs.get_golf_pose(idx)
+            frame = copy.deepcopy(frames[idx])
+            image_utils.put_msg(frame, f"Fr{idx}:{pose.name}")
+            cv2.imshow("LabelPoses", frame)
             key_pressed = cv2.waitKey(-1) & 0xff
-    
-    if key_pressed == 27:  #Esc key to abort the save
-        print(f">>Escape key detected. Not saving any pose data")
-        pose_classes = {}
-
-    else:
-        hist = defaultdict(list)
-        for k, v in pose_classes.items():
-            hist[v].append(k)
-
-        for k, v in hist.items():
-            print(f">>{k} in frames={v}")
-
-       
-        print(f"\n>> Creating {len(pose_classes)} labels in '{opt.out}' for '{opt.swing_db}'")
-        save_pose_coordinates_to_csv(opt.out, "w", gs, pose_classes)
-
-        print(f"\n>> Run the cmd 'train_posemodel -f <model_pkl> {opt.out}' to train model.")
-        print(f">> Default: train_posemodel -f {os.path.join('..', 'model', 'pose_models.pkl')} "
-                f" {opt.out}")
-
-        
 
     cv2.destroyAllWindows()
-    
+    print(f">>Saving golf database to '{opt.swing_db}'")
+    golf_swing_repository.serialize(opt.swing_db, gs)
 if __name__ == "__main__":
     main()

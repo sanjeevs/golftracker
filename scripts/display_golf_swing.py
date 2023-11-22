@@ -33,8 +33,7 @@ def main():
     
     video_frames = gs.get_video_frames()
             
-    start_idx = gs.pose_result.sequence[0]
-    finish_idx = gs.pose_result.sequence[1]
+    start_idx, finish_idx = gs.get_golf_pose_sequence()
     if start_idx == None or finish_idx == None:
         print(f">>Could not detect the start or end pose. Run 'label_golf_poses' and 'create_swing_db'")
         sys.exit(1)

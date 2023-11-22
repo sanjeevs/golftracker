@@ -71,7 +71,6 @@ def create_sublists_around_invalids(algos):
         return n <= x <= m
 
     while True:
-        print(f"algos={algos}")
         start, end = find_consecutive_invalid_indices(algos, start_idx)
         if start and in_between(start, 0, max_value) \
                 and in_between(end, 0, max_value -1):

@@ -29,38 +29,16 @@ class PoseModel:
                 result.poses[frame_idx] = gt.GolfPose[pose_class]
             else:
                 result.poses[frame_idx] =  gt.GolfPose.Unknown
-        
-        start_idx = self.get_first_start_pose_frame_idx(result.poses)
-        end_idx = self.get_last_finish_pose_frame_idx(result.poses)
-        result.sequence = (start_idx, end_idx)
 
         result.handed == gt.Handedness.Unknown
-        if start_idx is not None:
+        start_idx = result.get_first_start_pose_frame_idx()
+        if start_idx:
             if result.poses[start_idx] ==  gt.GolfPose.RhStart:
                 result.handed = gt.Handedness.RightHanded
             elif pose_result.poses[start_idx] == gt.GolfPose.LhStart:
                 result.handed = gt.Handedness.LeftHanded
 
         return result
-
-    def get_first_start_pose_frame_idx(self, poses):
-        """ Return the first time the start pose is detected.
-            Else return None
-        """
-        start_idx = None
-        for i, pose in enumerate(poses):
-            if pose == gt.GolfPose.RhStart or pose == gt.GolfPose.LhStart:
-                start_idx = i
-                break
-        return start_idx
-
-    def get_last_finish_pose_frame_idx(self, poses):
-        """Return the last golf swing finish else return None"""
-        finish_idx = None
-        for i, pose in enumerate(poses):
-            if pose == gt.GolfPose.RhFinish or pose == gt.GolfPose.LhFinish:
-                finish_idx = i        
-        return finish_idx
 
     
     
