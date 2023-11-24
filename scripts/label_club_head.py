@@ -44,7 +44,7 @@ def create_parser():
     )
 
     parser.add_argument("swing_db", type=str, help="Input golf swing data base")
-    parser.add_argument("-s", "--step", type=int, default=5, 
+    parser.add_argument("--step", type=int, default=5, 
             help="Increment for the jump key." )
     parser.add_argument("-f", "--force", action='store_true', 
             help="Overwrite the club head pos in pkl db")
@@ -52,9 +52,6 @@ def create_parser():
     parser.add_argument("--init", action="store_true", help="init the result first.")
     parser.add_argument("--scale", default=100, type=int,
         help="resize the incoming video file by scale percent",
-    )
-    parser.add_argument("--rotate", default=0, type=int,
-        help="rotate the incoming video file",
     )
     return parser
 
@@ -77,20 +74,27 @@ def main():
         golf_swing_repository.serialize(opt.swing_db, gs)
         return
 
-    video_frames = gs.get_video_frames(scale=opt.scale, rotate=opt.rotate)
+    video_frames = gs.get_video_frames(scale=opt.scale)
     cv2.namedWindow("LabelClubHead")
     # setting mouse handler for the image
     # and calling the click_event() function
     cv2.setMouseCallback("LabelClubHead", click_event)
 
     points_dict = {}
+    scale_x = int(gs.video_spec.width * opt.scale / 100)
+    scale_y = int(gs.video_spec.height * opt.scale / 100)
+
+    print(f">>Scaling width={scale_x} and height={scale_y}")
     while frame_idx < len(video_frames):
         img = video_frames[frame_idx]
+
         pose = gs.get_golf_pose(frame_idx)
-        ch_pt, ch_source = gs.get_club_head_info(frame_idx)
+
+        norm_pt, ch_source = gs.get_norm_club_head_info(frame_idx)
         msg = f"Fr{frame_idx}:{gt.abbrev_pose(pose)}:{ch_source}"
         image_utils.put_msg(img, msg)
-        if ch_pt is not None:
+        if norm_pt is not None:
+            ch_pt = image_utils.norm_2_screen(norm_pt, width=scale_x, height=scale_y)
             if ch_source == "Label":
                 cv2.circle(img, ch_pt, 5, image_utils.BGR_VALUES['red'], -1)
             else:
@@ -113,7 +117,10 @@ def main():
 
     
     ch_params = club_head_params.ClubHeadParams()
-    ch_params.club_head_points_dict = points_dict
+    ch_params.club_head_points_dict = image_utils.screen_2_norm(points_dict, 
+                width=scale_x, height=scale_y)
+    
+    print(f"Dict:{ch_params.club_head_points_dict}")
     ch_detector = club_head_detector.ClubHeadDetector(ch_params)
     ch_result = ch_detector.run(gs)
 

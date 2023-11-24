@@ -13,7 +13,9 @@ class PoseResult:
     def __str__(self):
         poses_str = ''
         cnt = Counter(self.poses)
-        sequence_str = f"Seq=[{self.sequence[0]}, {self.sequence[1]}]"
+        start_idx = self.get_first_start_pose_frame_idx()
+        end_idx = self.get_last_finish_pose_frame_idx()
+        sequence_str = f"Seq=[{start_idx}, {end_idx}]"
         handed_str = f"{self.handed}"
         return f"Poses:{cnt}, Seq={sequence_str}, {handed_str}"
 
@@ -22,8 +24,10 @@ class PoseResult:
         Return true if we detected a valid swing.
         """
         status = False
-        if self.sequence[0] is not None and self.sequence[1] is not None:
-            num_swing_frames = self.sequence[1] - self.sequence[0]
+        start_idx = self.get_first_start_pose_frame_idx()
+        end_idx = self.get_last_finish_pose_frame_idx()
+        if start_idx is not None and end_idx is not None:
+            num_swing_frames = end_idx - start_idx
             if num_swing_frames > 5:  # Arbitary
                 status = True
 

@@ -22,17 +22,18 @@ def create_parser():
     )
 
     parser.add_argument(
-        "--max_dim",
-        "-m",
-        default=600,
-        type=int,
-        help="Max pixel width or height of the video.",
+        "--start", default=0, type=int, help="Starting frame idx."
     )
 
     parser.add_argument(
-        "--rotate",
-        "-r",
-        default="",
+        "--end", default=-1, type=int, help="Ending frame idx."
+    )
+
+    parser.add_argument(
+        "--scale", default=100, type=int, help="scale down the video inp pcnt")
+
+    parser.add_argument(
+        "--rotate", default=0, type=int, 
         help="rotate the incoming video file. Auto fix for cv2 4.6",
     )
 
@@ -51,19 +52,7 @@ def main():
     if not cap.isOpened():
         raise ValueError(f"Could not open file '{opt.video}'")
 
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    if width > opt.max_dim:
-        scale_x = opt.max_dim / width
-    if height > opt.max_dim:
-        scale_y = opt.max_dim / height
-    print(f"scale_x={scale_x}, {scale_y}")
-    opt.scale = int(min(scale_x, scale_y) * 100)
-    opt.scale = math.ceil(opt.scale/10) * 10
-    if opt.scale == 0: 
-        opt.scale = 100
-
-    print(f">>Orig video has width={width}, ht={height}.")
+   
     print(f">>Scaling the video by {opt.scale}")
     or_meta = int(cap.get(cv2.CAP_PROP_ORIENTATION_META))
     if or_meta == 270:
@@ -73,18 +62,17 @@ def main():
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     cap.release()
 
-    (frames, (w, h, fps)) = video_utils.split_video_to_frames(
-        opt.video, opt.scale, opt.rotate
-    )
-    print(f">>Final video wxh is {w}x{h} at {fps} fps")
+    frames, video_spec = video_utils.split_video_to_frames (
+        opt.video, opt.scale, opt.rotate)
 
+    out_frames = frames[opt.start : opt.end]
     if opt.out == "":
         opt.out = opt.prefix + "_s_" + str(opt.scale)
         if opt.rotate:
-            opt.out += "_r_" + opt.rotate
+            opt.out += "_r_" + str(opt.rotate)
         opt.out += ".mov"
         print(f">>Generating output video '{opt.out}'' file.")
     else:
         print(f">>Creating output video '{opt.out}'' file.")
 
-    video_utils.join_frames_to_video(opt.out, fps, frames)
+    video_utils.join_frames_to_video(opt.out, fps, out_frames)

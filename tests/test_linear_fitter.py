@@ -11,6 +11,10 @@ from golftracker.club_head_detector import find_consecutive_invalid_indices, cre
     (['Valid', 'Invalid', 'Invalid'], 1, (1, 2)),  # Test with Start Index
     (['Valid', 'Invalid', 'Valid'], 0, (1, 1)),  # Test fail
     (['Valid', 'Valid'], 2, (None, None)),  # Test Out-of-Bounds Start Index
+    (['Invalid', 'Invalid', 'Label', 'Invalid', 'Invalid', 'Label', 'Invalid'], 0, (0, 1)),
+    (['Invalid', 'Invalid', 'Label', 'Invalid', 'Invalid', 'Label', 'Invalid'], 2, (3, 4)),
+    (['Invalid', 'Invalid', 'Label', 'Invalid', 'Invalid', 'Label', 'Invalid'], 3, (3, 4)),
+    (['Invalid', 'Invalid', 'Label', 'Invalid', 'Invalid', 'Label', 'Invalid'], 4, (4, 4)),
 ])
 def test_find_consecutive_invalid_indices(algos, start_idx, expected):
     assert find_consecutive_invalid_indices(algos, start_idx) == expected
@@ -24,6 +28,7 @@ def test_find_consecutive_invalid_indices(algos, start_idx, expected):
     (['Valid', 'Invalid', 'Invalid', 'Valid'], [(0, 3)]),  # Test Multiple Consecutive Invalid Entries
     (['Invalid', 'Valid', 'Invalid'], []),  # Test Edge Case: Invalid at Start
     (['Valid', 'Invalid', 'Invalid'], []),  # Test Edge Case: Invalid at End
+    (['Invalid', 'Invalid', 'Label', 'Invalid', 'Invalid', 'Label', 'Invalid'], [(2, 5)]),
 ])
 def test_create_sublists_around_invalids(algos, expected):
     assert create_sublists_around_invalids(algos) == expected

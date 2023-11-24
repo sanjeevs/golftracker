@@ -6,24 +6,25 @@ import copy
 
 class ClubHeadResult:
     def __init__(self, num_frames):
-        self.points = [None] * num_frames
+        self.norm_points = [None] * num_frames
         self.algos = ["Invalid"] * num_frames
 
     def update(self, new):
-        for i, point in enumerate(new.points):
+        for i, point in enumerate(new.norm_points):
             if point:
-                self.points[i], self.algos[i] = point, new.algos[i]
+                self.norm_points[i], self.algos[i] = point, new.algos[i]
 
     def reset_and_update(self, new):
-        self.points, self.algos = new.points.copy(), new.algos.copy()
+        self.norm_points, self.algos = new.norm_points.copy(), new.algos.copy()
 
     def __str__(self):
-        valid_points = [(i, pt) for i, pt in enumerate(self.points) if pt]
-        return f"Found {len(valid_points)} club head points: {valid_points}"
+        valid_points = [(i, pt) for i, pt in enumerate(self.norm_points) if pt]
+        num_labels = sum([1 for algo in self.algos if algo != "Invalid"])
+        return f"Found {len(valid_points)} club head points with {num_labels} valid"
 
     def export_lst(self):
         lst = []
-        for idx, point in enumerate(self.points):
+        for idx, point in enumerate(self.norm_points):
             if point == None:
                 lst.append([0, 0, "Invalid"])
             else:
@@ -35,9 +36,9 @@ class ClubHeadResult:
         for idx, entry in enumerate(lst):
             x, y = int(entry[0]), int(entry[1])
             if x == 0 and y == 0:
-                self.points[idx] = None
+                self.norm_points[idx] = None
                 self.algos[idx] = "Invalid"
             else:
-                self.points[idx] = (x, y)
+                self.norm_points[idx] = (x, y)
                 self.algos[idx] = entry[2]
 

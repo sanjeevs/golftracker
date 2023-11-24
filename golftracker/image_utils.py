@@ -193,3 +193,27 @@ def norm_2_screen(norm_points, width, height):
         return result
     else:
         raise TypeError("Unsupported input type for normalized points")
+
+def norm_screen_point(pt, width, height):
+    return (float(pt[0] / width), float(pt[1] / height))
+
+def screen_2_norm(screen_points, width, height):
+    '''
+    Convert the screen points to normalized points.
+    Can handle dict, list or a scalar value.
+    '''
+    if isinstance(screen_points, dict):
+        return {k: norm_screen_point(v, width, height) for k, v in screen_points.items()}
+    elif isinstance(screen_points, (tuple, list)):
+        result = []
+        for i, v in enumerate(screen_points):
+            if isinstance(v, (int, float)):
+                if i % 2 == 0:
+                    result.append(float(v / width))
+                else:
+                    result.append(float(v / height))
+            else:
+                result.append(norm_screen_point(v, width, height))
+        return result
+    else:
+        raise TypeError("Unsupported input type for screen points")

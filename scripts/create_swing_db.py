@@ -67,13 +67,13 @@ def main():
 
     gs = golf_swing_factory.create_from_video(video_input, video_spec, frames, 
             pmodel, ch_model)
-    print(f">>Golf sequence is from {gs.pose_result.sequence}")
+    print(f">>Golf sequence is from {gs.get_golf_pose_sequence()}")
     
     # Dump some useful statistics.
     print(f">>Analyzed {gs.video_spec.num_frames} frames of golf swing.")
 
     if gs.pose_result.is_valid_swing():
-        print(f">>Golf swing detected between frame_idx {gs.pose_result.sequence}")
+        print(f">>Golf swing detected between frame_idx {gs.get_golf_pose_sequence()}")
         print(f">>Golfer is {gs.pose_result.handed}")    
         
     else:

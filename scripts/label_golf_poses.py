@@ -59,14 +59,6 @@ def create_parser():
         help="resize the incoming video file by scale percent",
     )
 
-    parser.add_argument(
-        "--rotate", 
-        "-r", 
-        default=0, 
-        type=int,
-        help="rotate the incoming video file",
-    )
-
     return parser
 
 
@@ -95,7 +87,7 @@ def main():
         opt.out = "pose_" + os.path.basename(opt.swing_db).split('.')[0] + ".csv"
 
     gs = golf_swing_repository.reconstitute(opt.swing_db)
-    frames = gs.get_video_frames(opt.scale, opt.rotate)
+    frames = gs.get_video_frames(opt.scale)
 
     for i in range(gs.num_frames):
         gs.draw_frame(i, frames[i])

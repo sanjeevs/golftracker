@@ -17,23 +17,29 @@ class ClubHeadDetector:
 
         # Copy over the labels created by the user.
         for k, v in self.params.club_head_points_dict.items():
-            ch_result.points[k] = v
+            ch_result.norm_points[k] = v
             ch_result.algos[k] = 'Label'
+            print(f"Setting {k} to label")
 
         # Run the linear fit algo to esstimate the various missing ch pos.
         sublists = create_sublists_around_invalids(ch_result.algos)
         estimates = []
         for start, end in sublists:
             n = end - start - 1
-            print(f"n={n}")
             if ch_result.algos[start] != "Invalid" and ch_result.algos[end] != "Invalid":
-                estimates = geom.split_line(ch_result.points[start], ch_result.points[end], n + 1)
+                start_point = image_utils.norm_2_screen(ch_result.norm_points[start], width=width,
+                        height=height)
+                end_point = image_utils.norm_2_screen(ch_result.norm_points[end], width=width,
+                        height=height)
+                estimates = geom.split_line(start_point, end_point, n + 1)
                 idx = 0
                 for i in range(start + 1, end):
-                    ch_result.points[i] = estimates[idx]
+                    ch_result.norm_points[i] = image_utils.screen_2_norm(estimates[idx],
+                            width=width, height=height)
                     ch_result.algos[i] = "LinearFit"
                     idx += 1
         
+        print(f"ClubDetector:{ch_result}")
         return ch_result
 
 
@@ -48,11 +54,12 @@ def find_consecutive_invalid_indices(algos, start_idx=0):
     try:
         # Find the index of the first occurrence of 1
         start = algos.index('Invalid', start_idx)
-
+        
         # Find the index of the next occurrence of 2 after the index of 1
         end = start
         while end < len(algos) and algos[end] == "Invalid":
             end += 1
+        print(f"Find_consecutive:idx={start_idx}, start={start}, end={end -1}")
 
         return start, end -1
     except ValueError:
@@ -70,17 +77,19 @@ def create_sublists_around_invalids(algos):
     def in_between(x, n, m):
         return n <= x <= m
 
+    print(f"Algos={algos}")
     while True:
         start, end = find_consecutive_invalid_indices(algos, start_idx)
-        if start and in_between(start, 0, max_value) \
+        if start is not None and in_between(start, 0, max_value) \
                 and in_between(end, 0, max_value -1):
-            sublist_start = max(0, start -1)
-            sublist_end = min(end + 1, max_value)
-            result.append((sublist_start, sublist_end))
+            if start > 0:
+                sublist_start = max(0, start -1)
+                sublist_end = min(end + 1, max_value)
+                result.append((sublist_start, sublist_end))
             start_idx = end + 1
-            continue
         else:
             break
+    print(f"Result={result}")
     return result
 
 

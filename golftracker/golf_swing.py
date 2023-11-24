@@ -22,11 +22,11 @@ class GolfSwing:
         self.club_head_result = club_head_result.ClubHeadResult(self.num_frames)
 
     # Get frames from video lazily
-    def get_video_frames(self, scale=100, rotate=0):
+    def get_video_frames(self, scale=100):
         if not self.frames:
             (self.frames, _) = video_utils.split_video_to_frames(
                     self.video_input.fname, scale=scale,
-                    rotate=rotate)
+                    rotate=0)
         return self.frames
 
 
@@ -74,13 +74,13 @@ class GolfSwing:
         end_idx = self.pose_result.get_last_finish_pose_frame_idx()
         return (start_idx, end_idx)
 
-    def get_club_head_point(self, frame_idx):
+    def get_norm_club_head_point(self, frame_idx):
         ''' Return the club head point. '''
-        return self.club_head_result.points[frame_idx]
+        return self.club_head_result.norm_points[frame_idx]
 
-    def get_club_head_info(self, frame_idx):
+    def get_norm_club_head_info(self, frame_idx):
         ''' Return the club head point and the source of calc. '''
-        return (self.club_head_result.points[frame_idx], 
+        return (self.club_head_result.norm_points[frame_idx], 
                 self.club_head_result.algos[frame_idx])
     
     # Club head result
@@ -96,9 +96,10 @@ class GolfSwing:
 
         (h, w, _) = background_frame.shape
         # Draw a line from the hand to the club head.
-        club_head_point, algo = self.get_club_head_info(frame_idx)
-        if club_head_point:
-            x1, y1 = club_head_point
+        norm_club_head_pt, algo = self.get_norm_club_head_info(frame_idx)
+        
+        if norm_club_head_pt:
+            x1, y1= image_utils.scale_norm_point(norm_club_head_pt, width=w, height=h)
             right_thumb = self.get_mp_norm_point(frame_idx, "right_thumb")
             x2, y2 = image_utils.scale_norm_point(right_thumb, w, h)
             if algo == "Label":
