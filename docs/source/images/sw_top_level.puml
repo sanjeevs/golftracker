@@ -1,4 +1,5 @@
 @startuml
+scale 2
 
 ' Define a package or boundary for the aggregate
 package "GolfSwing Aggregate" {
