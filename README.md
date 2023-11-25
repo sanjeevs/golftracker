@@ -14,6 +14,13 @@ This is shown below ![Flowchart](docs/source/images/golftracker.png)
 
 Some sample vides for down the line, right hand golfer is available on [GoogleDrive](https://drive.google.com/drive/folders/1TDUnGjP1wh1gZeN1EZdJOO4AeYuMLnkO?usp=sharing)
 
+Each video example has 3 files.
+
+* Video file
+
+* Pickle database that is the result of running the scripts below.
+
+* Json file for exporting to GolfCoach packge
 
 The general sequence of steps for a video say "0001.mov"
 
