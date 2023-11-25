@@ -6,6 +6,7 @@ from golftracker import club_head_result
 from golftracker import video_utils
 from golftracker import image_utils
 import cv2
+import json
 
 class GolfSwing:
     def __init__(self, video_spec, video_input):
@@ -107,4 +108,21 @@ class GolfSwing:
             else:
                 cv2.line(background_frame, (int(x1), int(y1)), (x2, y2), (0, 255, 255), 2)
 
-    
+    # Write out json state for analysis
+
+    def to_json(self, json_fname, compact=True):
+        data = {
+            "video_spec": self.video_spec._asdict(),
+            "video_input": self.video_input._asdict(),
+            "num_frames": self.num_frames,
+            "pose_result": self.pose_result.serialize(),
+            "club_head_result": self.club_head_result.serialize(),
+            "mp_result": self.mp_result.serialize(),
+        }
+
+        # Write to json
+        with open(json_fname, "w") as file:
+            if compact:
+                json.dump(data, file)
+            else:
+                json.dump(data, file, indent=4)

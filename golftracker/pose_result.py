@@ -51,3 +51,12 @@ class PoseResult:
             if pose == gt.GolfPose.RhFinish or pose == gt.GolfPose.LhFinish:
                 finish_idx = i        
         return finish_idx
+
+    def serialize(self):
+        """
+        Serialize the object to a JSON-compatible format.
+        """
+        return {
+            "poses": [pose.name for pose in self.poses],  # Convert Enum members to their names
+            "handed": self.handed.name  # Convert the Enum member to its name
+        }

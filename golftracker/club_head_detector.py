@@ -39,7 +39,6 @@ class ClubHeadDetector:
                     ch_result.algos[i] = "LinearFit"
                     idx += 1
         
-        print(f"ClubDetector:{ch_result}")
         return ch_result
 
 
@@ -77,7 +76,6 @@ def create_sublists_around_invalids(algos):
     def in_between(x, n, m):
         return n <= x <= m
 
-    print(f"Algos={algos}")
     while True:
         start, end = find_consecutive_invalid_indices(algos, start_idx)
         if start is not None and in_between(start, 0, max_value) \

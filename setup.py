@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="golftracker",
-    version="1.1.1",
+    version="2.0",
     description="Use open cv to detect critical elements in a golf swing.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -24,6 +24,7 @@ setup(
         'console_scripts' : [
             'create_swing_db=scripts.create_swing_db:main',
             'dump_swing_db=scripts.dump_swing_db:main',
+            'load_swing_db=scripts.load_swing_db:main',
             'display_golf_swing=scripts.display_golf_swing:main',
             'label_club_head=scripts.label_club_head:main',
             'label_golf_poses=scripts.label_golf_poses:main',

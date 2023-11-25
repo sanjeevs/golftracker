@@ -6,12 +6,13 @@ Create the root instance GolfSwing
 
 import os
 
-from golftracker import video_utils
+from golftracker import image_utils, video_utils
 from golftracker import golf_swing
 from golftracker import gt_const
 from golftracker import media_pipe_operation as mp_op
 
 import cv2
+import json
 
 def create_from_video(video_input, video_spec, frames, pose_model=None,
         club_head_detector=None):
@@ -47,3 +48,12 @@ def __create(video_spec, video_input, frames, pose_model, club_head_detector):
         gs.club_head_result.reset_and_update(club_head_result)
 
     return gs
+
+def create_from_json(data):
+    
+    video_spec_data = data["video_spec"]
+    video_input_data = data["video_input"]
+
+    video_spec = video_utils.VideoSpec(**video_spec_data)
+    video_input = video_utils.VideoInput(**video_input_data)
+    return golf_swing.GolfSwing(video_spec, video_input)

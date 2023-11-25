@@ -14,6 +14,8 @@ def create_parser():
     parser = argparse.ArgumentParser(description="Dump info from database")
 
     parser.add_argument("pkl_db", type=str, help="Swing database in pkl format")
+    parser.add_argument("--out", type=str, default="", help="output json fname")
+    parser.add_argument("--compact", action="store_true", help="output format for json")
     return parser
 
 
@@ -42,4 +44,9 @@ def main():
     print(
         f">>ClubHead: {gs.club_head_result}"
     )
-    
+
+    if opt.out == "":
+        opt.out = os.path.splitext(os.path.basename(opt.pkl_db))[0] + ".json"
+
+    print(f">>Creating '{opt.out}'' file")
+    gs.to_json(opt.out, opt.compact)    

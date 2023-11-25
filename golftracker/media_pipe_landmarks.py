@@ -60,3 +60,10 @@ class MediaPipeLandmarks:
         """
         frame_landmarks = self.video_landmarks[frame_idx]
         ml_op.draw(background_frame, frame_landmarks, line_color)
+
+
+    def serialize(self):
+        lst = []
+        for frame_idx in range(len(self.video_landmarks)):
+            lst.append(self.get_mp_landmarks_flat_row(frame_idx))
+        return lst

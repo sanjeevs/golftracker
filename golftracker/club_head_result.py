@@ -42,3 +42,8 @@ class ClubHeadResult:
                 self.norm_points[idx] = (x, y)
                 self.algos[idx] = entry[2]
 
+    def serialize(self):
+        return {
+            "norm_points": self.norm_points,
+            "algos": self.algos
+        }
