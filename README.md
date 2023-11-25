@@ -5,9 +5,9 @@
 
 ## Introduction
 -------------------
-The package provides various scripts to process a golf swing video and export the information to another package "GolfCoach" for analysis. The output feedback can then be used to improve the swing.
+The package provides various scripts to process a golf swing video and export the information to another package [GolfTrainer](https://pypi.org/project/golftrainer/) for analysis. The output feedback can then be used to improve the swing.
 
-The package uses Google media pipe for detecting the golfer. It then detects the club head in the video and the golf poses to detect the start and finish of the golf swing. This information in written out to a json file that can be analyzed by a separate packge "GolfCoach" for analysis. 
+The package uses [Google Media Pipe Pose Landmark Detection] (https://mediapipe-studio.webapps.google.com/demo/pose_landmarker) for detecting the golfer. It then detects the club head in the video and the golf poses to detect the start and finish of the golf swing. This information in written out to a json file that can be analyzed by a separate packge "GolfCoach" for analysis. 
 
 This is shown below ![Flowchart](docs/source/images/golftracker.png)
 
