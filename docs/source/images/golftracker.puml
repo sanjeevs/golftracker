@@ -1,0 +1,18 @@
+@startuml
+start
+:Run script "create_swing_db <video_fname>";
+
+partition "GolfTracker" {
+  :Create pkl database using create_swing_db <video_fname>;
+  :Optionally hand label golf poses using label_golf_poses;
+  :Optionally hand label club head position using label_club_head;
+  :Create JSON file using dump_golf_db;
+}
+
+partition "GolfCoach" {
+  :Analyze the JSON file;
+  :Suggest improvements to the golfer's swing;
+}
+
+stop
+@enduml

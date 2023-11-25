@@ -1,122 +1,57 @@
 # Table of Contents
 1. [Introduction](#INTRODUCTION) Purpose of the package.
-2. [Installation](#Installation) If you wish to use the package.
-3. [Development](#Development) If you wish to change the source code and enhance the package.
-4. [Distribution](#Distribution) For releasing the package to [pypi](https://pypi.org/project/golftracker/) 
+2. [Installation](docs/source/installation.md) If you wish to use the package.
+3. [Development](docs/source/development.md) If you wish to change the source code and enhance the package.
 
 ## Introduction
 -------------------
-The goal of the process is to analyze a golf swing by processing a video that has been shot from a down-the-line perspective, which means the camera is positioned behind the golfer. The workflow consists of first capturing all the information about the swing in a pickle data base and then analyzing the swing. Below are the major steps.
+The package provides various scripts to process a golf swing video and export the information to another package "GolfCoach" for analysis. The output feedback can then be used to improve the swing.
 
-### Swing Capture
+The package uses Google media pipe for detecting the golfer. It then detects the club head in the video and the golf poses to detect the start and finish of the golf swing. This information in written out to a json file that can be analyzed by a separate packge "GolfCoach" for analysis. 
 
-The purpose of this is to capture the various points in a golf swing that will be subsequently used for analysis. The major steps are below. 
-
-#### Frame Extraction and Landmark Detection:
-
-The video is first processed to extract all frames.
-Each frame is then processed using Google MediaPipe, a machine learning framework that detects key points or "landmarks" on the golfer throughout the frames.
-
-#### Landmark Normalization and Model Input:
-
-The landmarks detected by Google MediaPipe, which represent various points on the golfer’s body, are input into a machine learning (ML) model.
-
-#### Golfer Information Analysis:
-
-The ML model analyzes the input data to deduce certain characteristics of the golfer and their swing, such as:
-Determining whether the golfer is right-handed or left-handed.
-Identifying the key positions of the swing: the starting pose, the top of the swing, and the ending pose.
-
-#### Club Head Coordinate Detection:
-
-Alongside the analysis of the golfer's body, various optical algorithms are employed to ascertain the position of the golf club head within the frames. These include:
-* Hough Line Detection: This helps in identifying lines, which can be used to infer the shaft of the golf club.
-
-* Canny Edge Detection: This identifies the edges in the images to help locate the club head.
+This is shown below ![Flowchart](docs/source/images/golftracker.png)
 
 
-#### Swing Arc Determination:
+Some sample vides for down the line, right hand golfer is available on [GoogleDrive](https://drive.google.com/drive/folders/1TDUnGjP1wh1gZeN1EZdJOO4AeYuMLnkO?usp=sharing)
 
-By combining the landmarks of the golfer's body from Google MediaPipe with the detected coordinates of the club head, the arc of the golf club's travel is deduced.
 
-### Swing Analysis:
+The general sequence of steps for a video say "0001.mov"
 
-Finally, with an integrated set of landmarks—those of the golfer and the club head—the golf swing can be thoroughly analyzed. This analysis could reveal insights into the swing mechanics and suggest areas for improvement.
+### Create Swing Database
+This step runs google media pipe and stores all the landmarks. It will also try to detect the golf poses and club head position. Current version usually fails on this and requires hand labellling.
+```
+create_swing_db 00001.mov
+```
 
-Some of the key points are listed below.
+### Hand Label GolfPoses
+Run the script below to label the golf poses. The golf pose consist of 
+* Start Pose: 
+* Top Pose: Indicates that the backswing is now complete.
+* Finish Pose: Indicates that the swing is complete.
 
-#### Swing Plane
+```
+label_golf_poses 00001.pkl
+```
 
-Analyze whether the club is moving in the swing plane. It is common wisdom that being in the correct swing plane will lead to a solid contact and so increased consistency, accuracy and distance. Check the [YouTube](https://youtu.be/-fdkmLEdLiA) for details.
+### Hand Label Club Head Position
+Label the club head in some of the frames. The script will then use a linear approx to fill the position in the remaining frames.
 
-#### Head Movement
+```
+label_club_head 00001.pkl
+```
 
-Check if there is excessive head movement during the swing.
+### Export To Json
+Export the information to a json file for analysis by the GolfCoach package.
 
-#### Arm Movement
-
-Ensure correct arm position at the takeaway, backswing, downswing, impact and follow-through.
-
+```
+dump_swing_db 00001.pkl
+```
 
 ## Status
-
-Currently I am working to get the club head position. Have not yet started on the analysis of the swing.
-
 WIP: Detailed src documentation of this package is on [ReadTheDocs](https://golftracker.readthedocs.io/en/latest/)
 
-## Installation
-----------------
-If you are interested in simply using the package then you can install it as a standard package. For dev look below.
-
-
-```
-python -m venv venv
-
-// Activate the virtual env
-// On Windows run  venv/Scripts/activate
-// On Linux bash source venv/Scripts/activate.sh
-
-pip install golftracker
-```
-
-I have uploaded some of the test vidoes on [GoogleDrive](https://drive.google.com/drive/folders/1ElxhtWFyLM9psTiCbrei8Ubj0A-c5-gh?usp=sharing) for testing.
-
 
 ## Status
-Currently I am working on the golfswing capture portion.
 The current steps are listed here [GolfSwingCapture](docs/source/golfswing_capture.md)
 Initial thoughts on swing analysis are here [GolfSwingAnalysis](docs/source/golfswing_analysis.md)
 
-## Development
----------------
-The source repository is in [GitHub](https://github.com/sanjeevs/golftracker). The development flow is similar to other python
-projects.
-* Clone the project.
-```
-git clone https://github.com/sanjeevs/golftracker.git
-```
-* Create a virtual env and install all the dependencies
-```
-venv>  pip install -r requirements.txt
-```
-* Run unit tests for sanity
-```
-(venv)golftracker> pytest
-```
-* Install the package locally for development.
-```
- pip install -e .
-```
-
-## Distribution
-------------------------
-For publishing this package on pypy use the following steps.
-* Bump the version in setup.py
-* Build the distribution
-```commandline
-python setup.py bdist_wheel
-```
-* Upload the distribution
-```commandline
-twine upload dist/*
-```

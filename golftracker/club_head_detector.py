@@ -19,8 +19,7 @@ class ClubHeadDetector:
         for k, v in self.params.club_head_points_dict.items():
             ch_result.norm_points[k] = v
             ch_result.algos[k] = 'Label'
-            print(f"Setting {k} to label")
-
+          
         # Run the linear fit algo to esstimate the various missing ch pos.
         sublists = create_sublists_around_invalids(ch_result.algos)
         estimates = []
@@ -58,8 +57,7 @@ def find_consecutive_invalid_indices(algos, start_idx=0):
         end = start
         while end < len(algos) and algos[end] == "Invalid":
             end += 1
-        print(f"Find_consecutive:idx={start_idx}, start={start}, end={end -1}")
-
+    
         return start, end -1
     except ValueError:
         return None, None
@@ -87,7 +85,7 @@ def create_sublists_around_invalids(algos):
             start_idx = end + 1
         else:
             break
-    print(f"Result={result}")
+    
     return result
 
 
