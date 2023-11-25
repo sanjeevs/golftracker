@@ -1,7 +1,7 @@
 # Development
 ---------------
 The source repository is in [GitHub](https://github.com/sanjeevs/golftracker). 
-The overall software design is shown below ![ArchDiagram](docs/source/images/sw_top_level.png)
+The overall software design is shown below ![ArchDiagram](images/sw_top_level.png)
 
 The development flow is similar to other python projects.
 * Clone the project.
