@@ -9,7 +9,7 @@ partition "GolfTracker" {
   :Create JSON file using dump_golf_db;
 }
 
-partition "GolfCoach" {
+partition "GolfTrainer" {
   :Analyze the JSON file;
   :Suggest improvements to the golfer's swing;
 }

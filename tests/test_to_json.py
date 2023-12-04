@@ -29,7 +29,7 @@ def test_to_json(golf_swing_object, tmp_path):
     assert data["video_input"]["size"] == [1920, 1080]
     assert data["video_spec"]["height"] == 1080
     assert data["num_frames"] == 120
-    assert len(data["mp_result"]) ==  120
+    assert len(data["mp_result"]["norm_points"]) ==  120
     assert data["pose_result"]["handed"] == "Unknown"
     assert len(data["pose_result"]["poses"]) == 120
     assert len(data["club_head_result"]["norm_points"]) == 120

@@ -7,7 +7,7 @@
 -------------------
 The package provides various scripts to process a golf swing video and export the information to another package [GolfTrainer](https://pypi.org/project/golftrainer/) for analysis. The output feedback can then be used to improve the swing.
 
-The package uses [Google Media Pipe Pose Landmark Detection] (https://mediapipe-studio.webapps.google.com/demo/pose_landmarker) for detecting the golfer. It then detects the club head in the video and the golf poses to detect the start and finish of the golf swing. This information in written out to a json file that can be analyzed by a separate packge "GolfCoach" for analysis. 
+The package uses [Google Media Pipe Pose Landmark Detection] (https://mediapipe-studio.webapps.google.com/demo/pose_landmarker) for detecting the golfer. It then detects the club head in the video and the golf poses to detect the start and finish of the golf swing. This information in written out to a json file that can be analyzed by a separate packge ["GolfTrainer"](https://github.com/sanjeevs/golftrainer) for analysis.
 
 This is shown below ![Flowchart](docs/source/images/golftracker.png)
 
@@ -20,7 +20,7 @@ Each video example has 3 files.
 
 * Pickle database that is the result of running the scripts below.
 
-* Json file for exporting to GolfCoach packge
+* Json file for exporting to [GolfTrainer Package](https://github.com/sanjeevs/golftrainer)
 
 The general sequence of steps for a video say "0001.mov"
 
@@ -48,7 +48,7 @@ label_club_head 00001.pkl
 ```
 
 ### Export To Json
-Export the information to a json file for analysis by the GolfCoach package.
+Export the information to a json file for analysis by the [GolfTrainer](https://github.com/sanjeevs/golftrainer) package.
 
 ```
 dump_swing_db 00001.pkl

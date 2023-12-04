@@ -63,7 +63,9 @@ class MediaPipeLandmarks:
 
 
     def serialize(self):
-        lst = []
+        fmt = {}
+        fmt['landmarks'] = gt.MP_POSE_LANDMARKS
+        fmt['norm_points'] = []
         for frame_idx in range(len(self.video_landmarks)):
-            lst.append(self.get_mp_landmarks_flat_row(frame_idx))
-        return lst
+            fmt['norm_points'].append(self.get_mp_landmarks_flat_row(frame_idx))
+        return fmt

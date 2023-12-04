@@ -217,3 +217,28 @@ def screen_2_norm(screen_points, width, height):
         return result
     else:
         raise TypeError("Unsupported input type for screen points")
+
+def draw_dotted_line(img, pt1, pt2, line_color, thickness=1, style='dotted', gap=20):
+    color = BGR_VALUES[line_color]
+    dist =((pt1[0] - pt2[0]) ** 2 + (pt1[1] - pt2[1]) ** 2) ** 0.5
+    pts= []
+    for i in  np.arange(0, dist, gap):
+        r = i / dist
+        x = int((pt1[0] * (1 - r) + pt2[0] * r) + 0.5)
+        y = int((pt1[1] * (1 - r) + pt2[1] * r) + 0.5)
+        p = (x, y)
+        pts.append(p)
+
+    if style == 'dotted':
+        for p in pts:
+            cv2.circle(img, p, thickness, color, -1)
+    else:
+        s=pts[0]
+        e=pts[0]
+        i=0
+        for p in pts:
+            s=e
+            e=p
+            if i%2==1:
+                cv2.line(img, s, e, color, thickness)
+            i+=1

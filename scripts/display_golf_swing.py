@@ -43,6 +43,13 @@ def main():
     frames = video_frames[start_idx : finish_idx + 1]
     frame_shape = video_frames[0].shape
 
+    # swing plane
+    start_idx, _ = gs.get_golf_pose_sequence()
+    pt1 = image_utils.scale_norm_point(gs.get_mp_norm_point(start_idx, "nose"), 
+        height=frame_shape[0], width=frame_shape[1])
+    pt2 = image_utils.scale_norm_point(gs.get_norm_club_head_info(start_idx)[0],
+        height=frame_shape[0], width=frame_shape[1])
+
     # out canvas to draw the computed images
     background = []
     for i in range(len(frames)):
@@ -52,6 +59,7 @@ def main():
     mp_frames = copy.deepcopy(background)
     for i in range(len(mp_frames)):
         gs.draw_frame(i, mp_frames[i])
+        image_utils.draw_dotted_line(mp_frames[i], pt1, pt2, line_color="pale_blue")
 
     time_lapses = copy.deepcopy(background)
     for i in range(len(frames)):
