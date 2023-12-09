@@ -55,6 +55,7 @@ def main():
     for i in range(len(frames)):
         background.append(np.zeros(frame_shape, dtype=np.uint8))
 
+
     # Output to compute.
     mp_frames = copy.deepcopy(background)
     for i in range(len(mp_frames)):
@@ -66,6 +67,17 @@ def main():
         gs.draw_frame(i, time_lapses[i], line_color="blue")
         gs.draw_frame(start_idx, time_lapses[i], line_color="pale_blue")
     
+
+    blended_frames = []
+    alpha = 0.8
+    for i in range(len(frames)):
+        image = copy.deepcopy(frames[i])
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        gray_image = cv2.cvtColor(gray_image, cv2.COLOR_GRAY2BGR)
+        dull_image = cv2.addWeighted(image, alpha, gray_image, 1 - alpha, 0)
+        gs.draw_frame(i, dull_image, line_color="blue")
+        blended_frames.append(dull_image)
+
     if len(mp_frames) > 0:
         idx = start_idx
         key_pressed = ''
@@ -83,9 +95,9 @@ def main():
 
             images = [
                     (video_frames[idx], f"Frame {idx}"),
-                    mp_frames[idx],
+                    (mp_frames[idx], f"{gs.get_golf_pose(idx)}"),
                     (time_lapses[idx], f"Lapse {idx}"),
-                    (mp_frames[idx], f"{gs.get_golf_pose(idx)}")
+                    (blended_frames[idx], f"Frame {idx}"),
             ]
 
             stacked_images = image_utils.stack_images(images=images, scale=opt.scale/100, 
