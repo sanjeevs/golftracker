@@ -12,6 +12,8 @@ from golftracker import image_utils
 from golftracker import path_model
 from golftracker import gt_const 
 
+from golftracker import media_pipe_landmarks
+
 
 def create_parser():
     """Create a command line parser."""
@@ -78,6 +80,7 @@ def main():
         gs.draw_frame(i, dull_image, line_color="blue")
         blended_frames.append(dull_image)
 
+   
     if len(mp_frames) > 0:
         idx = start_idx
         key_pressed = ''
@@ -96,7 +99,7 @@ def main():
             images = [
                     (video_frames[idx], f"Frame {idx}"),
                     (mp_frames[idx], f"{gs.get_golf_pose(idx)}"),
-                    (time_lapses[idx], f"Lapse {idx}"),
+                    (time_lapses[idx], f"TimeLapse {idx}"),
                     (blended_frames[idx], f"Frame {idx}"),
             ]
 
