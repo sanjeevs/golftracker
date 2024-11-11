@@ -130,60 +130,61 @@ def save():
     print(f">>SAVE the pkl filke '{opt.swing_db}'")
    
 
-#
-# Main code starts
-#
-draw_main()
-cv2.namedWindow("CannyEdgeTrackbar")
-cv2.createTrackbar("bin_thresh", "CannyEdgeTrackbar", canny_edge_params.bin_threshold, 255, 
-                   lambda v: on_trackbar(v, 1))
-cv2.createTrackbar("bin_maxvalue", "CannyEdgeTrackbar", canny_edge_params.bin_maxvalue, 255, 
-                   lambda v: on_trackbar(v, 2))
-cv2.createTrackbar("threshold1", "CannyEdgeTrackbar", canny_edge_params.canny_threshold1, 255, 
-                   lambda v: on_trackbar(v, 3))
-cv2.createTrackbar("threshold2", "CannyEdgeTrackbar", canny_edge_params.canny_threshold2, 255, 
-                   lambda v: on_trackbar(v, 4))
+def main():
+    #
+    # Main code starts
+    #
+    draw_main()
+    cv2.namedWindow("CannyEdgeTrackbar")
+    cv2.createTrackbar("bin_thresh", "CannyEdgeTrackbar", canny_edge_params.bin_threshold, 255, 
+            lambda v: on_trackbar(v, 1))
+    cv2.createTrackbar("bin_maxvalue", "CannyEdgeTrackbar", canny_edge_params.bin_maxvalue, 255, 
+            lambda v: on_trackbar(v, 2))
+    cv2.createTrackbar("threshold1", "CannyEdgeTrackbar", canny_edge_params.canny_threshold1, 255, 
+            lambda v: on_trackbar(v, 3))
+    cv2.createTrackbar("threshold2", "CannyEdgeTrackbar", canny_edge_params.canny_threshold2, 255, 
+            lambda v: on_trackbar(v, 4))
 
-cv2.namedWindow("HoughLineTrackbar")
-diagonal = math.sqrt(width^2 + height^2)
-cv2.createTrackbar("rho", "HoughLineTrackbar", int(hough_line_params.rho * 10), int(diagonal * 10), 
-                   lambda v: on_hg_trackbar(v, 1))
-cv2.setTrackbarMin("rho", "HoughLineTrackbar", 1)
+    cv2.namedWindow("HoughLineTrackbar")
+    diagonal = math.sqrt(width^2 + height^2)
+    cv2.createTrackbar("rho", "HoughLineTrackbar", int(hough_line_params.rho * 10), int(diagonal * 10), 
+            lambda v: on_hg_trackbar(v, 1))
+    cv2.setTrackbarMin("rho", "HoughLineTrackbar", 1)
 
-cv2.createTrackbar("theta", "HoughLineTrackbar", int(hough_line_params.theta * 10), 31, 
-                   lambda v: on_hg_trackbar(v, 2))
-cv2.setTrackbarMax("theta", "HoughLineTrackbar", 31)
+    cv2.createTrackbar("theta", "HoughLineTrackbar", int(hough_line_params.theta * 10), 31, 
+            lambda v: on_hg_trackbar(v, 2))
+    cv2.setTrackbarMax("theta", "HoughLineTrackbar", 31)
 
-cv2.createTrackbar("threshold", "HoughLineTrackbar", hough_line_params.threshold, 10, 
-                   lambda v: on_hg_trackbar(v, 3))
+    cv2.createTrackbar("threshold", "HoughLineTrackbar", hough_line_params.threshold, 10, 
+            lambda v: on_hg_trackbar(v, 3))
 
-cv2.createTrackbar("max_gap", "HoughLineTrackbar", hough_line_params.max_line_gap, 100, 
-                   lambda v: on_hg_trackbar(v, 4))
-cv2.setTrackbarMin("max_gap", "HoughLineTrackbar", 1)
+    cv2.createTrackbar("max_gap", "HoughLineTrackbar", hough_line_params.max_line_gap, 100, 
+            lambda v: on_hg_trackbar(v, 4))
+    cv2.setTrackbarMin("max_gap", "HoughLineTrackbar", 1)
 
-skip_save = 0
-key_pressed = ''
+    skip_save = 0
+    key_pressed = ''
 
-while key_pressed != ord('q') and key_pressed != 27 and key_pressed != ord('s'):
-    if key_pressed == ord('p'):
+    while key_pressed != ord('q') and key_pressed != 27 and key_pressed != ord('s'):
+        if key_pressed == ord('p'):
         # Previous frame
         frame_idx = max(frame_idx -1, 0)
-                
+        
     if key_pressed == ord('n') or key_pressed == 32:
-        # Next frame
-        frame_idx = min(frame_idx + 1, num_frames -1)
+    # Next frame
+    frame_idx = min(frame_idx + 1, num_frames -1)
 
     key_pressed = cv2.waitKey(-1) & 0xff
 
     frame = video_frames[frame_idx]
     draw_main()
 
-if key_pressed == ord("s"):
-    save()
-elif key_pressed == ord("q"):  
-    ans = input(f">>> Do you want to update the pkl file '{opt.swing_db}'  (y/n) ")
+    if key_pressed == ord("s"):
+        save()
+    elif key_pressed == ord("q"):  
+        ans = input(f">>> Do you want to update the pkl file '{opt.swing_db}'  (y/n) ")
     if ans == "yes" or ans == "y" or ans == "Y" or ans == "":
         save()
 
-cv2.destroyAllWindows()
-sys.exit(0)
+    cv2.destroyAllWindows()
+    sys.exit(0)

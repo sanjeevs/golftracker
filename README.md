@@ -9,7 +9,13 @@ The package provides various scripts to process a golf swing video and export th
 
 The package uses [Google Media Pipe Pose Landmark Detection] (https://mediapipe-studio.webapps.google.com/demo/pose_landmarker) for detecting the golfer. It then detects the club head in the video and the golf poses to detect the start and finish of the golf swing. This information in written out to a json file that can be analyzed by a separate packge ["GolfTrainer"](https://github.com/sanjeevs/golftrainer) for analysis.
 
-This is shown below ![Flowchart](docs/source/images/golftracker.png)
+> **CAUTION**
+> Media pipe requires python 3.9 to 3.12.  Check for more details at [MediaPipePythonInstall](https://ai.google.dev/edge/mediapipe/solutions/setup_python) <br>
+> This package uses 3.11 currently.
+
+This is shown below 
+
+![Flowchart](docs/source/images/golftracker.png)
 
 
 Some sample vides for down the line, right hand golfer is available on [GoogleDrive](https://drive.google.com/drive/folders/1TDUnGjP1wh1gZeN1EZdJOO4AeYuMLnkO?usp=sharing)

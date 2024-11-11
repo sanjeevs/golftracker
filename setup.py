@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name="golftracker",
-    version="2.0",
+    version="3.0",
     description="Use open cv to detect critical elements in a golf swing.",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -35,13 +35,13 @@ setup(
             'predict_posemodel=scripts.utils.predict_posemodel:main',
             'create_test_image=scripts.utils.create_test_image:main',
             'create_test_db=scripts.utils.create_test_db:main',
-            'tune_line_det=scripts.tune_line_det',
+            'tune_line_det=scripts.tune_line_det:main',
             'plot_swing_points=scripts.plot_swing_points:main'
         ]
     },
-    install_requires = ['opencv-contrib-python', 'protobuf==3.20.0', 'mediapipe==0.8.10', 
+    install_requires = ['opencv-contrib-python', 'protobuf', 'mediapipe', 
                         'numpy', 'scikit-learn', 'pandas'],
-    packages = ['golftracker'],
+    packages = find_packages(),
     extras_require = {
         "dev": [
             "pytest >= 3.7",
